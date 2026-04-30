@@ -1707,14 +1707,10 @@ function trig(id,lv){
 function renderMainDone(t,locked){
   // Mark as simplified so renderMain knows not to re-call this
   document.getElementById('ql-nn').dataset.simplified='1';
-  document.getElementById('ql-nn').innerHTML='';
 
   // Clear heavy UI elements
   document.getElementById('alert-zone').innerHTML='';
   document.getElementById('nb-zone').innerHTML='';
-  // V3: state badge + compact UI
-  // state-badge updated via _updateStatBlocks()
-  // V3: removed'';
   document.getElementById('boss-zone').innerHTML='';
   document.getElementById('narrative-text').textContent='';
   
@@ -1728,9 +1724,9 @@ function renderMainDone(t,locked){
     (fullDone?`<div class="abox as" style="text-align:center;font-size:13px;font-weight:600;margin-bottom:5px">&#10003; Toutes les quêtes ont été validées. Bravo et à demain !</div>`:``)
     +`<div class="abox ai" style="text-align:center;font-size:12px;font-weight:600">&#9876; ${cdTxt}</div>`;
 
-  // Keep secondary quests visible (still completable)
+  // Keep NN visible (read-only, showing completion state)
   const secs=t.secs||[];
-  document.getElementById('ql-nn').innerHTML='';
+  document.getElementById('ql-nn').innerHTML=t.nn.map(q=>buildQ(q,q.id)).join('');
   document.getElementById('ql-water').innerHTML=buildQ(t.water,'water0');
   document.getElementById('ql-sec').innerHTML=secs.length?secs.map(q=>buildQ(q,q.id)).join(''):`<div style="font-size:11px;color:#8a7e6a;padding:4px">Aucune quête secondaire.</div>`;
   document.querySelectorAll('.qcard').forEach(c=>c.classList.add('visible'));
