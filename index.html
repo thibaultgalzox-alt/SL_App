@@ -1205,7 +1205,9 @@ function xpV(tp,questMeta){
   // Apply state modifier (includes fatigue ×0.7, punishment ×1.1, flow ×1.15)
   v=Math.round(v*stateModifier());
   // Events - applied after state, independent of state
-  if(getTodayEvent()==='doubleXP')v=Math.round(v*2);
+  const todayEv=getTodayEvent();
+  if(todayEv==='doubleXP')v=Math.round(v*2);
+  else if(todayEv==='shadow')v=Math.round(v*1.3);
   // Hard Mode / Discipline Day quests: x4 XP boost
   if(questMeta&&(questMeta.hardMode||questMeta.discDay))v=Math.round(v*4);
   // Note: isMin() (fatigue) already handled by stateModifier() above - not applied twice
@@ -1416,8 +1418,8 @@ function genWeek(){
     events.push(ev);
     prevEv=ev;
   }
-  // V3: No events before day 7
-  for(let e=0;e<events.length;e++){if(ST.day+e<7)events[e]=null;}
+  // V3: No events before day 14
+  for(let e=0;e<events.length;e++){if(ST.day+e<14)events[e]=null;}
   // RECONSTRUCTION: force doubleXP every day, override events
   const reconActive=isReconstruction();
   if(reconActive){for(let e=0;e<events.length;e++)events[e]='doubleXP';}
@@ -1751,8 +1753,8 @@ function renderMainDone(t,locked){
   document.getElementById('dl-label').textContent='Deadline toutes quêtes';
   // V3: Rank projection
   const pz=document.getElementById('projection-zone');if(pz)pz.innerHTML='';
-  const nbz=document.getElementById('nb-zone');if(!ST.notifOk&&'Notification' in window&&Notification.permission!=='denied')nbz.innerHTML=`<div class="nb">&#128276; Active les rappels<button class="btn primary" style="padding:4px 10px;font-size:11px;white-space:nowrap;margin-left:auto" onclick="askNotif()">Activer</button></div>`;else nbz.innerHTML='';
-  document.getElementById('slbl').style.display='none';
+  const nbz=document.getElementById('nb-zone');if(nbz){if(!ST.notifOk&&'Notification' in window&&Notification.permission!=='denied')nbz.innerHTML=`<div class="nb">&#128276; Active les rappels<button class="btn primary" style="padding:4px 10px;font-size:11px;white-space:nowrap;margin-left:auto" onclick="askNotif()">Activer</button></div>`;else nbz.innerHTML='';}
+  const slbl=document.getElementById('slbl');if(slbl)slbl.style.display='none';
 }
 
 function _cd(){const now=new Date(),next=new Date();next.setDate(next.getDate()+1);next.setHours(0,0,0,0);const diff=next-now;return`${Math.floor(diff/3600000)}h${String(Math.floor((diff%3600000)/60000)).padStart(2,'0')}`;}
@@ -1766,7 +1768,8 @@ function _updateStatBlocks(){
   document.getElementById('s-streak').textContent=ST.streak;
   // Integrity block: show — before Rang D, value otherwise
   const curRk=getRank();const curRkIdx=RANKS.findIndex(r=>r.label===curRk.label);
-  const hasIntegrity=curRkIdx>=1; // Rang D and above
+  // Show integrity value if currently Rang D+ OR if ever reached Rang D (even after downgrade)
+  const hasIntegrity=curRkIdx>=1||ST.rankDowngraded;
   const intVal=hasIntegrity?(ST.integrity<=0?'0':ST.integrity):'—';
   document.getElementById('s-int').textContent=intVal;
   // Integrity block color
@@ -1801,7 +1804,7 @@ function _updateStatBlocks(){
       if(_dl.length>=3){const _rec=_dl.slice(-Math.min(14,_dl.length));let _xt=0;for(let _j=1;_j<_rec.length;_j++)_xt+=Math.max(0,(_rec[_j].xp||0)-(_rec[_j-1].xp||0));const _du=Math.max(1,_rec.length-1);const _cp=Math.round(_xt/_du);if(_cp>0&&_cp<200)_avgXP=_cp;}
       else if(ST.sr7&&ST.sr7.length>=3){const _s7=ST.sr7.slice(-14);const _rt=_s7.filter(x=>x===1).length/_s7.length;if(_rt>0)_avgXP=Math.round(_rt*18);}
       const _dn=_avgXP>0?Math.ceil(_needed/_avgXP):999;
-      if(_nextRk&&_needed>0&&_dn>0&&_dn<3000)_sb.innerHTML='<strong>'+_nextRk.label+'</strong> — dans ~<strong>'+_dn+'j</strong>';
+      if(_nextRk&&_needed>0&&_dn>0&&_dn<3000)_sb.innerHTML='<strong>'+_nextRk.label+'</strong> dans ~<strong>'+_dn+'j</strong>';
       else if(!_nextRk||_rk.label==='Rang Nation')_sb.textContent='Rang Nation - Sommet atteint';
       else _sb.textContent=_rk.label;
     }
