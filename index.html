@@ -923,7 +923,7 @@ async function saveState(state){
       tx.objectStore(DB_STORE).put(state,DB_KEY);
       tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error);
     });
-  }catch(e){try{localStorage.setItem('slv9',JSON.stringify(state));}catch(_){}}
+  }catch(e){try{localStorage.setItem('slv10',JSON.stringify(state));}catch(_){}}
 }
 async function loadState(){
   try{
@@ -934,7 +934,7 @@ async function loadState(){
     });
   }catch(e){
     // Fallback to localStorage
-    try{const r=localStorage.getItem('slv9');return r?JSON.parse(r):null;}catch(_){return null;}
+    try{const r=localStorage.getItem('slv10');return r?JSON.parse(r):null;}catch(_){return null;}
   }
 }
 // Sync save wrapper (called everywhere as save())
@@ -3372,10 +3372,10 @@ function finishOB(){
     if(saved)ST=Object.assign({},DEF,saved);
     // Also try localStorage migration if IndexedDB was empty
     if(!saved){
-      try{const r=localStorage.getItem('slv9');if(r){ST=Object.assign({},DEF,JSON.parse(r));saveState(ST);}}catch(_){}
+      try{const r=localStorage.getItem('slv10');if(r){ST=Object.assign({},DEF,JSON.parse(r));saveState(ST);}}catch(_){}
     }
   }catch(e){
-    try{const r=localStorage.getItem('slv9');if(r)ST=Object.assign({},DEF,JSON.parse(r));}catch(_){}
+    try{const r=localStorage.getItem('slv10');if(r)ST=Object.assign({},DEF,JSON.parse(r));}catch(_){}
   }
   if(!ST.onboarded){show('s-ob');buildOB();return;}
   // Init rank/title tracking to current state (avoid false triggers on load)
