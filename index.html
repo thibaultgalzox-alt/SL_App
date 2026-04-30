@@ -428,7 +428,7 @@ body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size
   .sanction-consequences{background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px 18px;margin-bottom:2rem;font-size:11px;color:rgba(255,220,220,.85);line-height:2;position:relative;z-index:1;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
   .btn-sanction{width:100%;background:rgba(0,0,0,.35);border:2px solid rgba(255,255,255,.25);border-radius:14px;color:rgba(255,255,255,.9);font-size:13px;font-weight:600;padding:16px;cursor:pointer;transition:all .2s;line-height:1.5;position:relative;z-index:1;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
   .btn-sanction:active{background:rgba(255,255,255,.1);transform:scale(.97)}
-  .btn-sanction-confirm{width:100%;background:#fff;border:none;border-radius:14px;color:#CC0000;font-size:14px;font-weight:800;padding:16px;cursor:pointer;margin-top:10px;position:relative;z-index:1;letter-spacing:.04em;box-shadow:0 4px 20px rgba(255,255,255,.3);text-transform:uppercase;line-height:1.5}
+  .btn-sanction-confirm{width:100%;background:#fff;border:none;border-radius:14px;color:#CC0000;font-size:14px;font-weight:800;padding:16px;cursor:pointer;margin-top:10px;position:relative;z-index:1;letter-spacing:.04em;box-shadow:0 4px 20px rgba(255,255,255,.3);line-height:1.5}
   .btn-sanction-confirm:active{opacity:.8;transform:scale(.97)}
   .btn-shake{animation:shake .5s ease-in-out}
   </style>
@@ -456,7 +456,7 @@ body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size
       </div>
     </div>
     <button class="btn-sanction-confirm" id="btn-sanction-step1" onclick="acceptSanction()">
-      Sanction effectuée.<br/>Je promets de faire de mon mieux pour ne plus rater une quête obligatoire.
+      SANCTION EFFECTUÉE.<br/><span style="font-size:12px;font-weight:600;letter-spacing:.01em">Je promets de faire de mon mieux pour ne plus rater une quête obligatoire.</span>
     </button>
   </div>
 </div>
@@ -3477,6 +3477,8 @@ function toggleTestMode(){
     // Unlock from ANY blocking state
     if(ST.waitingForTomorrow){ST.waitingForTomorrow=false;}
     if(ST.sanctionPending){ST.sanctionPending=false;}
+    // Reset reconstruction to avoid spurious trigger in test
+    ST.reconstructionDay=0;ST.reconstructionCooldown=0;ST.recentNNFails=[];
     if(ST.dayDone||ST.reviewDone){
       _testDateCounter++;ST.lastDate='test-'+(_testDateCounter-1);
       advDay();ST.lastDate=todayStr();
@@ -3496,6 +3498,9 @@ function toggleTestMode(){
     _updateTestInfo();
     toast('⚙ Mode Test activé');
   } else {
+    // Reset reconstruction when exiting test mode too
+    ST.reconstructionDay=0;ST.reconstructionCooldown=0;ST.recentNNFails=[];
+    ST.weekPlan=genWeek();
     ST._testDateCounterSaved=_testDateCounter;save();toast('Mode Test désactivé');
   }
 }
