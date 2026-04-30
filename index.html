@@ -1149,6 +1149,19 @@ function stateModifier(){
 function getMult(){return stateModifier();}
 function isMin(){return getGlobalState()==='fatigue';}
 function isRed(){return !isReconstruction()&&(ST.failStreak||0)>=5;}
+// Called after every integrity decrease — triggers rank downgrade if needed
+function _checkIntegrityDowngrade(){
+  if(ST.integrity>0)return;
+  if(ST.rankDowngraded)return; // already happened this episode
+  const curRk=getRank();const curIdx=RANKS.findIndex(r=>r.label===curRk.label);
+  if(curIdx<1||curRk.label==='Rang E')return; // only Rang D+
+  ST.rankDowngraded=true;ST.lastRankDowngradeDay=ST.day;
+  ST.xp=Math.max(0,RANKS[curIdx-1].min);
+  ST.integrity=0;
+  flash('red',1000);
+  toast('Intégrité à 0 - rang rétrogradé !');
+  if(typeof _updateStatBlocks==='function')_updateStatBlocks();
+}
 function noHard(){return getGlobalState()==='fatigue'||(ST.failStreak||0)>=4;}
 // Reconstruction mode: returns current recon day (1-4) or 0 if inactive
 function isReconstruction(){
@@ -1626,8 +1639,10 @@ function trig(id,lv){
       ST.questStatus[id]='fail';
       if(ST.day>14){
         ST.integrity=Math.max(0,ST.integrity-5);
+        _checkIntegrityDowngrade();
         ST.points=Math.max(0,ST.points-15);
         ST.integrity=Math.max(0,ST.integrity-5);
+        _checkIntegrityDowngrade();
       }
       const t2=getToday();if(t2){const q2=t2.nn.find(x=>x.id===id);if(q2){if(!ST.failByType)ST.failByType={body:0,mind:0,disc:0};ST.failByType[q2.type]=(ST.failByType[q2.type]||0)+1;
         if(q2.type==='disc')ST.weeklyBoss.discFail=(ST.weeklyBoss.discFail||0)+1;
@@ -1786,7 +1801,7 @@ function _updateStatBlocks(){
       if(_dl.length>=3){const _rec=_dl.slice(-Math.min(14,_dl.length));let _xt=0;for(let _j=1;_j<_rec.length;_j++)_xt+=Math.max(0,(_rec[_j].xp||0)-(_rec[_j-1].xp||0));const _du=Math.max(1,_rec.length-1);const _cp=Math.round(_xt/_du);if(_cp>0&&_cp<200)_avgXP=_cp;}
       else if(ST.sr7&&ST.sr7.length>=3){const _s7=ST.sr7.slice(-14);const _rt=_s7.filter(x=>x===1).length/_s7.length;if(_rt>0)_avgXP=Math.round(_rt*18);}
       const _dn=_avgXP>0?Math.ceil(_needed/_avgXP):999;
-      if(_nextRk&&_needed>0&&_dn>0&&_dn<3000)_sb.innerHTML='<strong>'+_nextRk.label+'</strong> dans ~<strong>'+_dn+'j</strong>';
+      if(_nextRk&&_needed>0&&_dn>0&&_dn<3000)_sb.innerHTML='<strong>'+_nextRk.label+'</strong> — dans ~<strong>'+_dn+'j</strong>';
       else if(!_nextRk||_rk.label==='Rang Nation')_sb.textContent='Rang Nation - Sommet atteint';
       else _sb.textContent=_rk.label;
     }
@@ -2178,6 +2193,7 @@ function submitReview(){
     if(!ST.questStatus[q.id]){
       ST.questStatus[q.id]='fail';
       ST.integrity=Math.max(0,ST.integrity-5);
+      _checkIntegrityDowngrade();
       ST.points=Math.max(0,ST.points-15);
       if(!ST.failByType)ST.failByType={body:0,mind:0,disc:0};
       ST.failByType[q.type]=(ST.failByType[q.type]||0)+1;
@@ -2230,23 +2246,13 @@ function submitReview(){
     // Debt reduction: -15 if all quests done (perfect day), -8 if only NN done
     if(getRank().label!==rb){SND.rankUp();flash('purple',800);toast('Rang supérieur - '+getRank().label+' !');}
     if(ST.resistedToday===false)ST.integrity=Math.max(0,ST.integrity-5);
+    _checkIntegrityDowngrade();
     showDone();save();
   } else {
     ST.failStreak=(ST.failStreak||0)+1;const fs=Math.min(ST.failStreak,7);ST.failStreak=fs;
     if(fs>=3){const prev=ST.streak;ST.streak=0;if(prev>0)toast(`Série réinitialisée après ${prev} jours`);}
     else{ST.streak=Math.max(0,ST.streak-1);}
-    // Integrity=0 → downgrade one rank (Rang D+ only, once per episode)
-    if(ST.integrity<=0&&!ST.rankDowngraded){
-      const curRk=getRank();const curIdx=RANKS.findIndex(r=>r.label===curRk.label);
-      if(curIdx>=1&&curRk.label!=='Rang E'){
-        ST.rankDowngraded=true;ST.lastRankDowngradeDay=ST.day;
-        ST.xp=Math.max(0,RANKS[curIdx-1].min);
-        ST.integrity=0;
-        flash('red',1000);
-        toast('Intégrité à 0 - rang rétrogradé !');
-      }
-    }
-    if(ST.resistedToday===false)ST.integrity=Math.max(0,ST.integrity-5);
+    if(ST.resistedToday===false){ST.integrity=Math.max(0,ST.integrity-5);_checkIntegrityDowngrade();}
     // Sanction logic: any fail triggers sanction screen (after day 15)
     if(failed.length>=1){
       if(ST.day<15){
@@ -2438,6 +2444,7 @@ function returnSkip(){
       ST.failByType[q.type]=(ST.failByType[q.type]||0)+1;
       if(q.type==='disc')ST.weeklyBoss.discFail=(ST.weeklyBoss.discFail||0)+1;
       ST.integrity=Math.max(0,ST.integrity-5);
+      _checkIntegrityDowngrade();
     });
     ST.sr7.push(0);if(ST.sr7.length>7)ST.sr7=ST.sr7.slice(-7);
     const fd=new Date();fd.setDate(fd.getDate()-(absence-i));
@@ -2489,6 +2496,7 @@ function advDay(){
         ST.failByType[q.type]=(ST.failByType[q.type]||0)+1;
         if(ST.day>14){
           ST.integrity=Math.max(0,ST.integrity-5);
+          _checkIntegrityDowngrade();
         }
         if(q.type==='disc')ST.weeklyBoss.discFail=(ST.weeklyBoss.discFail||0)+1;
       }
@@ -3411,6 +3419,7 @@ setInterval(()=>{
         if(!ST.questStatus[q.id]){
           ST.questStatus[q.id]='fail';
           ST.integrity=Math.max(0,ST.integrity-5);
+          _checkIntegrityDowngrade();
           if(!ST.failByType)ST.failByType={body:0,mind:0,disc:0};
           ST.failByType[q.type]=(ST.failByType[q.type]||0)+1;
           if(q.type==='disc')ST.weeklyBoss.discFail=(ST.weeklyBoss.discFail||0)+1;
@@ -3519,6 +3528,7 @@ function testSkipDay(){
       if(!ST.questStatus[q.id]){
         ST.questStatus[q.id]='fail';
         ST.integrity=Math.max(0,ST.integrity-5);
+        _checkIntegrityDowngrade();
         if(!ST.failByType)ST.failByType={body:0,mind:0,disc:0};
         ST.failByType[q.type]=(ST.failByType[q.type]||0)+1;
       }
@@ -3575,7 +3585,7 @@ function _testAutoOneDay(){
     } else {
       ST.questStatus[q.id]='fail';
       if(!ST.questLog)ST.questLog={};var _qkf=q.type||q.id.replace(/[0-9]+$/,'');var _qnamesf={body:'Body (Salle/Sport)',mind:'Mind (Étude/Lecture)',disc:'Discipline',water:'Hydratation',se:'Secondaire Facile',sm:'Secondaire Moyen',sh:'Secondaire Dur'};if(!ST.questLog[_qkf])ST.questLog[_qkf]={name:_qnamesf[_qkf]||(q.name||'').split(':')[0].trim().substring(0,20),gen:0,ok:0};ST.questLog[_qkf].gen++;
-      if(isNN){ST.integrity=Math.max(0,ST.integrity-5);if(!ST.failByType)ST.failByType={body:0,mind:0,disc:0};ST.failByType[q.type]=(ST.failByType[q.type]||0)+1;if(q.type==='disc')ST.weeklyBoss.discFail=(ST.weeklyBoss.discFail||0)+1;}
+      if(isNN){ST.integrity=Math.max(0,ST.integrity-5);_checkIntegrityDowngrade();if(!ST.failByType)ST.failByType={body:0,mind:0,disc:0};ST.failByType[q.type]=(ST.failByType[q.type]||0)+1;if(q.type==='disc')ST.weeklyBoss.discFail=(ST.weeklyBoss.discFail||0)+1;}
     }
   });
   var failed=t.nn.filter(function(q){return ST.questStatus[q.id]==='fail';});var ok=failed.length===0;
