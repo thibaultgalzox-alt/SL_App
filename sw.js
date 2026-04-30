@@ -1,4 +1,4 @@
-const CACHE = 'sl-2026-v3';
+const CACHE = 'sl-2026-v4';
 const CORE_ASSETS = ['/SL_App/', '/SL_App/index.html', '/SL_App/manifest.json', '/SL_App/icons/icon-192.png', '/SL_App/icons/icon-512.png'];
 
 // Sanction lock state — persisted across SW restarts via IDB

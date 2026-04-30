@@ -1643,14 +1643,13 @@ function trig(id,lv){
         ST.integrity=Math.max(0,ST.integrity-5);
         _checkIntegrityDowngrade();
         ST.points=Math.max(0,ST.points-15);
-        ST.integrity=Math.max(0,ST.integrity-5);
-        _checkIntegrityDowngrade();
       }
       const t2=getToday();if(t2){const q2=t2.nn.find(x=>x.id===id);if(q2){if(!ST.failByType)ST.failByType={body:0,mind:0,disc:0};ST.failByType[q2.type]=(ST.failByType[q2.type]||0)+1;
         if(q2.type==='disc')ST.weeklyBoss.discFail=(ST.weeklyBoss.discFail||0)+1;
       }}
       SND.fail();flash('red',500);vib([200,100,200]);
-      save();renderMain();scheduleNotif();
+      save();scheduleNotif();
+      setTimeout(function(){renderMain();},350);
       if(ST.day<=14){
         var earlyFails=(ST.failByType?Object.values(ST.failByType).reduce(function(a,b){return a+b;},0):0);
         if(earlyFails>=10){
@@ -1661,7 +1660,7 @@ function trig(id,lv){
     } else {
       ST.questStatus[id]='fail';
       flash('grey',300);
-      save();renderMain();toast('Skippée.');
+      save();toast('Skippée.');setTimeout(function(){renderMain();},350);
     }
     return;
   }
@@ -1703,7 +1702,7 @@ function trig(id,lv){
   save();scheduleNotif();
   const rb=getRank().label;
   if(getRank().label!==rb){SND.rankUp();flash('purple',800);showRankUp(getRank());}
-  renderMain();
+  setTimeout(function(){renderMain();},350);
 }
 
 function renderMainDone(t,locked){
@@ -1880,13 +1879,15 @@ function renderMain(){
   const t=getToday();if(!t)return;const locked=!isOpen();
   
   // ═══ MICRO CHECK-IN MATINAL - shown as card, quests still accessible ═══
-  // Inject into a dedicated zone, don't block quest rendering
+  // ═══ MICRO CHECK-IN MATINAL ═══
   var _czCheck=document.getElementById('morning-checkin-zone');
   if(_czCheck){
-    if(!ST.morningCheckDone&&!locked&&!ST.dayDone){
+    if(!ST.morningCheckDone&&!locked&&!ST.dayDone&&!allFullDone()){
       if(!_czCheck.innerHTML){
+        var _wrap=document.getElementById('boss-checkin-wrap');
+        if(_wrap&&_wrap.offsetHeight<80)_wrap.style.minHeight='80px';
         ST._morningCheckShownAt=Date.now();
-        _czCheck.innerHTML='<div id="morning-checkin" style="background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--shadow-md);border-left:4px solid var(--accent);height:100%;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;gap:10px">'
+        _czCheck.innerHTML='<div id="morning-checkin" style="background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--shadow-md);border-left:4px solid var(--accent);min-height:80px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;gap:10px">'
           +'<div style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--accent);text-align:center">Comment tu te sens aujourd\'hui ?</div>'
           +'<div style="display:flex;gap:6px">'
           +'<button class="btn" style="flex:1;font-size:11px;padding:9px 3px;font-weight:600;touch-action:manipulation;background:var(--green-bg);border:1.5px solid var(--green);color:var(--green);box-shadow:none" onclick="morningCheck(\'good\',this)">😊 Bien</button>'
@@ -1894,13 +1895,14 @@ function renderMain(){
           +'<button class="btn" style="flex:1;font-size:11px;padding:9px 3px;font-weight:600;touch-action:manipulation;background:var(--red-bg);border:1.5px solid var(--red);color:var(--red);box-shadow:none" onclick="morningCheck(\'bad\',this)">😔 Pas bien</button>'
           +'</div></div>';
       } else {
-        // Auto-dismiss after 30 min of no response
         if(ST._morningCheckShownAt&&(Date.now()-ST._morningCheckShownAt)>1800000){
           ST.morningCheckDone=true;_czCheck.innerHTML='';save();
         }
       }
     } else {
       _czCheck.innerHTML='';
+      var _wrap2=document.getElementById('boss-checkin-wrap');
+      if(_wrap2)_wrap2.style.minHeight='';
     }
   }
 
