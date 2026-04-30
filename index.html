@@ -45,8 +45,7 @@ body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size
 .sc{background:var(--card);border-radius:var(--r-sm);padding:10px 4px;text-align:center;box-shadow:var(--shadow);border:1px solid rgba(0,0,0,.03)}
 .sc.int-warn{background:var(--gold-bg);border-color:rgba(196,144,48,.25)}
 .sc.int-crit{background:var(--red-bg);border-color:rgba(184,45,45,.25);animation:int-blink 1.8s ease-in-out infinite}
-.sc.int-zero{background:#B82D2D;border-color:#8B0000;animation:int-blink-fast 0.6s ease-in-out infinite}
-.sc.int-zero .v,.sc.int-zero .l{color:#fff}
+.sc.int-crit.int-zero-fixed{animation:none;background:var(--red-bg)}
 @keyframes int-blink{0%,100%{background:var(--red-bg)}50%{background:#f9c9c9}}
 @keyframes int-blink-fast{0%,100%{background:#B82D2D}50%{background:#e74c3c}}
 .sc .v{font-size:17px;font-weight:700;color:var(--ink)}
@@ -907,7 +906,7 @@ const ID_T=[
 ];
 const SP={body:["Pompes : {n} reps avant 10h","Squats : {n} reps avant 10h","Planche : {n}s avant 10h","Course : {n} km avant 10h"],mind:["Révision : {n} min avant 10h","Lire {n} pages avant 10h","Voltaire : {n} min avant 10h"],disc:["Journal rechute + {n} pompes maintenant","Mode avion jusqu'à 10h demain"]};
 
-const DEF={onboarded:false,waitingForTomorrow:false,answers:{},multiAnswers:{},obQ:0,day:1,week:1,xp:0,points:0,streak:0,bestStreak:0,integrity:100,weekPlan:null,questStatus:{},gymW:0,runW:0,lastBody:[],lastMind:[],lastDisc:[],lastSE:[],lastSM:[],lastSH:[],customR:[],totalBody:0,totalMind:0,totalDisc:0,sr7:[],bilans:[],dayDone:false,lastDate:null,notifOk:false,failStreak:0,sanctionPending:false,sanctionText:'',sanctionCtx:'',sanctionMult:'1.5',sanctionConfirmedAt:null,totalSanctions:0,sanctionsCompleted:0,hadFailYesterday:false,fatigueScore:3,todayEvent:null,rankDowngrade:false,lastRankDowngradeDay:0,disciplineDebt:0,lockRewards:false,weeklyBoss:{body:0,mind:0,discFail:0},bossWins:0,failByType:{body:0,mind:0,disc:0},successByType:{body:0,mind:0,disc:0},weekTruthDone:false,reviewDone:false,equippedTitle:null,unlockedTitles:[],lastApartmentDay:-99,dayLog:[],validationHours:[],questLog:{},lastBodyType:[],sanctionStartedAt:null,absenceDays:0,returnOfferShown:false,reconstructionDay:0,reconstructionCooldown:0,recentNNFails:[]};
+const DEF={onboarded:false,waitingForTomorrow:false,answers:{},multiAnswers:{},obQ:0,day:1,week:1,xp:0,points:0,streak:0,bestStreak:0,integrity:100,weekPlan:null,questStatus:{},gymW:0,runW:0,lastBody:[],lastMind:[],lastDisc:[],lastSE:[],lastSM:[],lastSH:[],customR:[],totalBody:0,totalMind:0,totalDisc:0,sr7:[],bilans:[],dayDone:false,lastDate:null,notifOk:false,failStreak:0,sanctionPending:false,sanctionText:'',sanctionCtx:'',sanctionMult:'1.5',sanctionConfirmedAt:null,totalSanctions:0,sanctionsCompleted:0,hadFailYesterday:false,fatigueScore:3,todayEvent:null,rankDowngrade:false,rankDowngraded:false,lastRankDowngradeDay:0,disciplineDebt:0,lockRewards:false,weeklyBoss:{body:0,mind:0,discFail:0},bossWins:0,failByType:{body:0,mind:0,disc:0},successByType:{body:0,mind:0,disc:0},weekTruthDone:false,reviewDone:false,equippedTitle:null,unlockedTitles:[],lastApartmentDay:-99,dayLog:[],validationHours:[],questLog:{},lastBodyType:[],sanctionStartedAt:null,absenceDays:0,returnOfferShown:false,reconstructionDay:0,reconstructionCooldown:0,recentNNFails:[]};
 // ─── IndexedDB storage (fallback to localStorage) ────────────────────────
 const DB_NAME='solo_leveling_db_v2',DB_STORE='app_state',DB_KEY='main';
 let _db=null;
@@ -1075,7 +1074,7 @@ const SND=(function(){
 function vib(p){if(navigator.vibrate)navigator.vibrate(p);}
 function flash(c,d=400){const f=document.getElementById('flash');f.className='flash '+c+' show';setTimeout(()=>f.className='flash',d);}
 function setNar(type){const pool=NAR[type]||[];const el=document.getElementById('narrative-text');if(!el||!pool.length)return;el.style.opacity='0';setTimeout(()=>{el.textContent=pick(pool);el.style.opacity='1';},200);}
-function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show';setTimeout(()=>t.className='toast',4000);}
+function toast(msg,dur){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show';setTimeout(()=>t.className='toast',dur||4000);}
 function getRank(){for(let i=RANKS.length-1;i>=0;i--)if(ST.xp>=RANKS[i].min)return RANKS[i];return RANKS[0];}
 function getWk(){return Math.floor((ST.day-1)/7)+1;}
 var _testDateCounter=0;
@@ -1628,7 +1627,7 @@ function trig(id,lv){
       if(ST.day>14){
         ST.integrity=Math.max(0,ST.integrity-5);
         ST.points=Math.max(0,ST.points-15);
-        ST.disciplineDebt=Math.min(200,(ST.disciplineDebt||0)+15);
+        ST.integrity=Math.max(0,ST.integrity-5);
       }
       const t2=getToday();if(t2){const q2=t2.nn.find(x=>x.id===id);if(q2){if(!ST.failByType)ST.failByType={body:0,mind:0,disc:0};ST.failByType[q2.type]=(ST.failByType[q2.type]||0)+1;
         if(q2.type==='disc')ST.weeklyBoss.discFail=(ST.weeklyBoss.discFail||0)+1;
@@ -1750,31 +1749,47 @@ function _updateStatBlocks(){
   document.getElementById('s-day').textContent=ST.day;
   document.getElementById('s-week').textContent='S'+getWk();
   document.getElementById('s-streak').textContent=ST.streak;
-  const intVal=ST.day>=14?ST.integrity:'—';
+  // Integrity block: show — before Rang D, value otherwise
+  const curRk=getRank();const curRkIdx=RANKS.findIndex(r=>r.label===curRk.label);
+  const hasIntegrity=curRkIdx>=1; // Rang D and above
+  const intVal=hasIntegrity?(ST.integrity<=0?'0':ST.integrity):'—';
   document.getElementById('s-int').textContent=intVal;
   // Integrity block color
   const scInt=document.getElementById('sc-int');
-  if(scInt&&ST.day>=14){
-    const iv=ST.integrity||100;
+  if(scInt){
     scInt.classList.remove('int-warn','int-crit','int-zero');
-    if(iv<=0)scInt.classList.add('int-zero');
-    else if(iv<30)scInt.classList.add('int-crit');
-    else if(iv<60)scInt.classList.add('int-warn');
+    if(hasIntegrity){
+      const iv=ST.integrity||0;
+      scInt.classList.remove('int-zero-fixed');
+      if(iv<=0){scInt.classList.add('int-crit','int-zero-fixed');} // red fixed, no blink
+      else if(iv<30)scInt.classList.add('int-crit');
+      else if(iv<60)scInt.classList.add('int-warn');
+    }
   }
-  // State badge: current rank → next rank in ~X days
+  // State badge: rétrogradation warning OR next rank projection
   var _sb=document.getElementById('state-badge');
   if(_sb){
-    const _rk=getRank();
-    const _rkIdx=RANKS.findIndex(r=>r.label===_rk.label);
-    const _nextRk=_rkIdx<RANKS.length-1?RANKS[_rkIdx+1]:null;
-    const _needed=_rk.next-ST.xp;
-    var _avgXP=10;const _dl=ST.dayLog||[];
-    if(_dl.length>=3){const _rec=_dl.slice(-Math.min(14,_dl.length));let _xt=0;for(let _j=1;_j<_rec.length;_j++)_xt+=Math.max(0,(_rec[_j].xp||0)-(_rec[_j-1].xp||0));const _du=Math.max(1,_rec.length-1);const _cp=Math.round(_xt/_du);if(_cp>0&&_cp<200)_avgXP=_cp;}
-    else if(ST.sr7&&ST.sr7.length>=3){const _s7=ST.sr7.slice(-14);const _rt=_s7.filter(x=>x===1).length/_s7.length;if(_rt>0)_avgXP=Math.round(_rt*18);}
-    const _dn=_avgXP>0?Math.ceil(_needed/_avgXP):999;
-    if(_nextRk&&_needed>0&&_dn>0&&_dn<3000)_sb.innerHTML=_rk.label+' → <strong>'+_nextRk.label+'</strong> dans ~<strong>'+_dn+'j</strong>';
-    else if(!_nextRk||_rk.label==='Rang Nation')_sb.textContent='Rang Nation - Sommet atteint';
-    else _sb.textContent=_rk.label;
+    if(ST.rankDowngraded&&ST.integrity<=0){
+      // Show rétrogradation message with red fill
+      _sb.innerHTML='⚠ <strong>Rétrogradation de rang !</strong>';
+      _sb.style.background='var(--red-bg)';
+      _sb.style.borderColor='rgba(184,45,45,.25)';
+      _sb.style.color='var(--red,#c0392b)';
+    } else {
+      // Reset style and show normal projection
+      _sb.style.background='';_sb.style.borderColor='';_sb.style.color='';
+      const _rk=getRank();
+      const _rkIdx=RANKS.findIndex(r=>r.label===_rk.label);
+      const _nextRk=_rkIdx<RANKS.length-1?RANKS[_rkIdx+1]:null;
+      const _needed=_rk.next-ST.xp;
+      var _avgXP=10;const _dl=ST.dayLog||[];
+      if(_dl.length>=3){const _rec=_dl.slice(-Math.min(14,_dl.length));let _xt=0;for(let _j=1;_j<_rec.length;_j++)_xt+=Math.max(0,(_rec[_j].xp||0)-(_rec[_j-1].xp||0));const _du=Math.max(1,_rec.length-1);const _cp=Math.round(_xt/_du);if(_cp>0&&_cp<200)_avgXP=_cp;}
+      else if(ST.sr7&&ST.sr7.length>=3){const _s7=ST.sr7.slice(-14);const _rt=_s7.filter(x=>x===1).length/_s7.length;if(_rt>0)_avgXP=Math.round(_rt*18);}
+      const _dn=_avgXP>0?Math.ceil(_needed/_avgXP):999;
+      if(_nextRk&&_needed>0&&_dn>0&&_dn<3000)_sb.innerHTML='<strong>'+_nextRk.label+'</strong> dans ~<strong>'+_dn+'j</strong>';
+      else if(!_nextRk||_rk.label==='Rang Nation')_sb.textContent='Rang Nation - Sommet atteint';
+      else _sb.textContent=_rk.label;
+    }
   }
 }
 function _updateHeader(t){
@@ -1793,13 +1808,16 @@ function morningCheck(mood,btn){
   if(ST.moodLog.length>200)ST.moodLog=ST.moodLog.slice(-200);
   if(mood==='bad'&&ST.fatigueScore>1)ST.fatigueScore=Math.max(1,ST.fatigueScore-1);
   if(mood==='good'&&ST.fatigueScore<4)ST.fatigueScore=Math.min(4,ST.fatigueScore+1);
-  // Grey flash on the clicked button only - no full-screen flash
   if(btn){var _b=btn;_b.style.background='#b8b8b8';_b.style.transform='scale(.95)';setTimeout(function(){_b.style.background='';_b.style.transform='';},280);}
   SND.checkin();
-  var el=document.getElementById('morning-checkin-zone');if(el)el.innerHTML='';
-  save();renderMain();
-  var msgs={good:'Bonne journée à toi.',ok:'Donne ce que tu peux - c\'est déjà beaucoup.',bad:'Courage. Fais juste un pas aujourd\'hui.'};
-  toast(msgs[mood]||'C\'est noté.');
+  var msgs={good:'Super ! Bonne journée à toi !',ok:'Allez, ça va bien se passer !',bad:'Courage, fais ce que tu peux :)'};
+  var msg=msgs[mood]||'C\'est noté.';
+  var el=document.getElementById('morning-checkin-zone');
+  if(el){
+    el.innerHTML='<div style="background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--shadow-md);border-left:4px solid var(--accent);height:100%;box-sizing:border-box;display:flex;align-items:center;justify-content:center;text-align:center;font-size:13px;font-weight:600;color:var(--ink)">'+msg+'</div>';
+    setTimeout(function(){if(el)el.innerHTML='';renderMain();},2500);
+  }
+  save();
 }
 
 // ═══ REFLECTIVE QUESTIONS (J66+, every 14 days) ═══
@@ -1851,7 +1869,7 @@ function renderMain(){
       if(!_czCheck.innerHTML){
         ST._morningCheckShownAt=Date.now();
         _czCheck.innerHTML='<div id="morning-checkin" style="background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--shadow-md);border-left:4px solid var(--accent);height:100%;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;gap:10px">'
-          +'<div style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--accent)">Comment tu te sens aujourd\'hui ?</div>'
+          +'<div style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--accent);text-align:center">Comment tu te sens aujourd\'hui ?</div>'
           +'<div style="display:flex;gap:6px">'
           +'<button class="btn" style="flex:1;font-size:11px;padding:9px 3px;font-weight:600;touch-action:manipulation;background:var(--green-bg);border:1.5px solid var(--green);color:var(--green);box-shadow:none" onclick="morningCheck(\'good\',this)">😊 Bien</button>'
           +'<button class="btn" style="flex:1;font-size:11px;padding:9px 3px;font-weight:600;touch-action:manipulation;background:var(--gold-bg);border:1.5px solid var(--gold);color:var(--gold);box-shadow:none" onclick="morningCheck(\'ok\',this)">😐 Moyen</button>'
@@ -1951,7 +1969,9 @@ function renderMain(){
     // Adaptive difficulty - silent in UI (kept in code for adjustments)
     // if(fs>=3) ... easyDay ... → invisible to user, system adjusts silently
     if(ST.sanctionPending&&ST.day>=15)msgs.push({c:'ad',m:'&#9888; Sanction non accomplie - pénalité doublée au prochain fail.'});
-    const f=t.nn.filter(q=>ST.questStatus[q.id]==='fail');if(f.length&&ST.day>=15)msgs.push({c:'ad',m:`${f.length} quête`+(f.length>1?'s':'')+` en Fail - correction imposée demain avant 10h.`});
+    const f=t.nn.filter(q=>ST.questStatus[q.id]==='fail');
+    const sanctionDoneToday=ST.sanctionConfirmedAt&&(Date.now()-ST.sanctionConfirmedAt<86400000);
+    if(f.length&&ST.day>=15&&!sanctionDoneToday)msgs.push({c:'ad',m:`${f.length} quête`+(f.length>1?'s':'')+` en Fail - correction imposée demain avant 10h.`});
     // (integrity status shown via bloc 4 color)
     // integrity status shown via bloc 4 color only
     // NN done banner - only shown when 3 NN validated but not all quests done yet
@@ -2114,7 +2134,7 @@ function openReview(){
       btn.classList.add('btn-shake');
       setTimeout(()=>btn.classList.remove('btn-shake'),600);
       SND.fail();flash('red',400);vib([200,100,200]);
-      toast('Avant le bilan, traite toutes les quêtes !');
+      toast('Avant le bilan, traite toutes les quêtes !', 5000);
       return;
     }
   }
@@ -2159,7 +2179,6 @@ function submitReview(){
       ST.questStatus[q.id]='fail';
       ST.integrity=Math.max(0,ST.integrity-5);
       ST.points=Math.max(0,ST.points-15);
-      ST.disciplineDebt=Math.min(200,(ST.disciplineDebt||0)+15);
       if(!ST.failByType)ST.failByType={body:0,mind:0,disc:0};
       ST.failByType[q.type]=(ST.failByType[q.type]||0)+1;
       if(q.type==='disc')ST.weeklyBoss.discFail=(ST.weeklyBoss.discFail||0)+1;
@@ -2203,12 +2222,12 @@ function submitReview(){
     if(ST.streak>=2&&(ST.fatigueScore||3)<=1)ST.fatigueScore=2;
     // Reset rankDowngrade flag once integrity recovers above 60
     if(ST.integrity>=60)ST.rankDowngrade=false;
+    // Reset rankDowngraded once integrity is above 0
+    if(ST.integrity>0)ST.rankDowngraded=false;
     // Integrity recovery: +7 if perfect day, +3 if just NN done
     const intRecov=allFullDone()?7:3;
     ST.integrity=Math.min(100,ST.integrity+intRecov);
     // Debt reduction: -15 if all quests done (perfect day), -8 if only NN done
-    const debtReduc=allFullDone()?25:15;
-    ST.disciplineDebt=Math.max(0,(ST.disciplineDebt||0)-debtReduc);
     if(getRank().label!==rb){SND.rankUp();flash('purple',800);toast('Rang supérieur - '+getRank().label+' !');}
     if(ST.resistedToday===false)ST.integrity=Math.max(0,ST.integrity-5);
     showDone();save();
@@ -2216,26 +2235,31 @@ function submitReview(){
     ST.failStreak=(ST.failStreak||0)+1;const fs=Math.min(ST.failStreak,7);ST.failStreak=fs;
     if(fs>=3){const prev=ST.streak;ST.streak=0;if(prev>0)toast(`Série réinitialisée après ${prev} jours`);}
     else{ST.streak=Math.max(0,ST.streak-1);}
-    if(ST.integrity<30&&!ST.rankDowngrade&&(ST.day-(ST.lastRankDowngradeDay||0))>=30){
-      ST.rankDowngrade=true;ST.lastRankDowngradeDay=ST.day;
-      const ri=RANKS.findIndex(r=>r.label===getRank().label);
-      if(ri>0){ST.xp=Math.max(0,RANKS[ri-1].min);toast('Intégrité critique - rang rétrogradé !');}
+    // Integrity=0 → downgrade one rank (Rang D+ only, once per episode)
+    if(ST.integrity<=0&&!ST.rankDowngraded){
+      const curRk=getRank();const curIdx=RANKS.findIndex(r=>r.label===curRk.label);
+      if(curIdx>=1&&curRk.label!=='Rang E'){
+        ST.rankDowngraded=true;ST.lastRankDowngradeDay=ST.day;
+        ST.xp=Math.max(0,RANKS[curIdx-1].min);
+        ST.integrity=0;
+        flash('red',1000);
+        toast('Intégrité à 0 - rang rétrogradé !');
+      }
     }
-    ST.lockRewards=(ST.failStreak||0)>=3;
     if(ST.resistedToday===false)ST.integrity=Math.max(0,ST.integrity-5);
     // Sanction logic: any fail triggers sanction screen (after day 15)
     if(failed.length>=1){
       if(ST.day<15){
         // Before day 15: just debt, no screen
-        ST.disciplineDebt=Math.min(200,(ST.disciplineDebt||0)+5*failed.length);
         toast(failed.length+' quête'+(failed.length>1?'s':'')+' ratée'+(failed.length>1?'s':'')+' - le système s\'en souviendra.');
         showDone();save();
-      } else if(ST.sanctionPending){
-        // Sanction already pending - extra debt
-        ST.disciplineDebt=Math.min(200,(ST.disciplineDebt||0)+20);
+      } else if(ST.sanctionPending&&ST.lastDate===todayStr()){
+        // Sanction already pending for TODAY - extra debt
         toast('Sanction déjà active - dette augmentée.');
         showDone();save();
       } else {
+        // Clear any stale sanction from a previous day before building new one
+        ST.sanctionPending=false;
         buildSanction(failed);save();show('s-sanction');
       }
     } else {
@@ -2296,7 +2320,6 @@ function buildSanction(failed){
   ST.sanctionMult=mult.toFixed(1);
   ST.sanctionPending=true;
   ST.totalSanctions=(ST.totalSanctions||0)+1;
-  ST.disciplineDebt=Math.min(200,(ST.disciplineDebt||0)+Math.round(8*mult));
   // Init absence tracking - starts at 1 at the moment sanction fires
   if(!ST.sanctionStartedAt){ST.sanctionStartedAt=Date.now();ST.absenceDays=1;}
   // Engage SW lock
@@ -2395,7 +2418,7 @@ function returnPay(){
   // Absence days don't count - just advance ST.day silently, no stats, no boss, no fails
   ST.day+=absence;
   // Regenerate week plan if needed
-  if(getWk()>ST.week){ST.week=getWk();ST.weekPlan=genWeek();ST.weeklyBoss={body:0,mind:0,discFail:0};ST.weekTruthDone=false;ST.lockRewards=false;ST._bossShownThisWeek=false;ST.weeklyPartialCount=0;}
+  if(getWk()>ST.week){ST.week=getWk();ST.weekPlan=genWeek();ST.weeklyBoss={body:0,mind:0,discFail:0};ST.weekTruthDone=false;ST._bossShownThisWeek=false;ST.weeklyPartialCount=0;}
   else{ST.weekPlan=genWeek();}
   ST.questStatus={};ST.dayDone=false;ST.reviewDone=false;ST.morningCheckDone=false;ST.todayMood=null;
   ST.absenceDays=0;ST.sanctionStartedAt=null;ST.returnOfferShown=false;
@@ -2415,7 +2438,6 @@ function returnSkip(){
       ST.failByType[q.type]=(ST.failByType[q.type]||0)+1;
       if(q.type==='disc')ST.weeklyBoss.discFail=(ST.weeklyBoss.discFail||0)+1;
       ST.integrity=Math.max(0,ST.integrity-5);
-      ST.disciplineDebt=Math.min(200,(ST.disciplineDebt||0)+15);
     });
     ST.sr7.push(0);if(ST.sr7.length>7)ST.sr7=ST.sr7.slice(-7);
     const fd=new Date();fd.setDate(fd.getDate()-(absence-i));
@@ -2424,7 +2446,7 @@ function returnSkip(){
     ST.failStreak=(ST.failStreak||0)+1;
     ST.streak=0;
     ST.day++;
-    if(getWk()>ST.week){ST.week=getWk();ST.weekPlan=genWeek();ST.weeklyBoss={body:0,mind:0,discFail:0};ST.weekTruthDone=false;ST.lockRewards=false;ST._bossShownThisWeek=false;ST.weeklyPartialCount=0;}
+    if(getWk()>ST.week){ST.week=getWk();ST.weekPlan=genWeek();ST.weeklyBoss={body:0,mind:0,discFail:0};ST.weekTruthDone=false;ST._bossShownThisWeek=false;ST.weeklyPartialCount=0;}
   }
   if(!ST.weekPlan||!ST.weekPlan.length)ST.weekPlan=genWeek();
   ST.questStatus={};ST.dayDone=false;ST.reviewDone=false;ST.morningCheckDone=false;ST.todayMood=null;
@@ -2451,6 +2473,10 @@ function advDay(){
   if(ST.sanctionPending&&nowH()>=10){
     return;
   }
+  // Clear stale sanction state from previous days
+  if(ST.sanctionPending&&ST.lastDate&&ST.lastDate!==todayStr()){
+    ST.sanctionPending=false;ST.sanctionText='';ST.sanctionStartedAt=null;ST.absenceDays=0;
+  }
   const t=getToday();
   if(t){
     // Auto-fail un-interacted NN quests, auto-skip water/secondaries
@@ -2463,7 +2489,6 @@ function advDay(){
         ST.failByType[q.type]=(ST.failByType[q.type]||0)+1;
         if(ST.day>14){
           ST.integrity=Math.max(0,ST.integrity-5);
-          ST.disciplineDebt=Math.min(200,(ST.disciplineDebt||0)+15);
         }
         if(q.type==='disc')ST.weeklyBoss.discFail=(ST.weeklyBoss.discFail||0)+1;
       }
@@ -2487,7 +2512,6 @@ function advDay(){
     ST.recentNNFails.push(dayNNFails);
     if(ST.recentNNFails.length>7)ST.recentNNFails=ST.recentNNFails.slice(-7);
     if(!hadFail){
-      if((ST.disciplineDebt||0)>0)ST.disciplineDebt=Math.max(0,(ST.disciplineDebt||0)-15);
       if((ST.fatigueScore||3)<3)ST.fatigueScore=Math.min(3,(ST.fatigueScore||3)+1);
       ST.integrity=Math.min(100,ST.integrity+2);
     } else {
@@ -2516,7 +2540,6 @@ function advDay(){
     }
   }
   // Hard cap on debt - can never exceed 200
-  ST.disciplineDebt=Math.min(200,ST.disciplineDebt||0);
   if(getWk()>ST.week){
     // Auto-collect ALL unclaimed boss rewards before reset
     var _wb=ST.weeklyBoss||{body:0,mind:0,discFail:0};
@@ -2525,12 +2548,11 @@ function advDay(){
       // Unclaimed boss from this week - auto-collect
       ST.unclaimedBoss=(ST.unclaimedBoss||0)+1;
       ST.xp+=40;ST.points+=20;ST.bossWins=(ST.bossWins||0)+1;
-      var _bd=ST.disciplineDebt||0;if(_bd>=20)ST.disciplineDebt-=20;else if(_bd>0)ST.disciplineDebt=0;
       if(!ST.bossQuoteIdx)ST.bossQuoteIdx=0;ST.bossQuoteIdx=(ST.bossQuoteIdx+1)%BOSS_QUOTES.length;
       var _btr={1:'Tueur de Boss',4:'Chasseur Chevronné',8:"Élite de l'Ombre",12:'Légende'};
       if(_btr[ST.bossWins]){if(!ST.unlockedTitles)ST.unlockedTitles=[];if(!ST.unlockedTitles.includes(_btr[ST.bossWins]))ST.unlockedTitles.push(_btr[ST.bossWins]);}
     }
-    ST.week=getWk();ST.weekPlan=genWeek();ST.weeklyBoss={body:0,mind:0,discFail:0};ST.weekTruthDone=false;ST.lockRewards=false;ST._bossShownThisWeek=false;ST.weeklyPartialCount=0;
+    ST.week=getWk();ST.weekPlan=genWeek();ST.weeklyBoss={body:0,mind:0,discFail:0};ST.weekTruthDone=false;ST._bossShownThisWeek=false;ST.weeklyPartialCount=0;
   }
   ST.questStatus={};ST.dayDone=false;ST.reviewDone=false;ST.morningCheckDone=false;ST.todayMood=null;
   const qlnn=document.getElementById('ql-nn');if(qlnn)delete qlnn.dataset.simplified;
@@ -2594,11 +2616,11 @@ function equipTitle(name){
 }
 function renderRewards(){
   document.getElementById('rw-pts').textContent=ST.points+' pts';
-  const locked=ST.disciplineDebt>150;
+  const locked=ST.integrity<50&&ST.day>=14;
   ST.lockRewards=locked;
   const owned=ST.unlockedTitles||[];
   const mk=(r,i,src)=>{const can=!locked&&ST.points>=r.cost;const isUtil=r.type==='util';const isReal=r.type==='real';const isSym=r.type==='sym';return`<div class="rc${locked?' locked-reward':''}"><div class="rt">${isUtil?'Utilitaire':isSym?'Symbolique':isReal?'🎁 Récompense réelle':'Perso'}</div><div class="rn">${r.name}</div><div class="rp">${r.cost} pts</div><button class="rb" ${can?'':'disabled'} onclick="buyRew(${i},'${src}')">${locked?'Verrouillé':isUtil?'Utiliser':isReal?'Utiliser':isSym?'Échanger':'Échanger'}</button></div>`;};
-  document.getElementById('shop-lock-banner').innerHTML=(locked&&ST.day>=67)?`<div class="abox ad" style="margin-bottom:8px">&#128308; Boutique verrouillée : rembourse ta dette de discipline (${ST.disciplineDebt} pts).</div>`:''  ;
+  document.getElementById('shop-lock-banner').innerHTML=locked?'<div class="abox ad" style="margin-bottom:8px">&#128308; Boutique verrouillée - intégrité insuffisante (minimum 50%).</div>':'';
   document.getElementById('rw-util').innerHTML=UTIL_R.map((r,i)=>mk(r,i,'util')).join('');
   // Symbolic: filter out already-owned titles
   const availSym=SYM_R.map((r,i)=>({r,i})).filter(({r})=>{const title=r.name.replace('Titre : ','');return !owned.includes(title);});
@@ -2609,7 +2631,7 @@ function renderRewards(){
   document.getElementById('rw-custom').innerHTML=c.length?c.map((r,i)=>mkCustom(r,i)).join(''):'<p style="font-size:11px;color:var(--ink3);grid-column:1/-1">Aucune récompense perso.</p>';
 }
 function buyRew(i,src){
-  if(ST.disciplineDebt>150||ST.lockRewards){toast('Boutique verrouillée.');return;}
+  if(ST.lockRewards){toast('Boutique verrouillée - intégrité insuffisante.');return;}
   const r=src==='util'?UTIL_R[i]:src==='sym'?SYM_R[i]:src==='real'?REAL_R[i]:(ST.customR||[])[i];
   if(!r||ST.points<r.cost)return;
   if(!confirm('Utiliser "'+r.name+'" pour '+r.cost+' pts ?'))return;
@@ -2637,7 +2659,6 @@ function buyRew(i,src){
       if(ST.dayLog.length>400)ST.dayLog=ST.dayLog.slice(-400);
       ST.streak++;ST.bestStreak=Math.max(ST.bestStreak,ST.streak);ST.failStreak=0;
       ST.integrity=Math.min(100,ST.integrity+3);
-      ST.disciplineDebt=Math.max(0,(ST.disciplineDebt||0)-15);
       ST.reviewDone=true;
       save();
       toast('🏖️ Journée off ! Toutes les quêtes validées.');
@@ -3115,11 +3136,6 @@ function showBossVictory(){
   var bossXP=40;
   ST.xp+=bossXP;ST.points+=20;ST.bossWins=(ST.bossWins||0)+1;
   // Debt reduction
-  var debtReduc=0;
-  var debt=ST.disciplineDebt||0;
-  if(debt>=20)debtReduc=20;
-  else if(debt>0)debtReduc=debt;
-  ST.disciplineDebt=Math.max(0,(ST.disciplineDebt||0)-debtReduc);
   // Pick quote (cycle through all 200)
   if(!ST.bossQuoteIdx)ST.bossQuoteIdx=0;
   var quote=BOSS_QUOTES[ST.bossQuoteIdx%BOSS_QUOTES.length];
@@ -3386,8 +3402,8 @@ setInterval(()=>{
   if(document.getElementById('s-welcome').classList.contains('active'))updateWelcomeCd();
   // Day rollover only after 10h (quests open at 10h)
   if(ST.onboarded&&!ST.waitingForTomorrow&&ST.lastDate&&ST.lastDate!==today&&h>=10){advDay();ST.lastDate=today;save();}
-  // Auto-fail unvalidated NN at 22h
-  if(ST.onboarded&&!ST.dayDone&&!ST.reviewDone&&h>=22){
+  // Auto-fail unvalidated NN at 22h — skip in test mode
+  if(ST.onboarded&&!ST.dayDone&&!ST.reviewDone&&h>=22&&!window._TEST_MODE){
     const t=getToday();
     if(t){
       let changed=false;
@@ -3395,7 +3411,6 @@ setInterval(()=>{
         if(!ST.questStatus[q.id]){
           ST.questStatus[q.id]='fail';
           ST.integrity=Math.max(0,ST.integrity-5);
-          ST.disciplineDebt=Math.min(200,(ST.disciplineDebt||0)+15);
           if(!ST.failByType)ST.failByType={body:0,mind:0,disc:0};
           ST.failByType[q.type]=(ST.failByType[q.type]||0)+1;
           if(q.type==='disc')ST.weeklyBoss.discFail=(ST.weeklyBoss.discFail||0)+1;
@@ -3499,7 +3514,6 @@ function testSkipDay(){
       if(!ST.questStatus[q.id]){
         ST.questStatus[q.id]='fail';
         ST.integrity=Math.max(0,ST.integrity-5);
-        ST.disciplineDebt=Math.min(200,(ST.disciplineDebt||0)+15);
         if(!ST.failByType)ST.failByType={body:0,mind:0,disc:0};
         ST.failByType[q.type]=(ST.failByType[q.type]||0)+1;
       }
@@ -3513,7 +3527,7 @@ function testSkipDay(){
     if(!ST.dayLog)ST.dayLog=[];
     ST.dayLog.push({day:ST.day,date:d.getDate()+'/'+(d.getMonth()+1)+'/'+d.getFullYear(),dow:ST.day%7,success:ok,perfect:false,partial:ok,energy:3,body:t.nn.some(function(q){return q.type==='body'&&ST.questStatus[q.id]&&ST.questStatus[q.id]!=='fail';}),mind:t.nn.some(function(q){return q.type==='mind'&&ST.questStatus[q.id]&&ST.questStatus[q.id]!=='fail';}),disc:t.nn.some(function(q){return q.type==='disc'&&ST.questStatus[q.id]&&ST.questStatus[q.id]!=='fail';}),xp:ST.xp,streak:ST.streak});
     if(ST.dayLog.length>400)ST.dayLog=ST.dayLog.slice(-400);
-    if(ok){ST.streak++;ST.bestStreak=Math.max(ST.bestStreak,ST.streak);ST.failStreak=0;ST.integrity=Math.min(100,ST.integrity+3);ST.disciplineDebt=Math.max(0,(ST.disciplineDebt||0)-15);}
+    if(ok){ST.streak++;ST.bestStreak=Math.max(ST.bestStreak,ST.streak);ST.failStreak=0;ST.integrity=Math.min(100,ST.integrity+3);}
     else{ST.failStreak=(ST.failStreak||0)+1;if(ST.failStreak>=3)ST.streak=0;else ST.streak=Math.max(0,ST.streak-1);}
   }
   ST.sanctionPending=false;ST.dayDone=true;ST.reviewDone=true;save();
@@ -3556,7 +3570,7 @@ function _testAutoOneDay(){
     } else {
       ST.questStatus[q.id]='fail';
       if(!ST.questLog)ST.questLog={};var _qkf=q.type||q.id.replace(/[0-9]+$/,'');var _qnamesf={body:'Body (Salle/Sport)',mind:'Mind (Étude/Lecture)',disc:'Discipline',water:'Hydratation',se:'Secondaire Facile',sm:'Secondaire Moyen',sh:'Secondaire Dur'};if(!ST.questLog[_qkf])ST.questLog[_qkf]={name:_qnamesf[_qkf]||(q.name||'').split(':')[0].trim().substring(0,20),gen:0,ok:0};ST.questLog[_qkf].gen++;
-      if(isNN){ST.integrity=Math.max(0,ST.integrity-5);ST.disciplineDebt=Math.min(200,(ST.disciplineDebt||0)+15);if(!ST.failByType)ST.failByType={body:0,mind:0,disc:0};ST.failByType[q.type]=(ST.failByType[q.type]||0)+1;if(q.type==='disc')ST.weeklyBoss.discFail=(ST.weeklyBoss.discFail||0)+1;}
+      if(isNN){ST.integrity=Math.max(0,ST.integrity-5);if(!ST.failByType)ST.failByType={body:0,mind:0,disc:0};ST.failByType[q.type]=(ST.failByType[q.type]||0)+1;if(q.type==='disc')ST.weeklyBoss.discFail=(ST.weeklyBoss.discFail||0)+1;}
     }
   });
   var failed=t.nn.filter(function(q){return ST.questStatus[q.id]==='fail';});var ok=failed.length===0;
@@ -3568,16 +3582,14 @@ function _testAutoOneDay(){
   ST.dayLog.push({day:ST.day,date:d.getDate()+'/'+(d.getMonth()+1)+'/'+d.getFullYear(),dow:ST.day%7,success:ok,perfect:false,partial:ok,energy:energy,body:t.nn.some(function(q){return q.type==='body'&&ST.questStatus[q.id]&&ST.questStatus[q.id]!=='fail';}),mind:t.nn.some(function(q){return q.type==='mind'&&ST.questStatus[q.id]&&ST.questStatus[q.id]!=='fail';}),disc:t.nn.some(function(q){return q.type==='disc'&&ST.questStatus[q.id]&&ST.questStatus[q.id]!=='fail';}),xp:ST.xp,streak:ST.streak});
   if(ST.dayLog.length>400)ST.dayLog=ST.dayLog.slice(-400);
   if(energy<=2)ST.fatigueScore=Math.max(1,ST.fatigueScore-1);else if(energy>=4)ST.fatigueScore=Math.min(4,ST.fatigueScore+1);
-  if(ok){ST.streak++;ST.bestStreak=Math.max(ST.bestStreak,ST.streak);ST.failStreak=0;ST.integrity=Math.min(100,ST.integrity+3);ST.disciplineDebt=Math.max(0,(ST.disciplineDebt||0)-15);if(ST.streak>=2&&ST.fatigueScore<=1)ST.fatigueScore=2;if(ST.integrity>=60)ST.rankDowngrade=false;}
+  if(ok){ST.streak++;ST.bestStreak=Math.max(ST.bestStreak,ST.streak);ST.failStreak=0;ST.integrity=Math.min(100,ST.integrity+3);if(ST.streak>=2&&ST.fatigueScore<=1)ST.fatigueScore=2;if(ST.integrity>=60)ST.rankDowngrade=false;if(ST.integrity>0)ST.rankDowngraded=false;}
   else{ST.failStreak=(ST.failStreak||0)+1;if(ST.failStreak>=3)ST.streak=0;else ST.streak=Math.max(0,ST.streak-1);if(failed.length>=2){ST.totalSanctions=(ST.totalSanctions||0)+1;ST.sanctionsCompleted=(ST.sanctionsCompleted||0)+1;}}
-  if(ST.day%7===0){var wb=ST.weeklyBoss||{};var _tw=ST.week||1;var _tnm=_tw>=2?4:0;var _tnd=_tw>=3;if((wb.body||0)>=3&&(_tw<2||(wb.mind||0)>=_tnm)&&(!_tnd||(wb.discFail||0)<=2)){ST.xp+=40;ST.points+=20;ST.bossWins=(ST.bossWins||0)+1;var _debt=ST.disciplineDebt||0;if(_debt>=20){ST.disciplineDebt-=20;}else if(_debt>0){ST.disciplineDebt=0;}}}
+  if(ST.day%7===0){var wb=ST.weeklyBoss||{};var _tw=ST.week||1;var _tnm=_tw>=2?4:0;var _tnd=_tw>=3;if((wb.body||0)>=3&&(_tw<2||(wb.mind||0)>=_tnm)&&(!_tnd||(wb.discFail||0)<=2)){ST.xp+=40;ST.points+=20;ST.bossWins=(ST.bossWins||0)+1;}}
   // Boss check BEFORE advDay
   var wbC=ST.weeklyBoss||{body:0,mind:0,discFail:0};var _twC=ST.week||1;var _tnmC=_twC>=2?4:0;var _tndC=_twC>=3;
   if((wbC.body||0)>=3&&(_twC<2||(wbC.mind||0)>=_tnmC)&&(!_tndC||(wbC.discFail||0)<=2)&&!ST._bossShownThisWeek){
     ST._bossShownThisWeek=true;
     ST.xp+=40;ST.points+=20;ST.bossWins=(ST.bossWins||0)+1;
-    var debt=ST.disciplineDebt||0;
-    if(debt>=20)ST.disciplineDebt-=20;else if(debt>0)ST.disciplineDebt=0;
     if(!ST.bossQuoteIdx)ST.bossQuoteIdx=0;ST.bossQuoteIdx=(ST.bossQuoteIdx+1)%BOSS_QUOTES.length;
   }
   ST.dayDone=true;ST.reviewDone=true;ST.sanctionPending=false;save();
