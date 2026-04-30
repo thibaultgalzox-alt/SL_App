@@ -1,5 +1,5 @@
 const CACHE = 'sl-2026-v2';
-const CORE_ASSETS = ['/', '/index.html', '/manifest.json', '/icons/icon-192.png', '/icons/icon-512.png'];
+const CORE_ASSETS = ['/SL_App/', '/SL_App/index.html', '/SL_App/manifest.json', '/SL_App/icons/icon-192.png', '/SL_App/icons/icon-512.png'];
 
 // Sanction lock state — persisted across SW restarts via IDB
 let _sanctionLocked = false;
@@ -81,10 +81,10 @@ self.addEventListener('fetch', e => {
   if (req.mode === 'navigate') {
     if (_sanctionLocked) {
       // Serve index.html from cache — the app JS will show s-sanction on load
-      e.respondWith(caches.match('/index.html').then(r => r || fetch(req)));
+      e.respondWith(caches.match('/SL_App/index.html').then(r => r || fetch(req)));
       return;
     }
-    e.respondWith(fetch(req).catch(() => caches.match('/index.html')));
+    e.respondWith(fetch(req).catch(() => caches.match('/SL_App/index.html')));
     return;
   }
   e.respondWith(caches.match(req).then(r => r || fetch(req)));
@@ -99,7 +99,7 @@ function msUntil(h, m) {
 }
 function notify(tag, title, body, vibrate) {
   return self.registration.showNotification(title, {
-    body, icon: '/icons/icon-192.png', tag, renotify: true,
+    body, icon: '/SL_App/icons/icon-192.png', tag, renotify: true,
     ...(vibrate ? { vibrate } : {})
   });
 }
@@ -144,7 +144,7 @@ self.addEventListener('message', e => {
 
 self.addEventListener('notificationclick', e => {
   e.notification.close();
-  e.waitUntil(clients.openWindow('/'));
+  e.waitUntil(clients.openWindow('/SL_App/'));
 });
 
 let _timers = [];
@@ -156,7 +156,7 @@ function msUntil(h, m) {
 }
 function notify(tag, title, body, vibrate) {
   return self.registration.showNotification(title, {
-    body, icon: '/icons/icon-192.png', tag, renotify: true,
+    body, icon: '/SL_App/icons/icon-192.png', tag, renotify: true,
     ...(vibrate ? { vibrate } : {})
   });
 }
@@ -195,5 +195,5 @@ function _handleSchedule(data) {
 
 self.addEventListener('notificationclick', e => {
   e.notification.close();
-  e.waitUntil(clients.openWindow('/'));
+  e.waitUntil(clients.openWindow('/SL_App/'));
 });
