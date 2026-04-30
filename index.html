@@ -904,7 +904,7 @@ const SP={body:["Pompes : {n} reps avant 10h","Squats : {n} reps avant 10h","Pla
 
 const DEF={onboarded:false,waitingForTomorrow:false,answers:{},multiAnswers:{},obQ:0,day:1,week:1,xp:0,points:0,streak:0,bestStreak:0,integrity:100,weekPlan:null,questStatus:{},gymW:0,runW:0,lastBody:[],lastMind:[],lastDisc:[],lastSE:[],lastSM:[],lastSH:[],customR:[],totalBody:0,totalMind:0,totalDisc:0,sr7:[],bilans:[],dayDone:false,lastDate:null,notifOk:false,failStreak:0,sanctionPending:false,sanctionText:'',sanctionCtx:'',sanctionMult:'1.5',sanctionConfirmedAt:null,totalSanctions:0,sanctionsCompleted:0,hadFailYesterday:false,fatigueScore:3,todayEvent:null,rankDowngrade:false,lastRankDowngradeDay:0,disciplineDebt:0,lockRewards:false,weeklyBoss:{body:0,mind:0,discFail:0},bossWins:0,failByType:{body:0,mind:0,disc:0},successByType:{body:0,mind:0,disc:0},weekTruthDone:false,reviewDone:false,equippedTitle:null,unlockedTitles:[],lastApartmentDay:-99,dayLog:[],validationHours:[],questLog:{},lastBodyType:[],sanctionStartedAt:null,absenceDays:0,returnOfferShown:false,reconstructionDay:0,reconstructionCooldown:0,recentNNFails:[]};
 // ─── IndexedDB storage (fallback to localStorage) ────────────────────────
-const DB_NAME='solo_leveling_db',DB_STORE='app_state',DB_KEY='main';
+const DB_NAME='solo_leveling_db_v2',DB_STORE='app_state',DB_KEY='main';
 let _db=null;
 function openDB(){
   return new Promise((res,rej)=>{
@@ -2074,30 +2074,6 @@ function renderMain(){
   // [internal display removed]
   const h=nowH();if(isOpen())document.getElementById('dl-label').textContent='8h - 22h · encore '+(`${22-h}h`);else document.getElementById('dl-label').textContent='8h - 22h';
   // V3: Rank projection
-  const pz=document.getElementById('projection-zone');
-  {
-    // Use dayLog XP for projection — resilient to resets & test mode
-    const rk2=getRank();const needed=rk2.next-ST.xp;
-    var _avgXP=10; // default fallback
-    var _dl=ST.dayLog||[];
-    if(_dl.length>=3){
-      var _recent=_dl.slice(-Math.min(14,_dl.length));
-      var _xpTotal=0;
-      for(var _i=0;_i<_recent.length;_i++){
-        var _d=_recent[_i];
-        var _dayXP=_d.xp||0;
-        // XP delta from prev entry
-        if(_i>0)_xpTotal+=Math.max(0,(_recent[_i].xp||0)-(_recent[_i-1].xp||0));
-        else if(_recent.length===1)_xpTotal+=_dayXP>0?8:0;
-      }
-      var _daysUsed=Math.max(1,_recent.length-1);
-      var _computed=Math.round(_xpTotal/_daysUsed);
-      if(_computed>0&&_computed<200)_avgXP=_computed;
-    } else if(ST.sr7&&ST.sr7.length>=3){
-      var _s7=ST.sr7.slice(-14);
-      var _rate=_s7.filter(function(x){return x===1;}).length/_s7.length;
-      if(_rate>0)_avgXP=Math.round(_rate*18);
-    }
   const nbz=document.getElementById('nb-zone');if(!ST.notifOk&&'Notification' in window&&Notification.permission!=='denied')nbz.innerHTML=`<div class="nb">&#128276; Active les rappels<button class="btn primary" style="padding:4px 10px;font-size:11px;white-space:nowrap;margin-left:auto" onclick="askNotif()">Activer</button></div>`;else nbz.innerHTML='';
   const pz=document.getElementById('projection-zone');if(pz)pz.innerHTML='';
 }
@@ -3365,7 +3341,13 @@ function finishOB(){
 }
 
 (async function init(){
-  if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  // Global error catcher for debug
+  window.onerror = function(msg,src,line,col,err){
+    const d=document.createElement('div');
+    d.style.cssText='position:fixed;top:0;left:0;right:0;background:#c0392b;color:#fff;padding:10px;font-size:11px;z-index:99999;word-break:break-all';
+    d.textContent='JS ERROR: '+msg+' (L'+line+')';
+    document.body.appendChild(d);
+  };
   // Load persisted state (IndexedDB → localStorage fallback)
   try{
     const saved=await loadState();
