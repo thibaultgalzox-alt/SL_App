@@ -1648,8 +1648,7 @@ function trig(id,lv){
         if(q2.type==='disc')ST.weeklyBoss.discFail=(ST.weeklyBoss.discFail||0)+1;
       }}
       SND.fail();flash('red',500);vib([200,100,200]);
-      save();scheduleNotif();
-      setTimeout(function(){renderMain();},350);
+      save();renderMain();scheduleNotif();
       if(ST.day<=14){
         var earlyFails=(ST.failByType?Object.values(ST.failByType).reduce(function(a,b){return a+b;},0):0);
         if(earlyFails>=10){
@@ -1660,7 +1659,7 @@ function trig(id,lv){
     } else {
       ST.questStatus[id]='fail';
       flash('grey',300);
-      save();toast('Skippée.');setTimeout(function(){renderMain();},350);
+      save();toast('Skippée.');renderMain();
     }
     return;
   }
@@ -1702,7 +1701,7 @@ function trig(id,lv){
   save();scheduleNotif();
   const rb=getRank().label;
   if(getRank().label!==rb){SND.rankUp();flash('purple',800);showRankUp(getRank());}
-  setTimeout(function(){renderMain();},350);
+  renderMain();
 }
 
 function renderMainDone(t,locked){
