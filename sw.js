@@ -104,87 +104,25 @@ function notify(tag, title, body, vibrate) {
   });
 }
 
-self.addEventListener('message', e => {
-  if (!e.data || e.data.type !== 'SCHEDULE') return;
-  _timers.forEach(clearTimeout); _timers = [];
-  const { nnRemaining = 0, secRemaining = 0, hadFailYesterday = false } = e.data;
-
-  // 9h45 — ouverture imminente
-  _timers.push(setTimeout(() =>
-    notify('sl-945', 'Solo Leveling', 'La chasse ouvre dans 15 minutes.'),
-    msUntil(9, 45)));
-
-  // 13h — aucune quête validée
-  _timers.push(setTimeout(() => {
-    if (nnRemaining > 0)
-      notify('sl-13h', 'Solo Leveling', 'Aucune quête validée. Tu dérives ?', [100, 50, 100]);
-  }, msUntil(13, 0)));
-
-  // 17h — si fail hier
-  if (hadFailYesterday) {
-    _timers.push(setTimeout(() =>
-      notify('sl-17h', 'Solo Leveling', 'Tu as déjà chuté hier. Ne recommence pas et finalise ta journée.', [200, 100, 200]),
-      msUntil(17, 0)));
-  }
-
-  // 21h30 — quêtes obligatoires restantes
-  _timers.push(setTimeout(() => {
-    if (nnRemaining > 0)
-      notify('sl-2130', 'Solo Leveling — Dernière fenêtre', 'Go !', [300, 100, 300, 100, 300]);
-  }, msUntil(21, 30)));
-
-  // 15h–16h aléatoire — NN done, secondaires restantes
-  if (nnRemaining === 0 && secRemaining > 0) {
-    const delay = msUntil(15, 0) + Math.random() * 3600000;
-    _timers.push(setTimeout(() =>
-      notify('sl-sec', 'Solo Leveling', 'Tu as fini ta journée, mais il y a des quêtes secondaires à effectuer :)'),
-      delay));
-  }
-});
-
-self.addEventListener('notificationclick', e => {
-  e.notification.close();
-  e.waitUntil(clients.openWindow('/SL_App/'));
-});
-
-let _timers = [];
-function msUntil(h, m) {
-  const now = new Date(), t = new Date();
-  t.setHours(h, m, 0, 0);
-  if (t <= now) t.setDate(t.getDate() + 1);
-  return t - now;
-}
-function notify(tag, title, body, vibrate) {
-  return self.registration.showNotification(title, {
-    body, icon: '/SL_App/icons/icon-192.png', tag, renotify: true,
-    ...(vibrate ? { vibrate } : {})
-  });
-}
-
 function _handleSchedule(data) {
   _timers.forEach(clearTimeout); _timers = [];
   const { nnRemaining = 0, secRemaining = 0, hadFailYesterday = false } = data;
-
   _timers.push(setTimeout(() =>
     notify('sl-945', 'Solo Leveling', 'La chasse ouvre dans 15 minutes.'),
     msUntil(9, 45)));
-
   _timers.push(setTimeout(() => {
     if (nnRemaining > 0)
       notify('sl-13h', 'Solo Leveling', 'Aucune quête validée. Tu dérives ?', [100, 50, 100]);
   }, msUntil(13, 0)));
-
   if (hadFailYesterday) {
     _timers.push(setTimeout(() =>
       notify('sl-17h', 'Solo Leveling', 'Tu as déjà chuté hier. Ne recommence pas et finalise ta journée.', [200, 100, 200]),
       msUntil(17, 0)));
   }
-
   _timers.push(setTimeout(() => {
     if (nnRemaining > 0)
       notify('sl-2130', 'Solo Leveling — Dernière fenêtre', 'Go !', [300, 100, 300, 100, 300]);
   }, msUntil(21, 30)));
-
   if (nnRemaining === 0 && secRemaining > 0) {
     const delay = msUntil(15, 0) + Math.random() * 3600000;
     _timers.push(setTimeout(() =>
@@ -192,6 +130,8 @@ function _handleSchedule(data) {
       delay));
   }
 }
+
+
 
 self.addEventListener('notificationclick', e => {
   e.notification.close();
