@@ -1125,6 +1125,8 @@ function rollEv(){const r=Math.random();if(r<.03)return'shadow';if(r<.08)return'
 // Min Day: hardMode and shadow have no effect when isMin()
 function getTodayEvent(){
   if(ST.day<=1)return null;
+  // Reconstruction always gives doubleXP
+  if(isReconstruction())return'doubleXP';
   // Manual override (e.g. shop Double XP) takes priority
   if(ST.todayEvent)return ST.todayEvent;
   if(!ST.weekPlan||!ST.weekPlan.length)return null;
@@ -1836,7 +1838,7 @@ function morningCheck(mood,btn){
   var el=document.getElementById('morning-checkin-zone');
   if(el){
     el.innerHTML='<div style="background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--shadow-md);border-left:4px solid var(--accent);height:100%;box-sizing:border-box;display:flex;align-items:center;justify-content:center;text-align:center;font-size:13px;font-weight:600;color:var(--ink)">'+msg+'</div>';
-    setTimeout(function(){if(el)el.innerHTML='';renderMain();},2500);
+    setTimeout(function(){if(el){el.innerHTML='';el.style.pointerEvents='none';}var _w2=document.getElementById('boss-checkin-wrap');if(_w2)_w2.style.minHeight='';renderMain();},2500);
   }
   save();
 }
@@ -1890,6 +1892,7 @@ function renderMain(){
       if(!_czCheck.innerHTML){
         var _wrap=document.getElementById('boss-checkin-wrap');
         if(_wrap)_wrap.style.minHeight=Math.max(80,_wrap.offsetHeight)+'px';
+        _czCheck.style.pointerEvents='auto';
         ST._morningCheckShownAt=Date.now();
         _czCheck.innerHTML='<div id="morning-checkin" style="background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--shadow-md);border-left:4px solid var(--accent);height:100%;min-height:80px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;gap:10px">'
           +'<div style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--accent);text-align:center">Comment tu te sens aujourd\'hui ?</div>'
@@ -1900,11 +1903,11 @@ function renderMain(){
           +'</div></div>';
       } else {
         if(ST._morningCheckShownAt&&(Date.now()-ST._morningCheckShownAt)>1800000){
-          ST.morningCheckDone=true;_czCheck.innerHTML='';save();
+          ST.morningCheckDone=true;_czCheck.innerHTML='';_czCheck.style.pointerEvents='none';save();
         }
       }
     } else {
-      _czCheck.innerHTML='';
+      _czCheck.innerHTML='';_czCheck.style.pointerEvents='none';
       var _wrap2=document.getElementById('boss-checkin-wrap');
       if(_wrap2)_wrap2.style.minHeight='';
     }
@@ -2433,7 +2436,19 @@ function returnPay(){
   // Absence days don't count - just advance ST.day silently, no stats, no boss, no fails
   ST.day+=absence;
   // Regenerate week plan if needed
-  if(getWk()>ST.week){ST.week=getWk();ST.weekPlan=genWeek();ST.weeklyBoss={body:0,mind:0,discFail:0};ST.weekTruthDone=false;ST._bossShownThisWeek=false;ST.weeklyPartialCount=0;}
+  if(getWk()>ST.week){(function(){
+    // Auto-claim boss if won but not yet claimed before week reset
+    var _wb2=ST.weeklyBoss||{};var _bw2=ST.week||1;
+    var _nm2=_bw2>=2?4:0;var _nd2=_bw2>=3;
+    var _bWon2=(_wb2.body||0)>=3&&(_bw2<2||(_wb2.mind||0)>=_nm2)&&(!_nd2||(_wb2.discFail||0)<=2);
+    if(_bWon2&&!ST._bossShownThisWeek){
+      ST.xp+=40;ST.points+=20;ST.bossWins=(ST.bossWins||0)+1;
+      ST._bossShownThisWeek=true;
+      var _bossTR={1:'Tueur de Boss',4:'Chasseur Chevronné',8:'Élite de l\'Ombre',12:'Légende'};
+      if(_bossTR[ST.bossWins]){if(!ST.unlockedTitles)ST.unlockedTitles=[];if(!ST.unlockedTitles.includes(_bossTR[ST.bossWins]))ST.unlockedTitles.push(_bossTR[ST.bossWins]);}
+    }
+    ST.week=getWk();ST.weekPlan=genWeek();ST.weeklyBoss={body:0,mind:0,discFail:0};ST.weekTruthDone=false;ST._bossShownThisWeek=false;ST.weeklyPartialCount=0;
+  })();}
   else{ST.weekPlan=genWeek();}
   ST.questStatus={};ST.dayDone=false;ST.reviewDone=false;ST.morningCheckDone=false;ST.todayMood=null;
   ST.absenceDays=0;ST.sanctionStartedAt=null;ST.returnOfferShown=false;
@@ -2462,7 +2477,19 @@ function returnSkip(){
     ST.failStreak=(ST.failStreak||0)+1;
     ST.streak=0;
     ST.day++;
-    if(getWk()>ST.week){ST.week=getWk();ST.weekPlan=genWeek();ST.weeklyBoss={body:0,mind:0,discFail:0};ST.weekTruthDone=false;ST._bossShownThisWeek=false;ST.weeklyPartialCount=0;}
+    if(getWk()>ST.week){(function(){
+    // Auto-claim boss if won but not yet claimed before week reset
+    var _wb2=ST.weeklyBoss||{};var _bw2=ST.week||1;
+    var _nm2=_bw2>=2?4:0;var _nd2=_bw2>=3;
+    var _bWon2=(_wb2.body||0)>=3&&(_bw2<2||(_wb2.mind||0)>=_nm2)&&(!_nd2||(_wb2.discFail||0)<=2);
+    if(_bWon2&&!ST._bossShownThisWeek){
+      ST.xp+=40;ST.points+=20;ST.bossWins=(ST.bossWins||0)+1;
+      ST._bossShownThisWeek=true;
+      var _bossTR={1:'Tueur de Boss',4:'Chasseur Chevronné',8:'Élite de l\'Ombre',12:'Légende'};
+      if(_bossTR[ST.bossWins]){if(!ST.unlockedTitles)ST.unlockedTitles=[];if(!ST.unlockedTitles.includes(_bossTR[ST.bossWins]))ST.unlockedTitles.push(_bossTR[ST.bossWins]);}
+    }
+    ST.week=getWk();ST.weekPlan=genWeek();ST.weeklyBoss={body:0,mind:0,discFail:0};ST.weekTruthDone=false;ST._bossShownThisWeek=false;ST.weeklyPartialCount=0;
+  })();}
   }
   if(!ST.weekPlan||!ST.weekPlan.length)ST.weekPlan=genWeek();
   ST.questStatus={};ST.dayDone=false;ST.reviewDone=false;ST.morningCheckDone=false;ST.todayMood=null;
@@ -2569,7 +2596,19 @@ function advDay(){
       var _btr={1:'Tueur de Boss',4:'Chasseur Chevronné',8:"Élite de l'Ombre",12:'Légende'};
       if(_btr[ST.bossWins]){if(!ST.unlockedTitles)ST.unlockedTitles=[];if(!ST.unlockedTitles.includes(_btr[ST.bossWins]))ST.unlockedTitles.push(_btr[ST.bossWins]);}
     }
+    (function(){
+    // Auto-claim boss if won but not yet claimed before week reset
+    var _wb2=ST.weeklyBoss||{};var _bw2=ST.week||1;
+    var _nm2=_bw2>=2?4:0;var _nd2=_bw2>=3;
+    var _bWon2=(_wb2.body||0)>=3&&(_bw2<2||(_wb2.mind||0)>=_nm2)&&(!_nd2||(_wb2.discFail||0)<=2);
+    if(_bWon2&&!ST._bossShownThisWeek){
+      ST.xp+=40;ST.points+=20;ST.bossWins=(ST.bossWins||0)+1;
+      ST._bossShownThisWeek=true;
+      var _bossTR={1:'Tueur de Boss',4:'Chasseur Chevronné',8:'Élite de l\'Ombre',12:'Légende'};
+      if(_bossTR[ST.bossWins]){if(!ST.unlockedTitles)ST.unlockedTitles=[];if(!ST.unlockedTitles.includes(_bossTR[ST.bossWins]))ST.unlockedTitles.push(_bossTR[ST.bossWins]);}
+    }
     ST.week=getWk();ST.weekPlan=genWeek();ST.weeklyBoss={body:0,mind:0,discFail:0};ST.weekTruthDone=false;ST._bossShownThisWeek=false;ST.weeklyPartialCount=0;
+  })();
   }
   ST.questStatus={};ST.dayDone=false;ST.reviewDone=false;ST.morningCheckDone=false;ST.todayMood=null;
   const qlnn=document.getElementById('ql-nn');if(qlnn)delete qlnn.dataset.simplified;
