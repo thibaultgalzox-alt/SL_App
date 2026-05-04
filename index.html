@@ -891,7 +891,11 @@ const OB_QS=[
 ]},
 {id:"hardest",text:"Ce qui est le plus dur pour toi ?",sub:"Plusieurs choix - booste les XP",type:"multi",opts:["Faire du sport régulièrement","Étudier sans distraction","Résister aux écrans","Résister à la pornographie","Sortir de sa zone de confort","Maintenir une routine disciplinée","Se lever tôt","Lire régulièrement"]}
 ];
-const UTIL_R=[{name:'Bouclier 1j',cost:150,type:'util',desc:'Protège contre toute sanction pendant 1 jour. Ni intégrité, ni série, ni stats, ni boss affectés.'},{name:'Bouclier 2j',cost:270,type:'util',desc:'Protège contre toute sanction pendant 2 jours.'},{name:'Bouclier 3j',cost:360,type:'util',desc:'Protège contre toute sanction pendant 3 jours.'}];
+const UTIL_R=[
+  {name:'Bouclier 1j',cost:120,type:'util',icon:'🛡️',desc:'1 jour protégé : aucune sanction, série et intégrité intactes même si les quêtes ne sont pas faites.'},
+  {name:'Bouclier 3j',cost:300,type:'util',icon:'🛡️',desc:'3 jours protégés : aucune sanction, série et intégrité intactes même si les quêtes ne sont pas faites.'},
+  {name:'Bouclier 5j',cost:450,type:'util',icon:'🛡️',desc:'5 jours protégés : aucune sanction, série et intégrité intactes même si les quêtes ne sont pas faites.'},
+];
 const SYM_R=[{name:"Titre : Invocateur de l'ombre",cost:350,type:"sym"},{name:"Titre : Briseur de limites",cost:550,type:"sym"},{name:"Titre : Fantôme de la discipline",cost:750,type:"sym"},{name:"Titre : L'Éternel",cost:1200,type:"sym"},{name:"Titre : Ascète",cost:400,type:"sym"},{name:"Titre : Gardien du silence",cost:500,type:"sym"},{name:"Titre : Maître du temps",cost:650,type:"sym"},{name:"Titre : Sentinelle",cost:800,type:"sym"},{name:"Titre : Forgeron d'habitudes",cost:900,type:"sym"},{name:"Titre : Architecte de soi",cost:1000,type:"sym"},{name:"Titre : Porteur de flamme",cost:1100,type:"sym"},{name:"Titre : L'Inébranlable",cost:1400,type:"sym"},{name:"Titre : Monarque",cost:1800,type:"sym"},{name:"Titre : Légende vivante",cost:2500,type:"sym"}];
 const REAL_R=[{name:"Cheat meal",cost:250,type:"real"},{name:"Restaurant / Sortie",cost:400,type:"real"},{name:"Activité loisir (ciné, etc.)",cost:500,type:"real"},{name:"Achat plaisir perso",cost:800,type:"real"}];
 const ID_T=[
@@ -906,7 +910,7 @@ const ID_T=[
 ];
 const SP={body:["Pompes : {n} reps avant 10h","Squats : {n} reps avant 10h","Planche : {n}s avant 10h","Course : {n} km avant 10h"],mind:["Révision : {n} min avant 10h","Lire {n} pages avant 10h","Voltaire : {n} min avant 10h"],disc:["Journal rechute + {n} pompes maintenant","Mode avion jusqu'à 10h demain"]};
 
-const DEF={onboarded:false,waitingForTomorrow:false,answers:{},multiAnswers:{},obQ:0,day:1,week:1,xp:0,points:0,streak:0,bestStreak:0,integrity:100,weekPlan:null,questStatus:{},gymW:0,runW:0,lastBody:[],lastMind:[],lastDisc:[],lastSE:[],lastSM:[],lastSH:[],customR:[],totalBody:0,totalMind:0,totalDisc:0,sr7:[],bilans:[],dayDone:false,lastDate:null,notifOk:false,failStreak:0,sanctionPending:false,sanctionText:'',sanctionCtx:'',sanctionMult:'1.5',sanctionConfirmedAt:null,totalSanctions:0,sanctionsCompleted:0,hadFailYesterday:false,fatigueScore:3,todayEvent:null,rankDowngrade:false,rankDowngraded:false,lastRankDowngradeDay:0,disciplineDebt:0,lockRewards:false,weeklyBoss:{body:0,mind:0,discFail:0},bossWins:0,failByType:{body:0,mind:0,disc:0},successByType:{body:0,mind:0,disc:0},weekTruthDone:false,reviewDone:false,equippedTitle:null,unlockedTitles:[],lastApartmentDay:-99,dayLog:[],validationHours:[],questLog:{},lastBodyType:[],sanctionStartedAt:null,absenceDays:0,returnOfferShown:false,reconstructionDay:0,reconstructionCooldown:0,recentNNFails:[],shieldDays:0,shieldActivatedDay:0};
+const DEF={onboarded:false,waitingForTomorrow:false,answers:{},multiAnswers:{},obQ:0,day:1,week:1,xp:0,points:0,streak:0,bestStreak:0,integrity:100,weekPlan:null,questStatus:{},gymW:0,runW:0,lastBody:[],lastMind:[],lastDisc:[],lastSE:[],lastSM:[],lastSH:[],customR:[],totalBody:0,totalMind:0,totalDisc:0,sr7:[],bilans:[],dayDone:false,lastDate:null,notifOk:false,failStreak:0,sanctionPending:false,sanctionText:'',sanctionCtx:'',sanctionMult:'1.5',sanctionConfirmedAt:null,totalSanctions:0,sanctionsCompleted:0,hadFailYesterday:false,fatigueScore:3,todayEvent:null,rankDowngrade:false,rankDowngraded:false,lastRankDowngradeDay:0,disciplineDebt:0,lockRewards:false,weeklyBoss:{body:0,mind:0,discFail:0},bossWins:0,failByType:{body:0,mind:0,disc:0},successByType:{body:0,mind:0,disc:0},weekTruthDone:false,reviewDone:false,equippedTitle:null,unlockedTitles:[],lastApartmentDay:-99,dayLog:[],validationHours:[],questLog:{},lastBodyType:[],sanctionStartedAt:null,absenceDays:0,returnOfferShown:false,reconstructionDay:0,reconstructionCooldown:0,recentNNFails:[],shieldDays:0,shieldStartDay:0};
 // ─── IndexedDB storage (fallback to localStorage) ────────────────────────
 const DB_NAME='solo_leveling_db_v2',DB_STORE='app_state',DB_KEY='main';
 let _db=null;
@@ -1160,11 +1164,10 @@ function stateModifier(){
 function getMult(){return stateModifier();}
 function isMin(){return getGlobalState()==='fatigue';}
 function isShielded(){
-  if(!(ST.shieldDays>0))return false;
-  var _end=(ST.shieldActivatedDay||0)+(ST.shieldDays||0)-1;
-  return ST.day>=(ST.shieldActivatedDay||0)&&ST.day<=_end;
+  if(!(ST.shieldDays>0)||!(ST.shieldStartDay>0))return false;
+  return ST.day>=ST.shieldStartDay&&ST.day<ST.shieldStartDay+ST.shieldDays;
 }
-function isRed(){return !isReconstruction()&&(ST.failStreak||0)>=5;}
+function isRed(){if(isShielded())return false;return !isReconstruction()&&(ST.failStreak||0)>=5;}
 // Called after every integrity decrease — triggers rank downgrade if needed
 function _checkIntegrityDowngrade(){
   if(ST.integrity>0)return;
@@ -1615,14 +1618,25 @@ function buildQ(q,uid){
   let act='';
   const liveXP=xpV(q.type||'se');
   const livePts=ptsV(q.type||'se');
-  if(done==='dayoff')act=`<span class="qdone-lbl" style="color:#74b9ff">&#127796; Validée - Journée off</span>`;
+  if(done==='shield')act=`<span style="font-size:10px;color:#6c7ae0;font-weight:600">🛡️ Bouclier Temporaire — aucune pénalité</span>`;
+  else if(done==='dayoff')act=`<span class="qdone-lbl" style="color:#74b9ff">&#127796; Validée - Journée off</span>`;
   else if(done==='perfect')act=`<span class="qdone-lbl">&#10003; ${isNN?'Accomplie':'Accomplie'} - +${liveXP} XP, +${livePts} pts</span>`;
   else if(done==='clear')act=`<span class="qclear-lbl">&#10003; ${isNN?'En partie':'En partie'} - +${Math.round(liveXP*.7)} XP</span>`;
   else if(done==='fail')act=isNN?(ST.day<=14?`<span style="font-size:10px;color:#8a7e6a;font-style:italic">Fail. Fais mieux demain.</span>`:(ST.sanctionConfirmedAt?`<span style="font-size:10px;color:#B8612A;font-weight:600">Sanction effectuée.</span>`:`<span class="qfail-lbl">&#10007; Fail - correction demain 10h</span>`)):`<span style="font-size:10px;color:#8a7e6a;font-style:italic">Skippée</span>`;
   else if(locked){
-    // Don't show "Disponible à 10h" for water/secs after a sanction day
     if(!isNN&&ST.sanctionConfirmedAt)act=`<span style="font-size:10px;color:#8a7e6a;font-style:italic">—</span>`;
     else act=`<span style="font-size:10px;color:#8a7e6a;font-style:italic">Disponible à partir de 10h</span>`;
+  }
+  else if(isShielded()&&isNN){
+    // Shielded day: show normal buttons but with shield indicator
+    var _partLeft=2-(ST.weeklyPartialCount||0);
+    if(isPorno){
+      act=`<div style="font-size:9px;color:#6c7ae0;font-weight:600;margin-bottom:4px">🛡️ Jour bouclier — aucune pénalité si non faite</div><button class="qbtn perfect" onclick="trig('${id}','perfect')">&#10003; Accomplie</button><button class="qbtn fail" onclick="trig('${id}','fail')">Fail</button>`;
+    } else if(_partLeft>0){
+      act=`<div style="font-size:9px;color:#6c7ae0;font-weight:600;margin-bottom:4px">🛡️ Jour bouclier — aucune pénalité si non faite</div><button class="qbtn perfect" onclick="trig('${id}','perfect')">&#10003; Accomplie</button><button class="qbtn clear" onclick="trig('${id}','clear')">En partie <span style="font-size:9px;opacity:.6">(${_partLeft})</span></button><button class="qbtn fail" onclick="trig('${id}','fail')">Fail</button>`;
+    } else {
+      act=`<div style="font-size:9px;color:#6c7ae0;font-weight:600;margin-bottom:4px">🛡️ Jour bouclier — aucune pénalité si non faite</div><button class="qbtn perfect" onclick="trig('${id}','perfect')">&#10003; Accomplie</button><button class="qbtn fail" onclick="trig('${id}','fail')">Fail</button>`;
+    }
   }
   else if(isNN){
     if(isPorno){
@@ -2016,7 +2030,7 @@ function renderMain(){
     if(todayEv&&evDesc[todayEv])msgs.push({c:'ae',m:evDesc[todayEv]});
     // Adaptive difficulty - silent in UI (kept in code for adjustments)
     // if(fs>=3) ... easyDay ... → invisible to user, system adjusts silently
-    if(isShielded()){var _sEnd=(ST.shieldActivatedDay||0)+(ST.shieldDays||0)-1;msgs.push({c:'ai',m:'🛡️ Bouclier actif jusqu\'à J'+_sEnd+' - aucune sanction, série et stats protégées.'});}
+    if(isShielded()){const _se=ST.shieldStartDay+ST.shieldDays-1;msgs.push({c:'ai',m:'🛡️ Bouclier actif jusqu\'à J'+_se+' — aucune sanction ni pénalité si quêtes non faites.'});}
     if(ST.sanctionPending&&ST.day>=15)msgs.push({c:'ad',m:'&#9888; Sanction non accomplie - pénalité doublée au prochain fail.'});
     const f=t.nn.filter(q=>ST.questStatus[q.id]==='fail');
     const sanctionDoneToday=ST.sanctionConfirmedAt&&(Date.now()-ST.sanctionConfirmedAt<86400000);
@@ -2225,13 +2239,17 @@ function submitReview(){
   // Auto-fail any NN not yet validated (not touched before bilan)
   t.nn.forEach(q=>{
     if(!ST.questStatus[q.id]){
-      ST.questStatus[q.id]='fail';
-      ST.integrity=Math.max(0,ST.integrity-5);
-      _checkIntegrityDowngrade();
-      ST.points=Math.max(0,ST.points-15);
-      if(!ST.failByType)ST.failByType={body:0,mind:0,disc:0};
-      ST.failByType[q.type]=(ST.failByType[q.type]||0)+1;
-      if(q.type==='disc'&&!isShielded())ST.weeklyBoss.discFail=(ST.weeklyBoss.discFail||0)+1;
+      if(isShielded()){
+        ST.questStatus[q.id]='shield'; // protected — no penalty
+      } else {
+        ST.questStatus[q.id]='fail';
+        ST.integrity=Math.max(0,ST.integrity-5);
+        _checkIntegrityDowngrade();
+        ST.points=Math.max(0,ST.points-15);
+        if(!ST.failByType)ST.failByType={body:0,mind:0,disc:0};
+        ST.failByType[q.type]=(ST.failByType[q.type]||0)+1;
+        if(q.type==='disc')ST.weeklyBoss.discFail=(ST.weeklyBoss.discFail||0)+1;
+      }
     }
   });
 
@@ -2488,7 +2506,7 @@ function returnSkip(){
     fakeDay.nn.forEach(q=>{
       if(!ST.failByType)ST.failByType={body:0,mind:0,disc:0};
       ST.failByType[q.type]=(ST.failByType[q.type]||0)+1;
-      if(q.type==='disc'&&!isShielded())ST.weeklyBoss.discFail=(ST.weeklyBoss.discFail||0)+1;
+      if(q.type==='disc')ST.weeklyBoss.discFail=(ST.weeklyBoss.discFail||0)+1;
       ST.integrity=Math.max(0,ST.integrity-5);
       _checkIntegrityDowngrade();
     });
@@ -2556,15 +2574,15 @@ function advDay(){
     var autoFailed=[];
     t.nn.forEach(function(q){
       if(!ST.questStatus[q.id]){
-        ST.questStatus[q.id]='fail';
-        autoFailed.push(q);
+        if(isShielded()){ST.questStatus[q.id]='shield';}
+        else{ST.questStatus[q.id]='fail';autoFailed.push(q);}
         if(!ST.failByType)ST.failByType={body:0,mind:0,disc:0};
         ST.failByType[q.type]=(ST.failByType[q.type]||0)+1;
         if(ST.day>14){
           ST.integrity=Math.max(0,ST.integrity-5);
           _checkIntegrityDowngrade();
         }
-        if(q.type==='disc'&&!isShielded())ST.weeklyBoss.discFail=(ST.weeklyBoss.discFail||0)+1;
+        if(q.type==='disc')ST.weeklyBoss.discFail=(ST.weeklyBoss.discFail||0)+1;
       }
     });
     // Auto-skip water and secondaries
@@ -2727,15 +2745,22 @@ function buyRew(i,src){
   if(r.name==='Double XP - 1 jour'){ST.todayEvent='doubleXP';toast('🧪 Double XP activé !');save();renderRewards();renderMain();return;}
   if(r.name==='Protection streak (1×)'){if(!ST.streakShields)ST.streakShields=0;ST.streakShields++;toast('🛡️ Protection streak ! ('+ST.streakShields+' en stock)');save();renderRewards();return;}
   // Shield purchase
-  var _shDays=r.name==='Bouclier 1j'?1:r.name==='Bouclier 2j'?2:r.name==='Bouclier 3j'?3:0;
-  if(_shDays>0){
-    var _h=new Date().getHours();
-    // Between 10h01 and 22h: applicable today; else applicable tomorrow
-    var _startDay=(_h>=10&&_h<22)?ST.day:ST.day+1;
-    ST.shieldDays=_shDays;ST.shieldActivatedDay=_startDay;
-    toast('🛡️ Bouclier actif dès J'+_startDay+' pour '+_shDays+' jour'+(+_shDays>1?'s':'')+'!',4000);
+  const _shMap={'Bouclier 1j':1,'Bouclier 3j':3,'Bouclier 5j':5};
+  if(_shMap[r.name]){
+    const _days=_shMap[r.name];
+    const _h=new Date().getHours();
+    const _start=(_h>=10&&_h<22)?ST.day:ST.day+1;
+    ST.shieldDays=(ST.shieldDays||0)+_days;
+    // If no active shield yet, set start day; if already active, extend from current end
+    if(!ST.shieldStartDay||ST.day>=ST.shieldStartDay+(ST.shieldDays-_days)){
+      ST.shieldStartDay=_start;
+    }
+    // Ensure shieldDays is set from start
+    ST.shieldDays=_days;ST.shieldStartDay=_start;
+    toast('🛡️ Bouclier actif du J'+_start+' au J'+(+_start+_days-1)+' !',4000);
     save();renderRewards();return;
   }
+
   if(r.name==='Annuler sanction (1×)'){
     if(ST.sanctionPending){ST.sanctionPending=false;ST.sanctionText='';toast('⚡ Sanction annulée !');save();renderRewards();if(document.getElementById('s-sanction').classList.contains('active'))showDone();return;}
     else{if(!ST.sanctionCancels)ST.sanctionCancels=0;ST.sanctionCancels++;toast('⚡ Annulation en réserve ('+ST.sanctionCancels+')');save();renderRewards();return;}
@@ -3130,7 +3155,7 @@ function renderStats(){
     insights.push({text:`Tes validations sont concentrées vers <strong style="color:#74b9ff">${avg}h</strong>. Les rappels s'adapteront en conséquence.`,color:'#74b9ff'});
   }
   // 4. Automaticity
-  insights.push({text:`Score d'automaticité : <strong style="color:#c0713a">${autoScore}%</strong>. ${autoScore>=70?'Tu approches du seuil d\'habitude formée (85%).':'Les gains sont les plus forts en ce moment - chaque jour régulier accélère la courbe.'}`,color:'#c0713a'});
+  insights.push({text:`Score d'automaticité : <strong style="color:#c0713a">${autoScore}%</strong>. ${autoScore>=85?'Tu as atteint le seuil d\'habitude formée !':autoScore>=70?'Tu approches du seuil d\'habitude formée (85%).':'Les gains sont les plus forts en ce moment - chaque jour régulier accélère la courbe.'}`,color:'#c0713a'});
   // 5. Fatigue correlation
   const lowEBilans=bilans.filter(b=>b.energy&&b.energy<=2);
   if(lowEBilans.length>=3){
@@ -3534,11 +3559,10 @@ setInterval(()=>{
       t.nn.forEach(q=>{
         if(!ST.questStatus[q.id]){
           ST.questStatus[q.id]='fail';
-          ST.integrity=Math.max(0,ST.integrity-5);
-          _checkIntegrityDowngrade();
+          if(!isShielded()){ST.integrity=Math.max(0,ST.integrity-5);_checkIntegrityDowngrade();}
           if(!ST.failByType)ST.failByType={body:0,mind:0,disc:0};
           ST.failByType[q.type]=(ST.failByType[q.type]||0)+1;
-          if(q.type==='disc'&&!isShielded())ST.weeklyBoss.discFail=(ST.weeklyBoss.discFail||0)+1;
+          if(q.type==='disc')ST.weeklyBoss.discFail=(ST.weeklyBoss.discFail||0)+1;
           changed=true;
         }
       });
@@ -3701,7 +3725,7 @@ function _testAutoOneDay(){
     } else {
       ST.questStatus[q.id]='fail';
       if(!ST.questLog)ST.questLog={};var _qkf=q.type||q.id.replace(/[0-9]+$/,'');var _qnamesf={body:'Body (Salle/Sport)',mind:'Mind (Étude/Lecture)',disc:'Discipline',water:'Hydratation',se:'Secondaire Facile',sm:'Secondaire Moyen',sh:'Secondaire Dur'};if(!ST.questLog[_qkf])ST.questLog[_qkf]={name:_qnamesf[_qkf]||(q.name||'').split(':')[0].trim().substring(0,20),gen:0,ok:0};ST.questLog[_qkf].gen++;
-      if(isNN){ST.integrity=Math.max(0,ST.integrity-5);_checkIntegrityDowngrade();if(!ST.failByType)ST.failByType={body:0,mind:0,disc:0};ST.failByType[q.type]=(ST.failByType[q.type]||0)+1;if(q.type==='disc'&&!isShielded())ST.weeklyBoss.discFail=(ST.weeklyBoss.discFail||0)+1;}
+      if(isNN){ST.integrity=Math.max(0,ST.integrity-5);_checkIntegrityDowngrade();if(!ST.failByType)ST.failByType={body:0,mind:0,disc:0};ST.failByType[q.type]=(ST.failByType[q.type]||0)+1;if(q.type==='disc')ST.weeklyBoss.discFail=(ST.weeklyBoss.discFail||0)+1;}
     }
   });
   var failed=t.nn.filter(function(q){return ST.questStatus[q.id]==='fail';});var ok=failed.length===0;
