@@ -3702,6 +3702,22 @@ function _testAutoOneDay(){
   var t=getToday();if(!t){ST.weekPlan=genWeek();save();t=getToday();if(!t)return;}
   var rate=0.65+Math.random()*0.30;
   var allQ=[].concat(t.nn,[t.water],t.secs||[]).filter(Boolean);
+  // Shield: skip all processing, mark everything as shield
+  if(isShielded()){
+    allQ.forEach(function(q){ST.questStatus[q.id]='shield';});
+    var _sd=new Date();
+    if(!ST.bilans)ST.bilans=[];
+    ST.bilans.push({day:ST.day,date:_sd.getDate()+'/'+(+_sd.getMonth()+1)+'/'+_sd.getFullYear(),energy:4,disc:3,resisted:true,relapse:'',block:'',success:true,hour:14,quests:allQ.map(function(q){return{n:(q.name||'').substring(0,30),s:'shield'};})});
+    if(!ST.dayLog)ST.dayLog=[];
+    ST.dayLog.push({day:ST.day,date:_sd.getDate()+'/'+(+_sd.getMonth()+1)+'/'+_sd.getFullYear(),dow:ST.day%7,success:true,perfect:false,partial:true,energy:4,body:false,mind:false,disc:false,xp:ST.xp,streak:ST.streak,shield:true});
+    if(ST.dayLog.length>400)ST.dayLog=ST.dayLog.slice(-400);
+    ST.dayDone=true;ST.reviewDone=true;ST.sanctionPending=false;save();
+    _testDateCounter++;ST.lastDate='test-'+(_testDateCounter-1);
+    advDay();ST.lastDate=todayStr();
+    if(!ST.weekPlan||!ST.weekPlan.length){ST.weekPlan=genWeek();}
+    ST.questStatus={};ST.dayDone=false;ST.reviewDone=false;ST.morningCheckDone=false;ST.todayMood=null;_applyShieldToQuestStatus();save();
+    return;
+  }
   allQ.forEach(function(q){
     var isNN=q.id==='nn0'||q.id==='nn1'||q.id==='nn2';
     if(Math.random()<rate){
