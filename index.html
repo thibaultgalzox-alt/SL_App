@@ -1618,7 +1618,7 @@ function buildQ(q,uid){
   let act='';
   const liveXP=xpV(q.type||'se');
   const livePts=ptsV(q.type||'se');
-  if(done==='shield')act=`<span style="font-size:10px;color:#6c7ae0;font-weight:600">🛡️ Bouclier Temporaire — aucune pénalité</span>`;
+  if(done==='shield')act=`<span style="font-size:10px;color:#6c7ae0;font-weight:600">🛡️ Bouclier temporaire utilisé</span>`;
   else if(done==='dayoff')act=`<span class="qdone-lbl" style="color:#74b9ff">&#127796; Validée - Journée off</span>`;
   else if(done==='perfect')act=`<span class="qdone-lbl">&#10003; ${isNN?'Accomplie':'Accomplie'} - +${liveXP} XP, +${livePts} pts</span>`;
   else if(done==='clear')act=`<span class="qclear-lbl">&#10003; ${isNN?'En partie':'En partie'} - +${Math.round(liveXP*.7)} XP</span>`;
@@ -1626,17 +1626,6 @@ function buildQ(q,uid){
   else if(locked){
     if(!isNN&&ST.sanctionConfirmedAt)act=`<span style="font-size:10px;color:#8a7e6a;font-style:italic">—</span>`;
     else act=`<span style="font-size:10px;color:#8a7e6a;font-style:italic">Disponible à partir de 10h</span>`;
-  }
-  else if(isShielded()&&isNN){
-    // Shielded day: show normal buttons but with shield indicator
-    var _partLeft=2-(ST.weeklyPartialCount||0);
-    if(isPorno){
-      act=`<div style="font-size:9px;color:#6c7ae0;font-weight:600;margin-bottom:4px">🛡️ Jour bouclier — aucune pénalité si non faite</div><button class="qbtn perfect" onclick="trig('${id}','perfect')">&#10003; Accomplie</button><button class="qbtn fail" onclick="trig('${id}','fail')">Fail</button>`;
-    } else if(_partLeft>0){
-      act=`<div style="font-size:9px;color:#6c7ae0;font-weight:600;margin-bottom:4px">🛡️ Jour bouclier — aucune pénalité si non faite</div><button class="qbtn perfect" onclick="trig('${id}','perfect')">&#10003; Accomplie</button><button class="qbtn clear" onclick="trig('${id}','clear')">En partie <span style="font-size:9px;opacity:.6">(${_partLeft})</span></button><button class="qbtn fail" onclick="trig('${id}','fail')">Fail</button>`;
-    } else {
-      act=`<div style="font-size:9px;color:#6c7ae0;font-weight:600;margin-bottom:4px">🛡️ Jour bouclier — aucune pénalité si non faite</div><button class="qbtn perfect" onclick="trig('${id}','perfect')">&#10003; Accomplie</button><button class="qbtn fail" onclick="trig('${id}','fail')">Fail</button>`;
-    }
   }
   else if(isNN){
     if(isPorno){
@@ -2495,6 +2484,15 @@ function returnPay(){
   // Restore s-done to normal
   _restoreDoneScreen();
   save();nav('s-main');SND.open();renderMain();
+  // If new day is shielded, mark all quests immediately
+  if(isShielded()){
+    const _st=getToday();
+    if(_st){
+      _st.nn.forEach(function(q){ST.questStatus[q.id]='shield';});
+      if(_st.water)ST.questStatus[_st.water.id]='shield';
+      (_st.secs||[]).forEach(function(q){ST.questStatus[q.id]='shield';});
+    }
+  }
 }
 
 function returnSkip(){
@@ -2750,15 +2748,19 @@ function buyRew(i,src){
     const _days=_shMap[r.name];
     const _h=new Date().getHours();
     const _start=(_h>=10&&_h<22)?ST.day:ST.day+1;
-    ST.shieldDays=(ST.shieldDays||0)+_days;
-    // If no active shield yet, set start day; if already active, extend from current end
-    if(!ST.shieldStartDay||ST.day>=ST.shieldStartDay+(ST.shieldDays-_days)){
-      ST.shieldStartDay=_start;
-    }
-    // Ensure shieldDays is set from start
     ST.shieldDays=_days;ST.shieldStartDay=_start;
-    toast('🛡️ Bouclier actif du J'+_start+' au J'+(+_start+_days-1)+' !',4000);
-    save();renderRewards();return;
+    // If active today, immediately mark current quests as shield
+    if(_start===ST.day){
+      const _t=getToday();
+      if(_t){
+        _t.nn.forEach(function(q){if(!ST.questStatus[q.id]||ST.questStatus[q.id]==='fail')ST.questStatus[q.id]='shield';});
+        if(_t.water&&(!ST.questStatus[_t.water.id]||ST.questStatus[_t.water.id]==='fail'))ST.questStatus[_t.water.id]='shield';
+        (_t.secs||[]).forEach(function(q){if(!ST.questStatus[q.id]||ST.questStatus[q.id]==='fail')ST.questStatus[q.id]='shield';});
+      }
+    }
+    const _end=_start+_days-1;
+    toast('🛡️ Bouclier actif du J'+_start+(_days>1?' au J'+_end:'')+' !',4000);
+    save();nav('s-main');renderMain();return;
   }
 
   if(r.name==='Annuler sanction (1×)'){
