@@ -47,6 +47,7 @@ body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size
 .sc.int-crit{background:var(--red-bg);border-color:rgba(184,45,45,.25);animation:int-blink 1.8s ease-in-out infinite}
 .sc.int-crit.int-zero-fixed{animation:none;background:var(--red-bg)}
 @keyframes int-blink{0%,100%{background:var(--red-bg)}50%{background:#f9c9c9}}
+@keyframes hm-blink{0%,100%{opacity:1}50%{opacity:.4}}
 @keyframes int-blink-fast{0%,100%{background:#B82D2D}50%{background:#e74c3c}}
 .sc .v{font-size:17px;font-weight:700;color:var(--ink)}
 .sc .l{font-size:8px;color:var(--ink3);margin-top:2px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
@@ -168,7 +169,7 @@ body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size
 
 /* ─── SHOP ─── */
 .rg{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:.4rem 0}
-.rc{background:var(--card);border-radius:var(--r);padding:14px;box-shadow:var(--shadow);border:1px solid rgba(0,0,0,.03)}
+.rc{background:var(--card);border-radius:var(--r);padding:14px;box-shadow:var(--shadow);border:1px solid #e8e0d4}
 .rc.locked-reward{opacity:.4;filter:grayscale(.5)}
 .rt{font-size:8px;font-weight:700;margin-bottom:4px;color:var(--ink4);text-transform:uppercase;letter-spacing:.06em}
 .rn{font-size:11px;margin-bottom:8px;line-height:1.4;color:var(--ink);font-weight:500}
@@ -942,6 +943,8 @@ function _trackFragmentData(questId,status){
     if(questId==='d1'||questId==='d7'){if(!ST.screenQuestDone)ST.screenQuestDone=0;ST.screenQuestDone++;if(!ST._secScreenOk)ST._secScreenOk=0;ST._secScreenOk++;}
     // Pornography (d4)
     if(questId==='d4'){if(!ST.pornQuestDone)ST.pornQuestDone=0;ST.pornQuestDone++;if(!ST._secPornoOk)ST._secPornoOk=0;ST._secPornoOk++;}
+    // Cold shower secondary (sh2)
+    if(questId==='sh2'){if(!ST._secColdShower)ST._secColdShower=0;ST._secColdShower++;}
     // Resisted
     if(q.type==='disc'&&status==='perfect'){if(!ST.resistedCount)ST.resistedCount=0;ST.resistedCount++;}
   }
@@ -954,49 +957,49 @@ function _trackFragmentData(questId,status){
 
 const FRAGMENTS=[
   // DISCIPLINE (1-10)
-  {id:1,cat:'disc',name:'Jour sans échec',desc:'Valider toutes les quêtes NN sans fail pendant 1 jour',check:s=>(s.bilans||[]).some(b=>b.success)},
-  {id:2,cat:'disc',name:'3 jours NN validées',desc:'3 jours consécutifs avec toutes les NN validées',check:s=>{const b=s.bilans||[];let c=0,max=0;for(const x of b){if(x.success){c++;max=Math.max(max,c);}else c=0;}return max>=3;}},
-  {id:3,cat:'disc',name:'5 jours sans sanction',desc:'5 jours sans déclencher l\'écran de sanction',check:s=>(s.totalSanctions||0)===0||(s.day||1)>=5&&(s.sanctionsCompleted||0)===0},
-  {id:4,cat:'disc',name:'7 jours de streak',desc:'Atteindre 7 jours de série',check:s=>(s.bestStreak||0)>=7},
-  {id:5,cat:'disc',name:'Bilan complété',desc:'Envoyer un bilan du soir',check:s=>(s.bilans||[]).length>=1},
-  {id:6,cat:'disc',name:'3 bilans consécutifs',desc:'Envoyer le bilan 3 jours de suite',check:s=>{const b=s.bilans||[];let c=0,max=0;for(let i=0;i<b.length;i++){if(i===0||b[i].day===b[i-1].day+1){c++;max=Math.max(max,c);}else c=1;}return max>=3;}},
-  {id:7,cat:'disc',name:'Rebond après échec',desc:'Journée parfaite après au moins un fail NN la veille',check:s=>{const b=s.bilans||[];for(let i=1;i<b.length;i++){if(!b[i-1].success&&b[i].success&&b[i].perfect)return true;}return false;}},
-  {id:8,cat:'disc',name:'Journée parfaite',desc:'Toutes les quêtes accomplies en une journée',check:s=>(s.bilans||[]).some(b=>b.perfect)},
-  {id:9,cat:'disc',name:'Respect des horaires',desc:'Ouvrir l\'app entre 10h00 et 10h15',check:s=>(s._openedAt10h||false)},
-  {id:10,cat:'disc',name:'Résistance à tentation',desc:'3 quêtes secondaires Discipline validées (pornographie)',check:s=>(s._secPornoOk||0)>=3},
+  {id:1,cat:'disc',name:'1j sans aucun Fail',desc:'Valider toutes les quêtes NN sans fail pendant 1 jour',check:s=>(s.bilans||[]).some(b=>b.success)},
+  {id:2,cat:'disc',name:'3j d\'affilés sans aucun Fail',desc:'3 jours consécutifs avec toutes les NN validées',check:s=>{const b=s.bilans||[];let c=0,max=0;for(const x of b){if(x.success){c++;max=Math.max(max,c);}else c=0;}return max>=3;}},
+  {id:3,cat:'disc',name:'5j d\'affilés sans Sanction',desc:'5 jours sans sanction ni fail (bouclier compte)',check:s=>{var days=(s.bilans||[]);var streak=0,max=0;for(var i=0;i<days.length;i++){var b=days[i];if(b.success||b.shield){streak++;max=Math.max(max,streak);}else{streak=0;}}return max>=5;}},
+  {id:4,cat:'disc',name:'7 jours de Série',desc:'Atteindre 7 jours de série',check:s=>(s.bestStreak||0)>=7},
+  {id:5,cat:'disc',name:'Compléter 1 bilan',desc:'Envoyer au moins 1 bilan du soir',check:s=>(s.bilans||[]).length>=1},
+  {id:6,cat:'disc',name:'Compléter 3 bilans d\'affilé',desc:'Envoyer le bilan du soir 3 jours de suite',check:s=>{const b=s.bilans||[];let c=0,max=0;for(let i=0;i<b.length;i++){if(i===0||b[i].day===b[i-1].day+1){c++;max=Math.max(max,c);}else c=1;}return max>=3;}},
+  {id:7,cat:'disc',name:'Terminer 100% des quêtes le lendemain d\'un fail',desc:'Journée parfaite après au moins un fail NN la veille',check:s=>{const b=s.bilans||[];for(let i=1;i<b.length;i++){if(!b[i-1].success&&b[i].success&&b[i].perfect)return true;}return false;}},
+  {id:8,cat:'disc',name:'Terminer 100% des quêtes d\'une journée',desc:'Toutes les quêtes accomplies en une journée',check:s=>(s.bilans||[]).some(b=>b.perfect)},
+  {id:9,cat:'disc',name:'Ouvrir l\'app dès 10h',desc:'Ouvrir l\'app entre 10h00 et 10h15',check:s=>(s._openedAt10h||false)},
+  {id:10,cat:'disc',name:'3 quêtes secondaires abstinence porno réussies',desc:'Valider 3 quêtes secondaires abstinence pornographie',check:s=>(s._secPornoOk||0)>=3},
   // BODY (11-20)
-  {id:11,cat:'body',name:'Quête BODY validée',desc:'Valider 1 quête Body',check:s=>(s.totalBody||0)>=1},
-  {id:12,cat:'body',name:'3 jours BODY',desc:'Valider Body 3 jours',check:s=>(s.totalBody||0)>=3},
-  {id:13,cat:'body',name:'5 jours BODY',desc:'Valider Body 5 jours',check:s=>(s.totalBody||0)>=5},
-  {id:14,cat:'body',name:'Effort intense',desc:'5 quêtes Body accomplies (pas fail ni en partie) en 5 jours consécutifs',check:s=>(s._bodyPerfect5c||false)},
-  {id:15,cat:'body',name:'Hydratation complète',desc:'Valider la quête eau 1 fois',check:s=>(s.bilans||[]).some(b=>b.quests&&b.quests.some(q=>q.n&&q.n.toLowerCase().includes('eau')&&q.s==='perfect'))},
-  {id:16,cat:'body',name:'3 jours hydratation',desc:'Valider l\'eau 3 jours de suite',check:s=>(s._waterStreak3||false)},
-  {id:17,cat:'body',name:'Routine physique tenue',desc:'10 quêtes Body validées',check:s=>(s.totalBody||0)>=10},
-  {id:18,cat:'body',name:'Activité même fatigué',desc:'Valider Body avec checkin matin "Pas bien"',check:s=>(s._bodyWhileBad||false)},
-  {id:19,cat:'body',name:'Progression physique',desc:'20 quêtes Body validées',check:s=>(s.totalBody||0)>=20},
-  {id:20,cat:'body',name:'Zéro skip BODY',desc:'7 jours consécutifs sans fail Body',check:s=>(s._bodyNoSkip7||false)},
+  {id:11,cat:'body',name:'Terminer 1 quête BODY',desc:'Valider 1 quête Body',check:s=>(s.totalBody||0)>=1},
+  {id:12,cat:'body',name:'Terminer 3 quêtes BODY',desc:'Valider Body 3 jours',check:s=>(s.totalBody||0)>=3},
+  {id:13,cat:'body',name:'Terminer 5 quêtes BODY',desc:'Valider Body 5 jours',check:s=>(s.totalBody||0)>=5},
+  {id:14,cat:'body',name:'Terminer les quêtes BODY 5j d\'affilé',desc:'5 quêtes Body accomplies en 5 jours consécutifs',check:s=>(s._bodyPerfect5c||false)},
+  {id:15,cat:'body',name:'Terminer 1 quête EAU',desc:'Valider la quête eau au moins 1 fois',check:s=>(s.bilans||[]).some(b=>b.quests&&b.quests.some(q=>q.n&&q.n.toLowerCase().includes('eau')&&q.s==='perfect'))},
+  {id:16,cat:'body',name:'Terminer 3 quêtes EAU d\'affilé',desc:'Valider l\'eau 3 jours consécutifs',check:s=>(s._waterStreak3||false)},
+  {id:17,cat:'body',name:'Terminer 10 quêtes BODY',desc:'10 quêtes Body validées',check:s=>(s.totalBody||0)>=10},
+  {id:18,cat:'body',name:'Terminer 1 quête BODY en étant pas bien',desc:'Valider Body avec checkin matin Pas bien',check:s=>(s._bodyWhileBad||false)},
+  {id:19,cat:'body',name:'Terminer 20 quêtes BODY',desc:'20 quêtes Body validées',check:s=>(s.totalBody||0)>=20},
+  {id:20,cat:'body',name:'Terminer 7 quêtes BODY d\'affilé',desc:'7 jours consécutifs sans aucun fail Body',check:s=>(s._bodyNoSkip7||false)},
   // MIND (21-30)
-  {id:21,cat:'mind',name:'Quête MIND validée',desc:'Valider 1 quête Mind',check:s=>(s.totalMind||0)>=1},
-  {id:22,cat:'mind',name:'3 jours MIND',desc:'Valider Mind 3 jours',check:s=>(s.totalMind||0)>=3},
-  {id:23,cat:'mind',name:'Focus profond',desc:'Valider une quête Pomodoro ou Lecture',check:s=>(s.totalMind||0)>=1},
-  {id:24,cat:'mind',name:'Apprentissage réel',desc:'5 quêtes Mind validées',check:s=>(s.totalMind||0)>=5},
-  {id:25,cat:'mind',name:'Introspection écrite',desc:'Répondre à une question d\'introspection',check:s=>(s.reflections||[]).length>=1},
-  {id:26,cat:'mind',name:'Clarté mentale',desc:'10 quêtes Mind validées',check:s=>(s.totalMind||0)>=10},
-  {id:27,cat:'mind',name:'Pas de distraction',desc:'3 quêtes secondaires "temps d\'écran" validées',check:s=>(s._secScreenOk||0)>=3},
-  {id:28,cat:'mind',name:'Travail terminé',desc:'15 quêtes Mind validées',check:s=>(s.totalMind||0)>=15},
-  {id:29,cat:'mind',name:'Compréhension nouvelle',desc:'20 quêtes Mind validées',check:s=>(s.totalMind||0)>=20},
-  {id:30,cat:'mind',name:'Discipline mentale',desc:'30 quêtes Mind validées',check:s=>(s.totalMind||0)>=30},
+  {id:21,cat:'mind',name:'Terminer 1 quête MIND',desc:'Valider 1 quête Mind',check:s=>(s.totalMind||0)>=1},
+  {id:22,cat:'mind',name:'Terminer 3 quêtes MIND',desc:'Valider Mind 3 jours',check:s=>(s.totalMind||0)>=3},
+  {id:23,cat:'mind',name:'Terminer 5 quêtes MIND',desc:'5 quêtes Mind validées',check:s=>(s.totalMind||0)>=5},
+  {id:24,cat:'mind',name:'Terminer 7 quêtes MIND d\'affilé',desc:'7 quêtes Mind d\'affilé sans fail',check:s=>(s._mindNoSkip7||false)},
+  {id:25,cat:'mind',name:'Répondre à 1 question d\'introspection',desc:'Répondre à 1 question d\'introspection',check:s=>(s.reflections||[]).length>=1},
+  {id:26,cat:'mind',name:'Terminer 10 quêtes MIND',desc:'10 quêtes Mind validées',check:s=>(s.totalMind||0)>=10},
+  {id:27,cat:'mind',name:'Terminer 3 quêtes secondaires Temps d\'écran',desc:'Valider 3 quêtes secondaires temps d\'écran',check:s=>(s._secScreenOk||0)>=3},
+  {id:28,cat:'mind',name:'Terminer 15 quêtes MIND',desc:'15 quêtes Mind validées',check:s=>(s.totalMind||0)>=15},
+  {id:29,cat:'mind',name:'Terminer 20 quêtes MIND',desc:'20 quêtes Mind validées',check:s=>(s.totalMind||0)>=20},
+  {id:30,cat:'mind',name:'Terminer 30 quêtes MIND',desc:'30 quêtes Mind validées',check:s=>(s.totalMind||0)>=30},
   // HYBRID / IDENTITÉ (31-40)
-  {id:31,cat:'hybrid',name:'BODY + MIND validées',desc:'Valider Body et Mind le même jour',check:s=>(s.bilans||[]).some(b=>b.body&&b.mind)},
-  {id:32,cat:'hybrid',name:'Journée complète',desc:'Toutes les NN validées en une journée',check:s=>(s.bilans||[]).some(b=>b.success)},
-  {id:33,cat:'hybrid',name:'3 jours complets',desc:'3 jours complets consécutifs',check:s=>{const b=s.bilans||[];let c=0,max=0;for(const x of b){if(x.success){c++;max=Math.max(max,c);}else c=0;}return max>=3;}},
-  {id:34,cat:'hybrid',name:'5 jours complets',desc:'5 jours complets consécutifs',check:s=>{const b=s.bilans||[];let c=0,max=0;for(const x of b){if(x.success){c++;max=Math.max(max,c);}else c=0;}return max>=5;}},
-  {id:35,cat:'hybrid',name:'Semaine réussie',desc:'7 jours complets consécutifs',check:s=>(s.bestStreak||0)>=7},
-  {id:36,cat:'hybrid',name:'Série prolongée',desc:'Atteindre 7 jours de streak',check:s=>(s.bestStreak||0)>=7},
-  {id:37,cat:'hybrid',name:'Retour après chute',desc:'Journée 100% réussie après un fail NN la veille',check:s=>{const b=s.bilans||[];for(let i=1;i<b.length;i++){if(!b[i-1].success&&b[i].perfect)return true;}return false;}},
-  {id:38,cat:'hybrid',name:'Contrôle émotionnel',desc:'3 quêtes secondaires "abstinence" validées',check:s=>(s._secPornoOk||0)>=3},
-  {id:39,cat:'hybrid',name:'Engagement total',desc:'5 jours complets avec Body + Mind',check:s=>{let c=0;(s.bilans||[]).forEach(b=>{if(b.body&&b.mind&&b.success)c++;});return c>=5;}},
-  {id:40,cat:'hybrid',name:'Jour difficile réussi',desc:'Journée réussie avec checkin matin "Pas bien"',check:s=>(s._hardDayWin||false)},
+  {id:31,cat:'hybrid',name:'Terminer 1 BODY + 1 MIND le même jour',desc:'Valider Body ET Mind le même jour',check:s=>(s.bilans||[]).some(b=>b.body&&b.mind)},
+  {id:32,cat:'hybrid',name:'Terminer les 3 quêtes obligatoires en une journée',desc:'Toutes les NN validées en une journée',check:s=>(s.bilans||[]).some(b=>b.success)},
+  {id:33,cat:'hybrid',name:'Terminer 3 jours d\'affilé de quêtes obligatoires',desc:'3 jours consécutifs avec toutes les NN validées',check:s=>{const b=s.bilans||[];let c=0,max=0;for(const x of b){if(x.success){c++;max=Math.max(max,c);}else c=0;}return max>=3;}},
+  {id:34,cat:'hybrid',name:'Terminer 5 jours d\'affilé de quêtes obligatoires',desc:'5 jours consécutifs avec toutes les NN validées',check:s=>{const b=s.bilans||[];let c=0,max=0;for(const x of b){if(x.success){c++;max=Math.max(max,c);}else c=0;}return max>=5;}},
+  {id:35,cat:'hybrid',name:'Terminer 7 jours d\'affilé de quêtes obligatoires',desc:'7 jours consécutifs avec toutes les NN validées',check:s=>(s.bestStreak||0)>=7},
+  {id:36,cat:'hybrid',name:'Terminer 2 quêtes secondaires douche froide',desc:'Valider 2 quêtes secondaires douche froide',check:s=>(s._secColdShower||0)>=2},
+  {id:37,cat:'hybrid',name:'Terminer 3 quêtes de l\'event Hard Mode',desc:'Terminer 3 quêtes lors d\'un event Hard Mode',check:s=>(s._hardModeQuestsDone||0)>=3},
+  {id:38,cat:'hybrid',name:'Atteindre le seuil d\'automaticité (85%)',desc:'Score d\'automaticité >= 85% sur les 30 derniers jours',check:s=>{var sr=s.sr7||[];if(sr.length<7)return false;var last=sr.slice(-Math.min(30,sr.length));return last.filter(function(x){return x===1;}).length/last.length>=0.85;}},
+  {id:39,cat:'hybrid',name:'Dépenser 200 points boutique',desc:'Dépenser 200 points en boutique',check:s=>(s._totalSpent||0)>=200},
+  {id:40,cat:'hybrid',name:'Garder une intégrité >95 pendant 5j de suite',desc:'Garder une intégrité > 95 pendant 5 jours de suite',check:s=>(s._integrity95streak||0)>=5}
 ];
 
 const TRAITS=[
@@ -1058,7 +1061,7 @@ const NEW_TITLES_LEGENDARY=[
 
 const SP={body:["Pompes : {n} reps avant 10h","Squats : {n} reps avant 10h","Planche : {n}s avant 10h","Course : {n} km avant 10h"],mind:["Révision : {n} min avant 10h","Lire {n} pages avant 10h","Voltaire : {n} min avant 10h"],disc:["Journal rechute + {n} pompes maintenant","Mode avion jusqu'à 10h demain"]};
 
-const DEF={onboarded:false,waitingForTomorrow:false,answers:{},multiAnswers:{},obQ:0,day:1,week:1,xp:0,points:0,streak:0,bestStreak:0,integrity:100,weekPlan:null,questStatus:{},gymW:0,runW:0,lastBody:[],lastMind:[],lastDisc:[],lastSE:[],lastSM:[],lastSH:[],customR:[],totalBody:0,totalMind:0,totalDisc:0,sr7:[],bilans:[],dayDone:false,lastDate:null,notifOk:false,failStreak:0,sanctionPending:false,sanctionText:'',sanctionCtx:'',sanctionMult:'1.5',sanctionConfirmedAt:null,totalSanctions:0,sanctionsCompleted:0,hadFailYesterday:false,fatigueScore:3,todayEvent:null,rankDowngrade:false,rankDowngraded:false,lastRankDowngradeDay:0,disciplineDebt:0,lockRewards:false,weeklyBoss:{body:0,mind:0,discFail:0},bossWins:0,failByType:{body:0,mind:0,disc:0},successByType:{body:0,mind:0,disc:0},weekTruthDone:false,reviewDone:false,equippedTitle:null,unlockedTitles:[],lastApartmentDay:-99,dayLog:[],validationHours:[],questLog:{},lastBodyType:[],sanctionStartedAt:null,absenceDays:0,returnOfferShown:false,reconstructionDay:0,reconstructionCooldown:0,recentNNFails:[],shieldDays:0,shieldStartDay:0,fragments:{},unlockedTraits:[],newTitles:[],openedAt10h:0,waterDone:0,screenQuestDone:0,pornQuestDone:0,resistedCount:0,bodyPerfectStreak:0,reboundDays:0,hardDayWon:0,earnedFragments:[],earnedTraits:[],earnedNewTitles:[],_openedAt10h:false,_secPornoOk:0,_secScreenOk:0,_bodyPerfect5c:false,_waterStreak3:false,_bodyWhileBad:false,_bodyNoSkip7:false,_hardDayWin:false};
+const DEF={onboarded:false,waitingForTomorrow:false,answers:{},multiAnswers:{},obQ:0,day:1,week:1,xp:0,points:0,streak:0,bestStreak:0,integrity:100,weekPlan:null,questStatus:{},gymW:0,runW:0,lastBody:[],lastMind:[],lastDisc:[],lastSE:[],lastSM:[],lastSH:[],customR:[],totalBody:0,totalMind:0,totalDisc:0,sr7:[],bilans:[],dayDone:false,lastDate:null,notifOk:false,failStreak:0,sanctionPending:false,sanctionText:'',sanctionCtx:'',sanctionMult:'1.5',sanctionConfirmedAt:null,totalSanctions:0,sanctionsCompleted:0,hadFailYesterday:false,fatigueScore:3,todayEvent:null,rankDowngrade:false,rankDowngraded:false,lastRankDowngradeDay:0,disciplineDebt:0,lockRewards:false,weeklyBoss:{body:0,mind:0,discFail:0},bossWins:0,failByType:{body:0,mind:0,disc:0},successByType:{body:0,mind:0,disc:0},weekTruthDone:false,reviewDone:false,equippedTitle:null,unlockedTitles:[],lastApartmentDay:-99,dayLog:[],validationHours:[],questLog:{},lastBodyType:[],sanctionStartedAt:null,absenceDays:0,returnOfferShown:false,reconstructionDay:0,reconstructionCooldown:0,recentNNFails:[],shieldDays:0,shieldStartDay:0,fragments:{},unlockedTraits:[],newTitles:[],openedAt10h:0,waterDone:0,screenQuestDone:0,pornQuestDone:0,resistedCount:0,bodyPerfectStreak:0,reboundDays:0,hardDayWon:0,earnedFragments:[],earnedTraits:[],earnedNewTitles:[],_openedAt10h:false,_secPornoOk:0,_secScreenOk:0,_bodyPerfect5c:false,_waterStreak3:false,_bodyWhileBad:false,_bodyNoSkip7:false,_hardDayWin:false,_mindNoSkip7:false,_secColdShower:0,_hardModeQuestsDone:0,_totalSpent:0,_integrity95streak:0};
 // ─── IndexedDB storage (fallback to localStorage) ────────────────────────
 const DB_NAME='solo_leveling_db_v2',DB_STORE='app_state',DB_KEY='main';
 let _db=null;
@@ -1751,22 +1754,29 @@ function scheduleNotif(){
   },300000); // every 5 min
 }
 async function askNotif(){
-  if(!('Notification' in window)){toast('Notifications non supportées sur ce navigateur.');return;}
+  if(!('Notification' in window)){toast('Notifications non support\u00e9es sur ce navigateur.');return;}
   if(Notification.permission==='granted'){
     ST.notifOk=true;save();scheduleNotif();
-    toast('Notifications actives ✓ - rappels programmés');return;
+    if('serviceWorker' in navigator){
+      navigator.serviceWorker.ready.then(function(reg){
+        reg.showNotification('Solo Leveling \u2713',{body:'Notifications actives ! Rappels quotidiens programm\u00e9s.',icon:'./icons/icon-192.png',tag:'sl-test'});
+      }).catch(function(){});
+    }
+    toast('Notifications actives - rappels programm\u00e9s \u2713');return;
   }
   if(Notification.permission==='denied'){
-    toast('Notifications bloquées. Va dans Paramètres > Chrome > Notifications pour les autoriser.');return;
+    toast('Bloqu\u00e9es. Va dans Chrome > Param\u00e8tres > Confidentialit\u00e9 > Param\u00e8tres du site > Notifications, et autorise ce site.',6000);return;
   }
   const p=await Notification.requestPermission();
   ST.notifOk=(p==='granted');save();
   if(ST.notifOk){
     scheduleNotif();
-    toast('Notifications activées ! Tu recevras des rappels.');
-  } else {toast('Notifications refusées.');}
+    navigator.serviceWorker.ready.then(function(reg){
+      reg.showNotification('Solo Leveling \u2713',{body:'Rappels quotidiens activ\u00e9s !',icon:'./icons/icon-192.png',tag:'sl-test'});
+    }).catch(function(){});
+    toast('Notifications activ\u00e9es !');
+  } else {toast('Refus\u00e9es. V\u00e9rifie les param\u00e8tres de Chrome.');}
 }
-
 function buildQ(q,uid){
   if(!q)return'';const id=uid||q.id;const done=ST.questStatus[id];const locked=!isOpen();
   const isNN=id==='nn0'||id==='nn1'||id==='nn2';
@@ -1882,6 +1892,8 @@ function trig(id,lv){
     if(q.type==='disc'){ST.totalDisc++;if(!ST.successByType)ST.successByType={body:0,mind:0,disc:0};ST.successByType.disc=(ST.successByType.disc||0)+1;}
     if(lv==='perfect'){SND.perfect();vib([100]);flash('green',400);}
     else{flash(isNN?'orange':'green',350);}
+    // Track hard mode quest completion (F37)
+    if(lv==='perfect'&&q&&q.hardMode){ST._hardModeQuestsDone=(ST._hardModeQuestsDone||0)+1;save();}
     if(lv==='perfect'&&Math.random()<.1&&allNNDone()){const b=Math.round(v*.5);ST.xp+=b;ST.points+=Math.round(p*.5);setTimeout(()=>{SND.rare();flash('gold',600);toast('Bonus rare ! +'+b+' XP');},500);}
     toast('+'+v+' XP +'+p+' pts - '+(lv==='perfect'?'Accomplie !':'En partie'));
     if(checkRankUp())return;
@@ -2633,16 +2645,7 @@ function returnPay(){
   ST.day+=absence;
   // Regenerate week plan if needed
   if(getWk()>ST.week){(function(){
-    // Auto-claim boss if won but not yet claimed before week reset
-    var _wb2=ST.weeklyBoss||{};var _bw2=ST.week||1;
-    var _nm2=_bw2>=2?4:0;var _nd2=_bw2>=3;
-    var _bWon2=(_wb2.body||0)>=3&&(_bw2<2||(_wb2.mind||0)>=_nm2)&&(!_nd2||(_wb2.discFail||0)<=2);
-    if(_bWon2&&!ST._bossShownThisWeek){
-      ST.xp+=40;ST.points+=20;ST.bossWins=(ST.bossWins||0)+1;
-      ST._bossShownThisWeek=true;
-      var _bossTR={1:'Tueur de Boss',4:'Chasseur Chevronné',8:'Élite de l\'Ombre',12:'Légende'};
-      if(_bossTR[ST.bossWins]){if(!ST.unlockedTitles)ST.unlockedTitles=[];if(!ST.unlockedTitles.includes(_bossTR[ST.bossWins]))ST.unlockedTitles.push(_bossTR[ST.bossWins]);}
-    }
+    // Do NOT auto-claim boss — user must claim manually via the button
     ST.week=getWk();ST.weekPlan=genWeek();ST.weeklyBoss={body:0,mind:0,discFail:0};ST.weekTruthDone=false;ST._bossShownThisWeek=false;ST.weeklyPartialCount=0;
   })();}
   else{ST.weekPlan=genWeek();}
@@ -2674,16 +2677,7 @@ function returnSkip(){
     ST.streak=0;
     ST.day++;
     if(getWk()>ST.week){(function(){
-    // Auto-claim boss if won but not yet claimed before week reset
-    var _wb2=ST.weeklyBoss||{};var _bw2=ST.week||1;
-    var _nm2=_bw2>=2?4:0;var _nd2=_bw2>=3;
-    var _bWon2=(_wb2.body||0)>=3&&(_bw2<2||(_wb2.mind||0)>=_nm2)&&(!_nd2||(_wb2.discFail||0)<=2);
-    if(_bWon2&&!ST._bossShownThisWeek){
-      ST.xp+=40;ST.points+=20;ST.bossWins=(ST.bossWins||0)+1;
-      ST._bossShownThisWeek=true;
-      var _bossTR={1:'Tueur de Boss',4:'Chasseur Chevronné',8:'Élite de l\'Ombre',12:'Légende'};
-      if(_bossTR[ST.bossWins]){if(!ST.unlockedTitles)ST.unlockedTitles=[];if(!ST.unlockedTitles.includes(_bossTR[ST.bossWins]))ST.unlockedTitles.push(_bossTR[ST.bossWins]);}
-    }
+    // Do NOT auto-claim boss — user must claim manually via the button
     ST.week=getWk();ST.weekPlan=genWeek();ST.weeklyBoss={body:0,mind:0,discFail:0};ST.weekTruthDone=false;ST._bossShownThisWeek=false;ST.weeklyPartialCount=0;
   })();}
   }
@@ -2802,16 +2796,7 @@ function advDay(){
       if(_btr[ST.bossWins]){if(!ST.unlockedTitles)ST.unlockedTitles=[];if(!ST.unlockedTitles.includes(_btr[ST.bossWins]))ST.unlockedTitles.push(_btr[ST.bossWins]);}
     }
     (function(){
-    // Auto-claim boss if won but not yet claimed before week reset
-    var _wb2=ST.weeklyBoss||{};var _bw2=ST.week||1;
-    var _nm2=_bw2>=2?4:0;var _nd2=_bw2>=3;
-    var _bWon2=(_wb2.body||0)>=3&&(_bw2<2||(_wb2.mind||0)>=_nm2)&&(!_nd2||(_wb2.discFail||0)<=2);
-    if(_bWon2&&!ST._bossShownThisWeek){
-      ST.xp+=40;ST.points+=20;ST.bossWins=(ST.bossWins||0)+1;
-      ST._bossShownThisWeek=true;
-      var _bossTR={1:'Tueur de Boss',4:'Chasseur Chevronné',8:'Élite de l\'Ombre',12:'Légende'};
-      if(_bossTR[ST.bossWins]){if(!ST.unlockedTitles)ST.unlockedTitles=[];if(!ST.unlockedTitles.includes(_bossTR[ST.bossWins]))ST.unlockedTitles.push(_bossTR[ST.bossWins]);}
-    }
+    // Do NOT auto-claim boss — user must claim manually via the button
     ST.week=getWk();ST.weekPlan=genWeek();ST.weeklyBoss={body:0,mind:0,discFail:0};ST.weekTruthDone=false;ST._bossShownThisWeek=false;ST.weeklyPartialCount=0;
   })();
   }
@@ -2860,6 +2845,20 @@ function _updateFragmentTrackers(){
       if(c>=7){ST._bodyNoSkip7=true;break;}
     }
   }
+  // Fragment 24: 7 consecutive mind quest days
+  if(!ST._mindNoSkip7){
+    var _mindLog=ST.bilans||[];var _mc=0;
+    for(var _mi=_mindLog.length-1;_mi>=0;_mi--){
+      if(_mindLog[_mi].mind)_mc++;else break;
+    }
+    if(_mc>=7)ST._mindNoSkip7=true;
+  }
+  // Fragment 36: cold shower secondary quests
+  // Tracked in _trackFragmentData via quest id sh2
+  // Fragment 37: hard mode quests done
+  // Tracked in trig() when hardMode quest validated
+  // Fragment 38: automaticity — checked live via sr7
+  // Fragment 39: total spent — tracked in buyRew
   // Fragment 40: hard day win
   if(!ST._hardDayWin){
     const b=ST.bilans||[];
@@ -2960,7 +2959,7 @@ function renderIdentity(){
       const isEq=equipped===name;
       const tData=allTitlesData.find(function(x){return x.name===name;});
       const r=tData?tData.rarity:'common';
-      const safe=name.replace(/"/g,'&quot;');
+      const safe=name.replace(/'/g,"\\'").replace(/"/g,'&quot;');
       return`<div onclick="equipTitle('${safe}')" style="cursor:pointer;touch-action:manipulation;padding:5px 10px;border-radius:20px;background:${isEq?'var(--accent)':'var(--card)'};border:1.5px solid ${isEq?'transparent':rarityColor(r)};font-size:10px;font-weight:700;color:${isEq?'#fff':rarityColor(r)}">${isEq?'⭐ ':''} ${name}</div>`;
     }).join('')+`</div>`
     :`<div style="font-size:11px;color:var(--ink3);margin-bottom:12px">Aucun titre encore débloqué.</div>`;
@@ -3096,6 +3095,7 @@ function buyRew(i,src){
   if(!r||ST.points<r.cost)return;
   if(!confirm('Utiliser "'+r.name+'" pour '+r.cost+' pts ?'))return;
   ST.points-=r.cost;
+  ST._totalSpent=(ST._totalSpent||0)+r.cost;
   SND.potion();vib([100,50,100]);flash('gold',600);
   // Activate item effects
   if(r.name==='Double XP - 1 jour'){ST.todayEvent='doubleXP';toast('🧪 Double XP activé !');save();renderRewards();renderMain();return;}
@@ -3146,6 +3146,7 @@ function buyRew(i,src){
       ST.dayLog.push({day:ST.day,date:d.getDate()+'/'+(d.getMonth()+1)+'/'+d.getFullYear(),dow:ST.day%7,success:true,perfect:true,partial:false,energy:3,body:true,mind:true,disc:true,xp:ST.xp,streak:ST.streak});
       if(ST.dayLog.length>400)ST.dayLog=ST.dayLog.slice(-400);
       ST.streak++;ST.bestStreak=Math.max(ST.bestStreak,ST.streak);ST.failStreak=0;
+    if((ST.integrity||0)>95){ST._integrity95streak=(ST._integrity95streak||0)+1;}else{ST._integrity95streak=0;}
       ST.integrity=Math.min(100,ST.integrity+3);
       ST.reviewDone=true;
       save();
@@ -3250,6 +3251,7 @@ function _svgHeatmap(dayLog,totalDays){
     var wk=Math.floor(i/7),dow=i%7,dayN=startDay+i;
     var entry=logMap[dayN];
     var color='#d4c9b0';
+    var isToday=(dayN===totalDays&&!entry);
     if(dayN<=totalDays&&entry){
       if(entry.shield)color='#6c7ae0';
       else if(entry.perfect)color='#00694b';
@@ -3257,8 +3259,9 @@ function _svgHeatmap(dayLog,totalDays){
       else if(entry.body===false&&entry.mind===false&&entry.disc===false)color='#b71c1c';
       else color='#c0392b';
     } else if(dayN<totalDays){color='#c0392b';} // past day, no entry = red
-    // dayN===totalDays with no entry = today not yet done = grey (#d4c9b0)
-    svg+='<rect x="'+(14+wk*(cs+gap))+'" y="'+(dow*(cs+gap))+'" width="'+cs+'" height="'+cs+'" rx="2" fill="'+color+'" opacity="0.85"/>';
+    // dayN===totalDays with no entry = today not yet done = grey (blinking)
+    var anim=isToday?' style="animation:hm-blink 2s ease-in-out infinite"':'';
+    svg+='<rect x="'+(14+wk*(cs+gap))+'" y="'+(dow*(cs+gap))+'" width="'+cs+'" height="'+cs+'" rx="2" fill="'+color+'" opacity="0.85"'+anim+'/>';
   }
   svg+='</svg>';return svg;
 }
