@@ -1170,9 +1170,10 @@ function isShielded(){
 function _applyShieldToQuestStatus(){
   if(!isShielded())return;
   const _t=getToday();if(!_t)return;
-  _t.nn.forEach(function(q){if(!ST.questStatus[q.id]||ST.questStatus[q.id]==='fail')ST.questStatus[q.id]='shield';});
+  // Mark ALL quests as shield — overwrite any previous status including 'fail'
+  _t.nn.forEach(function(q){ST.questStatus[q.id]='shield';});
   if(_t.water)ST.questStatus[_t.water.id]='shield';
-  (_t.secs||[]).forEach(function(q){if(!ST.questStatus[q.id]||ST.questStatus[q.id]==='fail')ST.questStatus[q.id]='shield';});
+  (_t.secs||[]).forEach(function(q){ST.questStatus[q.id]='shield';});
 }
 function isRed(){if(isShielded())return false;return !isReconstruction()&&(ST.failStreak||0)>=5;}
 // Called after every integrity decrease — triggers rank downgrade if needed
@@ -1661,6 +1662,8 @@ function animQ(){setTimeout(()=>{document.querySelectorAll('.qcard').forEach((c,
 
 var _trigBusy=false;
 function trig(id,lv){
+  // Block interaction on shielded quests
+  if(ST.questStatus[id]==='shield'){toast('🛡️ Quête protégée par le bouclier.');return;}
   if(_trigBusy)return;
   // If this quest already has this exact status, it's a ghost click - ignore
   if(ST.questStatus[id]===lv)return;
@@ -2228,6 +2231,8 @@ function setTruth(val){ST.weekTruthDone=true;document.querySelectorAll('.truth-o
 function submitReview(){
   const t=getToday();if(!t)return;
   ST.reviewDone=true;
+  // Re-apply shield in case any quest was manually set to fail
+  _applyShieldToQuestStatus();
   const energy=getStars('st-energy');const disc=getStars('st-disc');
   const block=document.getElementById('block-txt').value;
   const relapse=ST.resistedToday===false?document.getElementById('relapse-txt').value:'';
@@ -2262,9 +2267,9 @@ function submitReview(){
   const perfCount=allQ2.filter(q=>ST.questStatus[q.id]==='perfect').length;
   const clearCount=allQ2.filter(q=>ST.questStatus[q.id]==='clear').length;
   const failCount2=allQ2.filter(q=>ST.questStatus[q.id]==='fail'||!ST.questStatus[q.id]).length;
-  const bodyOk=t.nn.filter(q=>q.type==='body'&&(ST.questStatus[q.id]==='perfect'||ST.questStatus[q.id]==='clear'||ST.questStatus[q.id]==='dayoff')).length>0;
-  const mindOk=t.nn.filter(q=>q.type==='mind'&&(ST.questStatus[q.id]==='perfect'||ST.questStatus[q.id]==='clear'||ST.questStatus[q.id]==='dayoff')).length>0;
-  const discOk=t.nn.filter(q=>q.type==='disc'&&(ST.questStatus[q.id]==='perfect'||ST.questStatus[q.id]==='clear'||ST.questStatus[q.id]==='dayoff')).length>0;
+  const bodyOk=t.nn.filter(q=>q.type==='body'&&(ST.questStatus[q.id]==='perfect'||ST.questStatus[q.id]==='clear'||ST.questStatus[q.id]==='dayoff'||ST.questStatus[q.id]==='shield')).length>0;
+  const mindOk=t.nn.filter(q=>q.type==='mind'&&(ST.questStatus[q.id]==='perfect'||ST.questStatus[q.id]==='clear'||ST.questStatus[q.id]==='dayoff'||ST.questStatus[q.id]==='shield')).length>0;
+  const discOk=t.nn.filter(q=>q.type==='disc'&&(ST.questStatus[q.id]==='perfect'||ST.questStatus[q.id]==='clear'||ST.questStatus[q.id]==='dayoff'||ST.questStatus[q.id]==='shield')).length>0;
   const dow=d.getDay();
   ST.dayLog.push({day:ST.day,date:`${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`,dow,success:ok,perfect:perfCount>=allQ2.length&&perfCount>0,partial:ok&&perfCount<allQ2.length,energy,body:bodyOk,mind:mindOk,disc:discOk,xp:ST.xp,streak:ST.streak,morningMood:ST.todayMood||null});
   if(ST.dayLog.length>400)ST.dayLog=ST.dayLog.slice(-400);
@@ -2314,6 +2319,7 @@ function submitReview(){
       } else {
         // Clear any stale sanction from a previous day before building new one
         ST.sanctionPending=false;
+        ST.dayDone=true; // prevent setInterval from re-triggering
         buildSanction(failed);save();show('s-sanction');
       }
     } else {
@@ -2745,12 +2751,18 @@ function buyRew(i,src){
   if(_shMap[r.name]){
     const _days=_shMap[r.name];
     const _h=new Date().getHours();
-    const _start=(_h>=10&&_h<22)?ST.day:ST.day+1;
+    // Always start from today — rule 10h/22h only matters for whether today is included
+    // Between 10h and 22h: starts today. Between 22h01 and 9h59: starts tomorrow.
+    const _todayIncluded=(_h>=10&&_h<22);
+    const _start=_todayIncluded?ST.day:ST.day+1;
     ST.shieldDays=_days;ST.shieldStartDay=_start;
-    // Mark current day quests as shield if applicable
-    if(_start===ST.day){_applyShieldToQuestStatus();}
+    // Always apply to today if shielded (covers both today and future days)
+    _applyShieldToQuestStatus();
     const _end=_start+_days-1;
-    toast('🛡️ Bouclier actif du J'+_start+(_days>1?' au J'+_end:'')+' !',4000);
+    const _msg=_todayIncluded
+      ?'Bouclier actif maintenant'+(_days>1?' - J'+_start+' au J'+_end:'')+' !'
+      :'Bouclier actif demain (J'+_start+')'+(_days>1?' au J'+_end:'')+' !';
+    toast(_msg,4000);
     save();nav('s-main');renderMain();return;
   }
 
