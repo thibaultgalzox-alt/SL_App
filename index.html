@@ -293,7 +293,7 @@ body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size
     <button class="btn gold" onclick="nav('s-rewards')" style="flex:1">Boutique</button>
   </div>
   <div class="bnav">
-    <button class="ni active" onclick="nav('s-main',this)"><span class="ni-i">📋</span><span class="ni-l">Quêtes</span></button>
+    <button class="ni" onclick="nav('s-main',this)"><span class="ni-i">📋</span><span class="ni-l">Quêtes</span></button>
     <button class="ni" onclick="nav('s-identity',this)"><span class="ni-i">&#11088;</span><span class="ni-l">Identité</span></button>
     <button class="ni" onclick="nav('s-rewards',this)"><span class="ni-i">&#127942;</span><span class="ni-l">Boutique</span></button>
     <button class="ni" onclick="nav('s-stats',this)"><span class="ni-i">&#128200;</span><span class="ni-l">Stats</span></button>
@@ -469,10 +469,9 @@ body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size
   <div id="id-locked" style="display:flex;flex-direction:column;gap:5px"></div>
   <div class="slbl" style="margin-top:.8rem">Preuves comportementales</div>
   <div id="id-stats" style="display:flex;flex-direction:column;gap:4px;font-size:11px;color:#7a6e5a"></div>
-  <button class="btn full" style="margin-top:.8rem" onclick="nav('s-main')">Retour</button>
   <div class="bnav">
     <button class="ni" onclick="nav('s-main',this)"><span class="ni-i">📋</span><span class="ni-l">Quêtes</span></button>
-    <button class="ni active" onclick="nav('s-identity',this)"><span class="ni-i">&#11088;</span><span class="ni-l">Identité</span></button>
+    <button class="ni" onclick="nav('s-identity',this)"><span class="ni-i">&#11088;</span><span class="ni-l">Identité</span></button>
     <button class="ni" onclick="nav('s-rewards',this)"><span class="ni-i">&#127942;</span><span class="ni-l">Boutique</span></button>
     <button class="ni" onclick="nav('s-stats',this)"><span class="ni-i">&#128200;</span><span class="ni-l">Stats</span></button>
   </div>
@@ -494,7 +493,7 @@ body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size
   <div class="bnav">
     <button class="ni" onclick="nav('s-main',this)"><span class="ni-i">📋</span><span class="ni-l">Quêtes</span></button>
     <button class="ni" onclick="nav('s-identity',this)"><span class="ni-i">&#11088;</span><span class="ni-l">Identité</span></button>
-    <button class="ni active" onclick="nav('s-rewards',this)"><span class="ni-i">&#127942;</span><span class="ni-l">Boutique</span></button>
+    <button class="ni" onclick="nav('s-rewards',this)"><span class="ni-i">&#127942;</span><span class="ni-l">Boutique</span></button>
     <button class="ni" onclick="nav('s-stats',this)"><span class="ni-i">&#128200;</span><span class="ni-l">Stats</span></button>
   </div>
 </div>
@@ -666,7 +665,7 @@ body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size
     <button class="ni" onclick="nav('s-main',this)"><span class="ni-i">📋</span><span class="ni-l">Quêtes</span></button>
     <button class="ni" onclick="nav('s-identity',this)"><span class="ni-i">&#11088;</span><span class="ni-l">Identité</span></button>
     <button class="ni" onclick="nav('s-rewards',this)"><span class="ni-i">&#127942;</span><span class="ni-l">Boutique</span></button>
-    <button class="ni active" onclick="nav('s-stats',this)"><span class="ni-i">&#128200;</span><span class="ni-l">Stats</span></button>
+    <button class="ni" onclick="nav('s-stats',this)"><span class="ni-i">&#128200;</span><span class="ni-l">Stats</span></button>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -3384,7 +3383,20 @@ function adaptFromStats(){
 }
 
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
-function nav(id,el){document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));if(el)el.classList.add('active');show(id);if(id==='s-main')renderMain();if(id==='s-identity')renderIdentity();if(id==='s-rewards')renderRewards();if(id==='s-stats')renderStats();}
+function nav(id,el){
+  show(id);
+  // Remove active from all ni buttons, then activate all that match this screen
+  document.querySelectorAll('.ni').forEach(function(n){
+    n.classList.remove('active');
+    // Match by onclick attribute
+    var oc=n.getAttribute('onclick')||'';
+    if(oc.indexOf("'"+id+"'")>=0)n.classList.add('active');
+  });
+  if(id==='s-main')renderMain();
+  if(id==='s-identity')renderIdentity();
+  if(id==='s-rewards')renderRewards();
+  if(id==='s-stats')renderStats();
+}
 
 function buildOB(){
   const total=OB_QS.length,q=OB_QS[ST.obQ];document.getElementById('ob-fill').style.width=Math.round(ST.obQ/total*100)+'%';document.getElementById('ob-lbl').textContent='Question '+(ST.obQ+1)+' / '+total;
