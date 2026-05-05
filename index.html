@@ -2576,24 +2576,25 @@ function advDay(){
     var autoFailed=[];
     t.nn.forEach(function(q){
       if(!ST.questStatus[q.id]){
-        if(isShielded()){ST.questStatus[q.id]='shield';}
+        if(isShielded()){ST.questStatus[q.id]='shield';} // never auto-fail shielded days
         else{ST.questStatus[q.id]='fail';autoFailed.push(q);}
         if(!ST.failByType)ST.failByType={body:0,mind:0,disc:0};
         ST.failByType[q.type]=(ST.failByType[q.type]||0)+1;
-        if(ST.day>14){
+        if(ST.day>14&&!isShielded()){
           ST.integrity=Math.max(0,ST.integrity-5);
           _checkIntegrityDowngrade();
         }
-        if(q.type==='disc')ST.weeklyBoss.discFail=(ST.weeklyBoss.discFail||0)+1;
+        if(q.type==='disc'&&!isShielded())ST.weeklyBoss.discFail=(ST.weeklyBoss.discFail||0)+1;
       }
     });
     // Auto-skip water and secondaries
     if(t.water&&!ST.questStatus[t.water.id])ST.questStatus[t.water.id]='skip';
     (t.secs||[]).forEach(function(q){if(!ST.questStatus[q.id])ST.questStatus[q.id]='skip';});
 
-    // If auto-fails happened and no review done, trigger sanction
-    if(autoFailed.length>0&&!ST.reviewDone&&!ST.sanctionPending&&ST.day>=15){
+    // If auto-fails happened and no review done, trigger sanction (skip if shielded)
+    if(autoFailed.length>0&&!ST.reviewDone&&!ST.sanctionPending&&ST.day>=15&&!isShielded()){
       buildSanction(autoFailed);
+      ST.dayDone=true; // prevent setInterval from re-triggering
       save();show('s-sanction');
       return; // Don't advance - sanction blocks
     }
@@ -2756,8 +2757,16 @@ function buyRew(i,src){
     const _todayIncluded=(_h>=10&&_h<22);
     const _start=_todayIncluded?ST.day:ST.day+1;
     ST.shieldDays=_days;ST.shieldStartDay=_start;
-    // Always apply to today if shielded (covers both today and future days)
+    // Apply shield to quest statuses
     _applyShieldToQuestStatus();
+    // If today is covered and dayLog already has a failed entry for today — fix it
+    if(_todayIncluded&&ST.dayLog&&ST.dayLog.length>0){
+      const _last=ST.dayLog[ST.dayLog.length-1];
+      if(_last.day===ST.day&&!_last.success){
+        _last.success=true;_last.partial=true;_last.perfect=false;
+        _last.shield=true;_last.body=true;_last.mind=true;_last.disc=true;
+      }
+    }
     const _end=_start+_days-1;
     const _msg=_todayIncluded
       ?'Bouclier actif maintenant'+(_days>1?' - J'+_start+' au J'+_end:'')+' !'
@@ -3252,6 +3261,7 @@ function renderStats(){
       b.quests.forEach(function(q){
         var si,sc3;
         if(q.s==='perfect'||q.s==='clear'||q.s==='dayoff'){si='✓';sc3='#8a8a8a';}
+        else if(q.s==='shield'){si='🛡';sc3='#6c7ae0';}
         else if(q.s==='fail'){si='✗';sc3='#c0392b';}
         else{si='–';sc3='#b0a898';}
         qd+='<div style="font-size:9px;color:'+sc3+';padding:1px 0">'+si+' '+q.n+'</div>';
@@ -3531,6 +3541,8 @@ function finishOB(){
     return;
   }
   const today=todayStr();
+  // If lastDate is a test-mode value, treat as today (avoid accidental advDay cascade)
+  if(ST.lastDate&&ST.lastDate.startsWith('test-')){ST.lastDate=today;save();}
   if(ST.lastDate&&ST.lastDate!==today&&nowH()>=10){advDay();ST.lastDate=today;save();}else if(!ST.lastDate){ST.lastDate=today;save();}
   if(!ST.weekPlan||!ST.weekPlan.length){ST.weekPlan=genWeek();save();}
   // Sanction blocks everything - restore from saved text
@@ -3555,7 +3567,7 @@ setInterval(()=>{
   // Update welcome countdown if on welcome screen
   if(document.getElementById('s-welcome').classList.contains('active'))updateWelcomeCd();
   // Day rollover only after 10h (quests open at 10h)
-  if(ST.onboarded&&!ST.waitingForTomorrow&&ST.lastDate&&ST.lastDate!==today&&h>=10){advDay();ST.lastDate=today;save();}
+  if(ST.onboarded&&!ST.waitingForTomorrow&&!ST.sanctionPending&&ST.lastDate&&ST.lastDate!==today&&h>=10){advDay();ST.lastDate=today;save();}
   // Auto-fail unvalidated NN at 22h — skip in test mode
   if(ST.onboarded&&!ST.dayDone&&!ST.reviewDone&&h>=22&&!window._TEST_MODE&&!isShielded()){
     const t=getToday();
