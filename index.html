@@ -463,12 +463,31 @@ body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size
 
 <div class="screen" id="s-identity">
   <div class="hdr"><div class="pill">Identité</div><h1>Progression identitaire</h1></div>
-  <div class="slbl">Titres débloqués</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:.8rem" id="id-unlocked"></div>
-  <div class="slbl">À débloquer</div>
-  <div id="id-locked" style="display:flex;flex-direction:column;gap:5px"></div>
-  <div class="slbl" style="margin-top:.8rem">Preuves comportementales</div>
-  <div id="id-stats" style="display:flex;flex-direction:column;gap:4px;font-size:11px;color:#7a6e5a"></div>
+
+  <!-- Titre équipé -->
+  <div id="id-equipped"></div>
+
+  <!-- Titres débloqués (badges cliquables) -->
+  <div id="id-titles-row"></div>
+
+  <!-- Traits (10 cartes accordion) -->
+  <div class="slbl">Traits</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px" id="id-traits"></div>
+
+  <!-- Nouveaux titres par rareté -->
+  <div class="slbl">Titres</div>
+  <div id="id-new-titles" style="margin-bottom:10px"></div>
+
+  <!-- Anciens titres -->
+  <div id="id-old-titles" style="margin-bottom:10px"></div>
+
+  <!-- Preuves comportementales -->
+  <div class="slbl">Preuves comportementales</div>
+  <div id="id-stats" style="margin-bottom:1rem"></div>
+
+  <!-- Compat -->
+  <div id="id-unlocked" style="display:none"></div>
+  <div id="id-locked" style="display:none"></div>
   <div class="bnav">
     <button class="ni" onclick="nav('s-main',this)"><span class="ni-i">📋</span><span class="ni-l">Quêtes</span></button>
     <button class="ni" onclick="nav('s-identity',this)"><span class="ni-i">&#11088;</span><span class="ni-l">Identité</span></button>
@@ -907,9 +926,139 @@ const ID_T=[
   {id:'reader',name:'Reader',cond:'20 quêtes Mind',ok:s=>s.totalMind>=20},
   {id:'boss_slayer',name:'Boss Slayer',cond:'Vaincre 4 boss hebdomadaires',ok:s=>(s.bossWins||0)>=4},
 ];
+
+
+
+// Track fragment-specific counters in trig() and submitReview()
+function _trackFragmentData(questId,status){
+  // Fragment 9: tracked at app open — handled in init()
+  // Fragment 10: resisted temptation (disc questStatus = perfect)
+  var q=null;var t=getToday();if(t){q=([...t.nn,t.water,...(t.secs||[])].filter(Boolean)).find(function(x){return x.id===questId;});}
+  if(!q)return;
+  if(status==='perfect'||status==='clear'){
+    // Water tracking
+    if(questId==='water0'){if(!ST.waterDone)ST.waterDone=0;ST.waterDone++;}
+    // Screen time (d1 = réseaux sociaux)
+    if(questId==='d1'||questId==='d7'){if(!ST.screenQuestDone)ST.screenQuestDone=0;ST.screenQuestDone++;if(!ST._secScreenOk)ST._secScreenOk=0;ST._secScreenOk++;}
+    // Pornography (d4)
+    if(questId==='d4'){if(!ST.pornQuestDone)ST.pornQuestDone=0;ST.pornQuestDone++;if(!ST._secPornoOk)ST._secPornoOk=0;ST._secPornoOk++;}
+    // Resisted
+    if(q.type==='disc'&&status==='perfect'){if(!ST.resistedCount)ST.resistedCount=0;ST.resistedCount++;}
+  }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// SYSTÈME FRAGMENTS → TRAITS → TITRES
+// ═══════════════════════════════════════════════════════════════════
+
+const FRAGMENTS=[
+  // DISCIPLINE (1-10)
+  {id:1,cat:'disc',name:'Jour sans échec',desc:'Valider toutes les quêtes NN sans fail pendant 1 jour',check:s=>(s.bilans||[]).some(b=>b.success)},
+  {id:2,cat:'disc',name:'3 jours NN validées',desc:'3 jours consécutifs avec toutes les NN validées',check:s=>{const b=s.bilans||[];let c=0,max=0;for(const x of b){if(x.success){c++;max=Math.max(max,c);}else c=0;}return max>=3;}},
+  {id:3,cat:'disc',name:'5 jours sans sanction',desc:'5 jours sans déclencher l\'écran de sanction',check:s=>(s.totalSanctions||0)===0||(s.day||1)>=5&&(s.sanctionsCompleted||0)===0},
+  {id:4,cat:'disc',name:'7 jours de streak',desc:'Atteindre 7 jours de série',check:s=>(s.bestStreak||0)>=7},
+  {id:5,cat:'disc',name:'Bilan complété',desc:'Envoyer un bilan du soir',check:s=>(s.bilans||[]).length>=1},
+  {id:6,cat:'disc',name:'3 bilans consécutifs',desc:'Envoyer le bilan 3 jours de suite',check:s=>{const b=s.bilans||[];let c=0,max=0;for(let i=0;i<b.length;i++){if(i===0||b[i].day===b[i-1].day+1){c++;max=Math.max(max,c);}else c=1;}return max>=3;}},
+  {id:7,cat:'disc',name:'Rebond après échec',desc:'Journée parfaite après au moins un fail NN la veille',check:s=>{const b=s.bilans||[];for(let i=1;i<b.length;i++){if(!b[i-1].success&&b[i].success&&b[i].perfect)return true;}return false;}},
+  {id:8,cat:'disc',name:'Journée parfaite',desc:'Toutes les quêtes accomplies en une journée',check:s=>(s.bilans||[]).some(b=>b.perfect)},
+  {id:9,cat:'disc',name:'Respect des horaires',desc:'Ouvrir l\'app entre 10h00 et 10h15',check:s=>(s._openedAt10h||false)},
+  {id:10,cat:'disc',name:'Résistance à tentation',desc:'3 quêtes secondaires Discipline validées (pornographie)',check:s=>(s._secPornoOk||0)>=3},
+  // BODY (11-20)
+  {id:11,cat:'body',name:'Quête BODY validée',desc:'Valider 1 quête Body',check:s=>(s.totalBody||0)>=1},
+  {id:12,cat:'body',name:'3 jours BODY',desc:'Valider Body 3 jours',check:s=>(s.totalBody||0)>=3},
+  {id:13,cat:'body',name:'5 jours BODY',desc:'Valider Body 5 jours',check:s=>(s.totalBody||0)>=5},
+  {id:14,cat:'body',name:'Effort intense',desc:'5 quêtes Body accomplies (pas fail ni en partie) en 5 jours consécutifs',check:s=>(s._bodyPerfect5c||false)},
+  {id:15,cat:'body',name:'Hydratation complète',desc:'Valider la quête eau 1 fois',check:s=>(s.bilans||[]).some(b=>b.quests&&b.quests.some(q=>q.n&&q.n.toLowerCase().includes('eau')&&q.s==='perfect'))},
+  {id:16,cat:'body',name:'3 jours hydratation',desc:'Valider l\'eau 3 jours de suite',check:s=>(s._waterStreak3||false)},
+  {id:17,cat:'body',name:'Routine physique tenue',desc:'10 quêtes Body validées',check:s=>(s.totalBody||0)>=10},
+  {id:18,cat:'body',name:'Activité même fatigué',desc:'Valider Body avec checkin matin "Pas bien"',check:s=>(s._bodyWhileBad||false)},
+  {id:19,cat:'body',name:'Progression physique',desc:'20 quêtes Body validées',check:s=>(s.totalBody||0)>=20},
+  {id:20,cat:'body',name:'Zéro skip BODY',desc:'7 jours consécutifs sans fail Body',check:s=>(s._bodyNoSkip7||false)},
+  // MIND (21-30)
+  {id:21,cat:'mind',name:'Quête MIND validée',desc:'Valider 1 quête Mind',check:s=>(s.totalMind||0)>=1},
+  {id:22,cat:'mind',name:'3 jours MIND',desc:'Valider Mind 3 jours',check:s=>(s.totalMind||0)>=3},
+  {id:23,cat:'mind',name:'Focus profond',desc:'Valider une quête Pomodoro ou Lecture',check:s=>(s.totalMind||0)>=1},
+  {id:24,cat:'mind',name:'Apprentissage réel',desc:'5 quêtes Mind validées',check:s=>(s.totalMind||0)>=5},
+  {id:25,cat:'mind',name:'Introspection écrite',desc:'Répondre à une question d\'introspection',check:s=>(s.reflections||[]).length>=1},
+  {id:26,cat:'mind',name:'Clarté mentale',desc:'10 quêtes Mind validées',check:s=>(s.totalMind||0)>=10},
+  {id:27,cat:'mind',name:'Pas de distraction',desc:'3 quêtes secondaires "temps d\'écran" validées',check:s=>(s._secScreenOk||0)>=3},
+  {id:28,cat:'mind',name:'Travail terminé',desc:'15 quêtes Mind validées',check:s=>(s.totalMind||0)>=15},
+  {id:29,cat:'mind',name:'Compréhension nouvelle',desc:'20 quêtes Mind validées',check:s=>(s.totalMind||0)>=20},
+  {id:30,cat:'mind',name:'Discipline mentale',desc:'30 quêtes Mind validées',check:s=>(s.totalMind||0)>=30},
+  // HYBRID / IDENTITÉ (31-40)
+  {id:31,cat:'hybrid',name:'BODY + MIND validées',desc:'Valider Body et Mind le même jour',check:s=>(s.bilans||[]).some(b=>b.body&&b.mind)},
+  {id:32,cat:'hybrid',name:'Journée complète',desc:'Toutes les NN validées en une journée',check:s=>(s.bilans||[]).some(b=>b.success)},
+  {id:33,cat:'hybrid',name:'3 jours complets',desc:'3 jours complets consécutifs',check:s=>{const b=s.bilans||[];let c=0,max=0;for(const x of b){if(x.success){c++;max=Math.max(max,c);}else c=0;}return max>=3;}},
+  {id:34,cat:'hybrid',name:'5 jours complets',desc:'5 jours complets consécutifs',check:s=>{const b=s.bilans||[];let c=0,max=0;for(const x of b){if(x.success){c++;max=Math.max(max,c);}else c=0;}return max>=5;}},
+  {id:35,cat:'hybrid',name:'Semaine réussie',desc:'7 jours complets consécutifs',check:s=>(s.bestStreak||0)>=7},
+  {id:36,cat:'hybrid',name:'Série prolongée',desc:'Atteindre 7 jours de streak',check:s=>(s.bestStreak||0)>=7},
+  {id:37,cat:'hybrid',name:'Retour après chute',desc:'Journée 100% réussie après un fail NN la veille',check:s=>{const b=s.bilans||[];for(let i=1;i<b.length;i++){if(!b[i-1].success&&b[i].perfect)return true;}return false;}},
+  {id:38,cat:'hybrid',name:'Contrôle émotionnel',desc:'3 quêtes secondaires "abstinence" validées',check:s=>(s._secPornoOk||0)>=3},
+  {id:39,cat:'hybrid',name:'Engagement total',desc:'5 jours complets avec Body + Mind',check:s=>{let c=0;(s.bilans||[]).forEach(b=>{if(b.body&&b.mind&&b.success)c++;});return c>=5;}},
+  {id:40,cat:'hybrid',name:'Jour difficile réussi',desc:'Journée réussie avec checkin matin "Pas bien"',check:s=>(s._hardDayWin||false)},
+];
+
+const TRAITS=[
+  {id:'fondation',name:'Fondation',icon:'🏛️',frags:[1,2,5],desc:'Les bases de la discipline'},
+  {id:'disc_brute',name:'Discipline Brute',icon:'⚔️',frags:[3,4,9],desc:'La discipline comme mode de vie'},
+  {id:'resilience',name:'Résilience',icon:'🛡️',frags:[7,37,40],desc:'Tenir malgré les obstacles'},
+  {id:'rigueur',name:'Rigueur',icon:'⏱️',frags:[8,10,6],desc:'L\'excellence dans l\'exécution'},
+  {id:'corps_engage',name:'Corps Engagé',icon:'💪',frags:[11,12,15],desc:'Le corps comme outil'},
+  {id:'corps_dominant',name:'Corps Dominant',icon:'🔥',frags:[13,18,20],desc:'La maîtrise physique totale'},
+  {id:'esprit_eveille',name:'Esprit Éveillé',icon:'🧠',frags:[21,23,25],desc:'L\'éveil intellectuel'},
+  {id:'focus_profond',name:'Focus Profond',icon:'🎯',frags:[24,27,28],desc:'La concentration comme arme'},
+  {id:'equilibre',name:'Équilibre',icon:'⚖️',frags:[31,32,33],desc:'Corps et esprit alignés'},
+  {id:'momentum',name:'Momentum',icon:'📈',frags:[34,35,36],desc:'L\'élan qui ne s\'arrête pas'},
+];
+
+const NEW_TITLES_COMMON=[
+  {id:'present',name:'Présent',traits:['fondation']},
+  {id:'actif',name:'Actif',traits:['corps_engage']},
+  {id:'lucide',name:'Lucide',traits:['esprit_eveille']},
+  {id:'engage',name:'Engagé',traits:['fondation','disc_brute']},
+  {id:'stable',name:'Stable',traits:['fondation','resilience']},
+  {id:'determine',name:'Déterminé',traits:['disc_brute']},
+  {id:'en_mouvement',name:'En mouvement',traits:['corps_engage','corps_dominant']},
+  {id:'concentre',name:'Concentré',traits:['focus_profond']},
+  {id:'assidu',name:'Assidu',traits:['rigueur','fondation']},
+  {id:'aligne',name:'Aligné',traits:['equilibre']},
+  {id:'reveille',name:'Réveillé',traits:['esprit_eveille','focus_profond']},
+  {id:'volontaire',name:'Volontaire',traits:['disc_brute','resilience']},
+  {id:'en_progression',name:'En progression',traits:['momentum']},
+  {id:'organise',name:'Organisé',traits:['rigueur']},
+  {id:'conscient',name:'Conscient',traits:['esprit_eveille','equilibre']},
+  {id:'persevent',name:'Persévérant',traits:['resilience','momentum']},
+  {id:'serieux',name:'Sérieux',traits:['disc_brute','rigueur']},
+  {id:'presence_active',name:'Présence active',traits:['fondation','equilibre']},
+  {id:'structure',name:'Structuré',traits:['rigueur','focus_profond']},
+  {id:'capable',name:'Capable',traits:['corps_engage','esprit_eveille']},
+];
+
+const NEW_TITLES_EPIC=[
+  {id:'discipline',name:'Discipliné',traits:['fondation','disc_brute','rigueur']},
+  {id:'constant',name:'Constant',traits:['fondation','resilience','momentum']},
+  {id:'solide',name:'Solide',traits:['corps_dominant','resilience']},
+  {id:'ancre',name:'Ancré',traits:['equilibre','fondation','disc_brute']},
+  {id:'endurant',name:'Endurant',traits:['corps_dominant','resilience','momentum']},
+  {id:'clairvoyant',name:'Clairvoyant',traits:['esprit_eveille','focus_profond','equilibre']},
+  {id:'maitre_rythme',name:'Maître du rythme',traits:['rigueur','momentum','disc_brute']},
+  {id:'equilibre_e',name:'Équilibré',traits:['equilibre','corps_engage','esprit_eveille']},
+  {id:'inflexible',name:'Inflexible',traits:['disc_brute','resilience','rigueur']},
+  {id:'ascension',name:'Ascension',traits:['momentum','corps_dominant','focus_profond']},
+];
+
+const NEW_TITLES_LEGENDARY=[
+  {id:'inebranlable',name:"L'Inébranlable",traits:['discipline','inflexible','solide'],epic:true},
+  {id:'le_systeme',name:'Le Système',traits:['discipline','equilibre_e','ascension'],epic:true},
+  {id:'inevitable',name:"L'Inévitable",traits:['constant','maitre_rythme','inflexible'],epic:true},
+  {id:'corps_esprit',name:'Corps & Esprit Unifiés',traits:['endurant','clairvoyant','equilibre_e'],epic:true},
+  {id:'chasseur_elite',name:"Chasseur d'Élite",traits:['fondation','disc_brute','resilience','rigueur','corps_engage','corps_dominant','esprit_eveille','focus_profond','equilibre','momentum'],epic:true},
+];
+
 const SP={body:["Pompes : {n} reps avant 10h","Squats : {n} reps avant 10h","Planche : {n}s avant 10h","Course : {n} km avant 10h"],mind:["Révision : {n} min avant 10h","Lire {n} pages avant 10h","Voltaire : {n} min avant 10h"],disc:["Journal rechute + {n} pompes maintenant","Mode avion jusqu'à 10h demain"]};
 
-const DEF={onboarded:false,waitingForTomorrow:false,answers:{},multiAnswers:{},obQ:0,day:1,week:1,xp:0,points:0,streak:0,bestStreak:0,integrity:100,weekPlan:null,questStatus:{},gymW:0,runW:0,lastBody:[],lastMind:[],lastDisc:[],lastSE:[],lastSM:[],lastSH:[],customR:[],totalBody:0,totalMind:0,totalDisc:0,sr7:[],bilans:[],dayDone:false,lastDate:null,notifOk:false,failStreak:0,sanctionPending:false,sanctionText:'',sanctionCtx:'',sanctionMult:'1.5',sanctionConfirmedAt:null,totalSanctions:0,sanctionsCompleted:0,hadFailYesterday:false,fatigueScore:3,todayEvent:null,rankDowngrade:false,rankDowngraded:false,lastRankDowngradeDay:0,disciplineDebt:0,lockRewards:false,weeklyBoss:{body:0,mind:0,discFail:0},bossWins:0,failByType:{body:0,mind:0,disc:0},successByType:{body:0,mind:0,disc:0},weekTruthDone:false,reviewDone:false,equippedTitle:null,unlockedTitles:[],lastApartmentDay:-99,dayLog:[],validationHours:[],questLog:{},lastBodyType:[],sanctionStartedAt:null,absenceDays:0,returnOfferShown:false,reconstructionDay:0,reconstructionCooldown:0,recentNNFails:[],shieldDays:0,shieldStartDay:0};
+const DEF={onboarded:false,waitingForTomorrow:false,answers:{},multiAnswers:{},obQ:0,day:1,week:1,xp:0,points:0,streak:0,bestStreak:0,integrity:100,weekPlan:null,questStatus:{},gymW:0,runW:0,lastBody:[],lastMind:[],lastDisc:[],lastSE:[],lastSM:[],lastSH:[],customR:[],totalBody:0,totalMind:0,totalDisc:0,sr7:[],bilans:[],dayDone:false,lastDate:null,notifOk:false,failStreak:0,sanctionPending:false,sanctionText:'',sanctionCtx:'',sanctionMult:'1.5',sanctionConfirmedAt:null,totalSanctions:0,sanctionsCompleted:0,hadFailYesterday:false,fatigueScore:3,todayEvent:null,rankDowngrade:false,rankDowngraded:false,lastRankDowngradeDay:0,disciplineDebt:0,lockRewards:false,weeklyBoss:{body:0,mind:0,discFail:0},bossWins:0,failByType:{body:0,mind:0,disc:0},successByType:{body:0,mind:0,disc:0},weekTruthDone:false,reviewDone:false,equippedTitle:null,unlockedTitles:[],lastApartmentDay:-99,dayLog:[],validationHours:[],questLog:{},lastBodyType:[],sanctionStartedAt:null,absenceDays:0,returnOfferShown:false,reconstructionDay:0,reconstructionCooldown:0,recentNNFails:[],shieldDays:0,shieldStartDay:0,fragments:{},unlockedTraits:[],newTitles:[],openedAt10h:0,waterDone:0,screenQuestDone:0,pornQuestDone:0,resistedCount:0,bodyPerfectStreak:0,reboundDays:0,hardDayWon:0,earnedFragments:[],earnedTraits:[],earnedNewTitles:[],_openedAt10h:false,_secPornoOk:0,_secScreenOk:0,_bodyPerfect5c:false,_waterStreak3:false,_bodyWhileBad:false,_bodyNoSkip7:false,_hardDayWin:false};
 // ─── IndexedDB storage (fallback to localStorage) ────────────────────────
 const DB_NAME='solo_leveling_db_v2',DB_STORE='app_state',DB_KEY='main';
 let _db=null;
@@ -1650,11 +1799,11 @@ function buildQ(q,uid){
   const xc=q.type==='body'?'xp-g':q.type==='mind'||q.type==='water'?'xp-b':'xp-p';
   const hmStyle=q.hardMode?'border:2px solid #f39c12;box-shadow:0 0 8px rgba(243,156,18,.35);':q.discDay?'border:2px solid #d4a054;box-shadow:0 0 8px rgba(162,155,254,.3);':'';
   const hmLabel=q.hardMode
-    ?`<span style="font-size:9px;font-weight:700;color:#f39c12;background:#2d1800;padding:2px 8px;border-radius:10px;margin:4px 0 0 38px;display:inline-block;letter-spacing:.04em">&#128293; HARD MODE BONUS</span>`
+    ?`<span style="font-size:9px;font-weight:700;color:#f39c12;background:#2d1800;padding:2px 8px;border-radius:10px;margin:2px 0 4px 0;display:inline-block;letter-spacing:.04em">&#128293; HARD MODE BONUS</span>`
     :q.discDay
-    ?`<span style="font-size:9px;font-weight:700;color:#d4a054;background:#1a1040;padding:2px 8px;border-radius:10px;margin:4px 0 0 38px;display:inline-block;letter-spacing:.04em">&#9876; DISCIPLINE DAY BONUS</span>`
+    ?`<span style="font-size:9px;font-weight:700;color:#d4a054;background:#1a1040;padding:2px 8px;border-radius:10px;margin:2px 0 4px 0;display:inline-block;letter-spacing:.04em">&#9876; DISCIPLINE DAY BONUS</span>`
     :'';
-  return`<div class="qcard${done?' done':''}" id="qcard-${id}" style="${hmStyle}"><div class="qh"><div class="qicon ${q.cls}">${q.icon}</div><div class="qname">${q.name}</div><div class="qxp ${xc}">+${displayXP} XP</div></div><div class="qdesc">${q.desc}</div>${hmLabel}<span class="qtag ${q.tag}">${q.tagLbl}</span><div class="qactions">${act}</div></div>`;
+  return`<div class="qcard${done?' done':''}" id="qcard-${id}" style="${hmStyle}"><div class="qh"><div class="qicon ${q.cls}">${q.icon}</div><div class="qname">${q.name}</div><div class="qxp ${xc}">+${displayXP} XP</div></div>${hmLabel}<div class="qdesc">${q.desc}</div><span class="qtag ${q.tag}">${q.tagLbl}</span><div class="qactions">${act}</div></div>`;
 }
 
 function animQ(){setTimeout(()=>{document.querySelectorAll('.qcard').forEach((c,i)=>{setTimeout(()=>{c.classList.add('visible');SND.reveal();},i*120);});},100);}
@@ -1738,7 +1887,7 @@ function trig(id,lv){
     if(checkRankUp())return;
     if(checkNewTitles())return;
   }
-  save();scheduleNotif();
+  save();scheduleNotif();checkFragments();
   const rb=getRank().label;
   if(getRank().label!==rb){SND.rankUp();flash('purple',800);showRankUp(getRank());}
   renderMain();
@@ -2285,13 +2434,19 @@ function submitReview(){
 
   const rb=getRank().label;
   if(ok){
-    ST.streak++;ST.bestStreak=Math.max(ST.bestStreak,ST.streak);ST.failStreak=0;
+    ST.streak++;ST.bestStreak=Math.max(ST.bestStreak,ST.streak);
+    // Fragment tracking
+    if(ST.hadFailYesterday){if(!ST.reboundDays)ST.reboundDays=0;ST.reboundDays++;}
+    if(ST.todayMood==='bad'){if(!ST.hardDayWon)ST.hardDayWon=0;ST.hardDayWon++;}ST.failStreak=0;
     // Exit min/red mode after 2 consecutive successes
     if(ST.streak>=2&&(ST.fatigueScore||3)<=1)ST.fatigueScore=2;
     // Reset rankDowngrade flag once integrity recovers above 60
     if(ST.integrity>=60)ST.rankDowngrade=false;
     // Reset rankDowngraded once integrity is above 0
     if(ST.integrity>0)ST.rankDowngraded=false;
+    // Track body perfect streak for fragment 14
+    var _bpOk=t&&t.nn&&t.nn.filter(function(q){return q.type==='body';}).every(function(q){return ST.questStatus[q.id]==='perfect';});
+    if(_bpOk){if(!ST.bodyPerfectStreak)ST.bodyPerfectStreak=0;ST.bodyPerfectStreak++;} else {ST.bodyPerfectStreak=0;}
     // Integrity recovery: +7 if perfect day, +3 if just NN done
     const intRecov=allFullDone()?7:3;
     ST.integrity=Math.min(100,ST.integrity+intRecov);
@@ -2299,7 +2454,7 @@ function submitReview(){
     if(getRank().label!==rb){SND.rankUp();flash('purple',800);toast('Rang supérieur - '+getRank().label+' !');}
     if(ST.resistedToday===false)ST.integrity=Math.max(0,ST.integrity-5);
     _checkIntegrityDowngrade();
-    showDone();save();
+    showDone();save();checkFragments();
   } else {
     if(!isShielded()){ST.failStreak=(ST.failStreak||0)+1;}const fs=Math.min(ST.failStreak||0,7);ST.failStreak=fs;
     if(fs>=3){const prev=ST.streak;ST.streak=0;if(prev>0)toast(`Série réinitialisée après ${prev} jours`);}
@@ -2322,7 +2477,7 @@ function submitReview(){
         buildSanction(failed);save();show('s-sanction');
       }
     } else {
-      showDone();save();
+      showDone();save();checkFragments();
     }
   }
 }
@@ -2664,61 +2819,260 @@ function advDay(){
   const qlnn=document.getElementById('ql-nn');if(qlnn)delete qlnn.dataset.simplified;
 }
 
+
+// ═══════════════════════════════════════════════════════════════════
+// VÉRIFICATEUR DE FRAGMENTS / TRAITS / TITRES
+// ═══════════════════════════════════════════════════════════════════
+function _updateFragmentTrackers(){
+  // Fragment 9: opened at 10h (called at app open)
+  const h=nowH(),m=new Date().getMinutes();
+  if(h===10&&m<=15)ST._openedAt10h=true;
+  // Fragment 14: 5 body perfect in 5 consecutive days
+  if(!ST._bodyPerfect5c){
+    const b=ST.bilans||[];let c=0;
+    for(const x of b){
+      const bodyPerf=x.quests&&x.quests.some(q=>q.n&&q.n.toLowerCase().includes('body')&&q.s==='perfect'||q.n&&(q.n.includes('pompe')||q.n.includes('squat')||q.n.includes('planche')||q.n.includes('run')||q.n.includes('salle')||q.n.includes('km'))&&q.s==='perfect');
+      if(bodyPerf)c++;else c=0;
+      if(c>=5){ST._bodyPerfect5c=true;break;}
+    }
+  }
+  // Fragment 16: water 3 days consecutive
+  if(!ST._waterStreak3){
+    const b=ST.bilans||[];let c=0;
+    for(const x of b){
+      const waterOk=x.quests&&x.quests.some(q=>q.n&&q.n.toLowerCase().includes('eau')&&(q.s==='perfect'||q.s==='clear'));
+      if(waterOk)c++;else c=0;
+      if(c>=3){ST._waterStreak3=true;break;}
+    }
+  }
+  // Fragment 18: body while bad mood
+  if(!ST._bodyWhileBad){
+    const b=ST.bilans||[];
+    for(const x of b){
+      if(x.morningMood==='bad'&&x.body)ST._bodyWhileBad=true;
+    }
+  }
+  // Fragment 20: 7 days no body skip
+  if(!ST._bodyNoSkip7){
+    const b=ST.bilans||[];let c=0;
+    for(const x of b){
+      if(x.body)c++;else c=0;
+      if(c>=7){ST._bodyNoSkip7=true;break;}
+    }
+  }
+  // Fragment 40: hard day win
+  if(!ST._hardDayWin){
+    const b=ST.bilans||[];
+    for(const x of b){
+      if(x.morningMood==='bad'&&x.success)ST._hardDayWin=true;
+    }
+  }
+}
+
+function checkFragments(){
+  _updateFragmentTrackers();
+  if(!ST.earnedFragments)ST.earnedFragments=[];
+  if(!ST.earnedTraits)ST.earnedTraits=[];
+  if(!ST.earnedNewTitles)ST.earnedNewTitles=[];
+  let newFrags=[];let newTraits=[];let newTitles=[];
+  // Check each fragment
+  FRAGMENTS.forEach(function(f){
+    if(ST.earnedFragments.indexOf(f.id)>=0)return;
+    try{if(f.check(ST)){ST.earnedFragments.push(f.id);newFrags.push(f);}}catch(e){}
+  });
+  // Check each trait
+  TRAITS.forEach(function(t){
+    if(ST.earnedTraits.indexOf(t.id)>=0)return;
+    const allDone=t.frags.every(function(fid){return ST.earnedFragments.indexOf(fid)>=0;});
+    if(allDone){ST.earnedTraits.push(t.id);newTraits.push(t);}
+  });
+  // Check common titles
+  NEW_TITLES_COMMON.forEach(function(t){
+    if(ST.earnedNewTitles.indexOf(t.id)>=0)return;
+    const allDone=t.traits.every(function(tid){return ST.earnedTraits.indexOf(tid)>=0;});
+    if(allDone){ST.earnedNewTitles.push(t.id);newTitles.push(t);}
+  });
+  // Check epic titles
+  NEW_TITLES_EPIC.forEach(function(t){
+    if(ST.earnedNewTitles.indexOf(t.id)>=0)return;
+    const allDone=t.traits.every(function(tid){return ST.earnedTraits.indexOf(tid)>=0;});
+    if(allDone){ST.earnedNewTitles.push(t.id);newTitles.push(t);}
+  });
+  // Check legendary titles (need all epic traits listed)
+  NEW_TITLES_LEGENDARY.forEach(function(t){
+    if(ST.earnedNewTitles.indexOf(t.id)>=0)return;
+    const allDone=t.traits.every(function(tid){return ST.earnedTraits.indexOf(tid)>=0||ST.earnedNewTitles.indexOf(tid)>=0;});
+    if(allDone){ST.earnedNewTitles.push(t.id);newTitles.push(t);}
+  });
+  // Notify new unlocks
+  if(newFrags.length>0){
+    flash('gold',600);SND.perfect&&SND.perfect();
+    newFrags.forEach(function(f){toast('💎 Fragment obtenu : '+f.name,4000);});
+  }
+  if(newTraits.length>0){
+    setTimeout(function(){
+      flash('purple',800);SND.rankUp&&SND.rankUp();
+      newTraits.forEach(function(t){toast('✨ Trait débloqué : '+t.name,5000);});
+    },1500);
+  }
+  if(newTitles.length>0){
+    setTimeout(function(){
+      flash('gold',1000);SND.rankUp&&SND.rankUp();vib([100,50,100,50,200]);
+      newTitles.forEach(function(t){toast('👑 Titre débloqué : '+t.name+'!',6000);});
+    },3000);
+  }
+  if(newFrags.length||newTraits.length||newTitles.length){save();}
+}
+
 function renderIdentity(){
-  const allUnlocked=[
+  // ── All unlocked titles (old + new) ──────────────────────────────────────
+  const oldUnlocked=[
     ...ID_T.filter(t=>t.ok(ST)).map(t=>t.name),
     ...(ST.unlockedTitles||[]),
   ];
-  // Deduplicate
-  const uniqueUnlocked=[...new Set(allUnlocked)];
-  // Sort: equipped first, then automatic (by ID_T order), then boss, then shop
-  const autoNames=ID_T.map(t=>t.name);
-  const bossOrder=['Tueur de Boss','Chasseur Chevronné',"Élite de l'Ombre",'Légende'];
-  uniqueUnlocked.sort((a,b)=>{
-    const aAuto=autoNames.indexOf(a),bAuto=autoNames.indexOf(b);
-    const aBoss=bossOrder.indexOf(a),bBoss=bossOrder.indexOf(b);
-    // Auto titles first (in ID_T order)
-    if(aAuto>=0&&bAuto>=0)return aAuto-bAuto;
-    if(aAuto>=0)return -1;if(bAuto>=0)return 1;
-    // Boss titles next
-    if(aBoss>=0&&bBoss>=0)return aBoss-bBoss;
-    if(aBoss>=0)return -1;if(bBoss>=0)return 1;
-    return a.localeCompare(b);
-  });
-  const locked=ID_T.filter(t=>!t.ok(ST));
+  const newUnlocked=(ST.earnedNewTitles||[]).map(function(tid){
+    var all=[].concat(NEW_TITLES_COMMON,NEW_TITLES_EPIC,NEW_TITLES_LEGENDARY);
+    var t=all.find(function(x){return x.id===tid;});
+    return t?t.name:null;
+  }).filter(Boolean);
+  const allUnlocked=[...new Set([...oldUnlocked,...newUnlocked])];
   const equipped=ST.equippedTitle||null;
 
-  const unlockedHtml=uniqueUnlocked.length
-    ?uniqueUnlocked.map(name=>{
-      const isEq=equipped===name;
-      const safeAttr=name.replace(/"/g,'&quot;');
-      return`<div data-title="${safeAttr}" onclick="equipTitle(this.dataset.title)" style="cursor:pointer;touch-action:manipulation;display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;border-radius:var(--r);background:${isEq?'var(--accent)':'var(--card)'};box-shadow:${isEq?'0 3px 14px rgba(184,97,42,.25)':'var(--shadow)'};transition:all .15s;border:1px solid ${isEq?'transparent':'rgba(0,0,0,.04)'};text-align:center">
-        <span style="font-size:20px;pointer-events:none">${isEq?'⭐':'🏷️'}</span>
-        <span style="font-size:12px;font-weight:700;color:${isEq?'#fff':'var(--ink)'};line-height:1.3;pointer-events:none">${name}</span>
-        <span style="font-size:9px;font-weight:700;padding:3px 10px;border-radius:6px;background:${isEq?'rgba(255,255,255,.2)':'var(--bg2)'};color:${isEq?'rgba(255,255,255,.9)':'var(--ink3)'};pointer-events:none">${isEq?'Équipé ✓':'Équiper'}</span>
+  // ── Rarity color helper ──────────────────────────────────────────────────
+  function rarityColor(r){return r==='legendary'?'#f39c12':r==='epic'?'#9b59b6':'var(--ink3)';}
+  function rarityLabel(r){return r==='legendary'?'Légendaire':r==='epic'?'Épique':'Commun';}
+
+  // ── Section: Titre équipé ────────────────────────────────────────────────
+  const equippedHtml=equipped
+    ?`<div style="text-align:center;padding:16px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:var(--r);margin-bottom:12px;box-shadow:0 4px 20px rgba(184,97,42,.3)">
+        <div style="font-size:28px">👑</div>
+        <div style="font-size:16px;font-weight:800;color:#fff;margin:4px 0">${equipped}</div>
+        <button onclick="equipTitle(null)" style="background:rgba(255,255,255,.2);border:none;color:#fff;font-size:10px;font-weight:700;padding:4px 12px;border-radius:8px;cursor:pointer;margin-top:6px">Retirer</button>
+      </div>`
+    :`<div style="text-align:center;padding:12px;background:var(--card);border-radius:var(--r);margin-bottom:12px;border:2px dashed #d4c9b0;color:var(--ink3);font-size:11px">
+        Aucun titre équipé — sélectionne-en un ci-dessous
       </div>`;
-    }).join('')
-    :'<span style="font-size:11px;color:var(--ink3);grid-column:1/-1">Aucun titre encore - continue ta progression et bats des boss.</span>';
 
-  document.getElementById('id-unlocked').innerHTML=unlockedHtml;
-  document.getElementById('id-locked').innerHTML=locked.map(t=>`<div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;padding:6px 0;border-bottom:1px solid #d4c9b0"><span class="badge locked">${t.name}</span><span style="color:#8a7e6a;font-size:10px;max-width:55%;text-align:right">${t.cond}</span></div>`).join('');
-  document.getElementById('id-stats').innerHTML=
-    `<div>Titre affiché : <strong style="color:#d4a054">${equipped?'"'+equipped+'"':'Aucun'}</strong></div>
-     <div>Série : ${ST.streak} jours | Meilleure : ${ST.bestStreak}</div>
-     <div>Body : ${ST.totalBody} | Mind : ${ST.totalMind} | Disc : ${ST.totalDisc}</div>
-     <div>Boss vaincus : ${ST.bossWins||0}</div>`;
+  // ── Section: Titres débloqués (cliquables) ───────────────────────────────
+  const allTitlesData=[].concat(NEW_TITLES_COMMON,NEW_TITLES_EPIC,NEW_TITLES_LEGENDARY);
+  const titlesRowHtml=allUnlocked.length
+    ?`<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px">`+allUnlocked.map(function(name){
+      const isEq=equipped===name;
+      const tData=allTitlesData.find(function(x){return x.name===name;});
+      const r=tData?tData.rarity:'common';
+      const safe=name.replace(/"/g,'&quot;');
+      return`<div onclick="equipTitle('${safe}')" style="cursor:pointer;touch-action:manipulation;padding:5px 10px;border-radius:20px;background:${isEq?'var(--accent)':'var(--card)'};border:1.5px solid ${isEq?'transparent':rarityColor(r)};font-size:10px;font-weight:700;color:${isEq?'#fff':rarityColor(r)}">${isEq?'⭐ ':''} ${name}</div>`;
+    }).join('')+`</div>`
+    :`<div style="font-size:11px;color:var(--ink3);margin-bottom:12px">Aucun titre encore débloqué.</div>`;
+
+  // ── Section: Traits ──────────────────────────────────────────────────────
+  const traitsHtml=TRAITS.map(function(tr){
+    const unlocked=ST.earnedTraits&&ST.earnedTraits.indexOf(tr.id)>=0;
+    const fragsDone=tr.frags.filter(function(fid){return !!ST.earnedFragments&&ST.earnedFragments.indexOf(fid)>=0;}).length;
+    const fragsTotal=tr.frags.length;
+    const pct=Math.round(fragsDone/fragsTotal*100);
+    const fragsDetail=tr.frags.map(function(fid){
+      const f=FRAGMENTS.find(function(x){return x.id===fid;});
+      const done=!!ST.earnedFragments&&ST.earnedFragments.indexOf(fid)>=0;
+      return`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #e8e0d4;font-size:10px;color:${done?'#2e7d32':'var(--ink3)'}">
+        <span style="width:16px;text-align:center">${done?'✓':'○'}</span>
+        <span>${f?f.name:'Fragment '+fid}</span>
+      </div>`;
+    }).join('');
+    return`<div style="background:var(--card);border-radius:var(--r-sm);padding:10px;border:1.5px solid ${unlocked?'var(--green)':'#d4c9b0'};position:relative">
+      <div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" style="cursor:pointer;display:flex;align-items:center;gap:8px">
+        <span style="font-size:18px">${tr.icon}</span>
+        <div style="flex:1">
+          <div style="font-size:11px;font-weight:700;color:${unlocked?'var(--green)':'var(--ink)'}">${tr.name}${unlocked?' ✓':''}</div>
+          <div style="height:4px;background:#e8e0d4;border-radius:2px;margin-top:4px"><div style="height:4px;background:${unlocked?'var(--green)':'var(--accent)'};border-radius:2px;width:${pct}%;transition:width .4s"></div></div>
+          <div style="font-size:9px;color:var(--ink3);margin-top:2px">${fragsDone}/${fragsTotal} fragments</div>
+        </div>
+      </div>
+      <div style="display:none;margin-top:8px;padding-top:6px;border-top:1px solid #e8e0d4">${fragsDetail}</div>
+    </div>`;
+  }).join('');
+
+  // ── Section: Nouveaux Titres par rareté ──────────────────────────────────
+  function renderTitleGroup(titles,label,icon){
+    return'<div style="margin-bottom:10px">'
+      +'<div style="font-size:9px;font-weight:700;letter-spacing:.08em;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">'+icon+' '+label+'</div>'
+      +'<div style="display:flex;flex-direction:column;gap:4px">'
+      +titles.map(function(t){
+        var done=(ST.earnedNewTitles||[]).indexOf(t.id)>=0;
+        var reqTraits=t.traits.map(function(tid){
+          var tr=TRAITS.find(function(x){return x.id===tid;})||{name:tid};
+          var trdone=(ST.earnedTraits||[]).indexOf(tid)>=0||(ST.earnedNewTitles||[]).indexOf(tid)>=0;
+          return'<span style="color:'+(trdone?'var(--green)':'#c0b090')+'">'+(tr.name||tid)+'</span>';
+        }).join(', ');
+        var rc=rarityColor(t.rarity);
+        var isEq=equipped===t.name;
+        var eqBtn=done?('<div onclick="_equipNewTitle(\'' + t.id + '\')" style="font-size:9px;font-weight:700;color:var(--accent);cursor:pointer;white-space:nowrap;padding:3px 7px;border:1px solid var(--accent);border-radius:6px">'+(isEq?'Équipé ✓':'Équiper')+'</div>')  :'';
+        return'<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:6px 8px;border-radius:8px;background:'+(done?'rgba(46,125,50,.08)':'transparent')+';border:1px solid '+(done?'var(--green)':'#e8e0d4')+'">'
+          +'<div>'
+          +'<div style="font-size:11px;font-weight:'+(done?'700':'500')+';color:'+(done?rc:'var(--ink3)')+'">'+(done?'✓ ':'')+t.name+'</div>'
+          +'<div style="font-size:9px;color:var(--ink4);margin-top:2px">'+reqTraits+'</div>'
+          +'</div>'
+          +eqBtn
+          +'</div>';
+      }).join('')
+      +'</div></div>';
+  }
+
+  // ── Anciens titres ────────────────────────────────────────────────────────
+  const oldLocked=ID_T.filter(t=>!t.ok(ST));
+  const oldUnlockedNames=ID_T.filter(t=>t.ok(ST)).map(t=>t.name);
+  const oldTitlesHtml=`<div style="margin-bottom:10px">
+    <div style="font-size:9px;font-weight:700;letter-spacing:.08em;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">🏆 Titres classiques</div>`+
+    ID_T.map(function(t){
+      const done=t.ok(ST);
+      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 8px;border-radius:8px;background:${done?'rgba(46,125,50,.08)':'transparent'};border:1px solid ${done?'var(--green)':'#e8e0d4'};margin-bottom:3px">
+        <div style="font-size:11px;font-weight:${done?'700':'400'};color:${done?'#2e7d32':'var(--ink3)'}">${done?'✓ ':''}${t.name}</div>
+        ${done?'<div style="display:flex;align-items:center;gap:6px">'+
+          `<div onclick="equipTitle('${t.name}')" style="font-size:9px;font-weight:700;color:var(--accent);cursor:pointer;padding:3px 7px;border:1px solid var(--accent);border-radius:6px">${equipped===t.name?'Équipé ✓':'Équiper'}</div>`
+          +'</div>':
+          `<span style="font-size:9px;color:var(--ink4)">${t.cond}</span>`}
+      </div>`;
+    }).join('')+`</div>`;
+
+  // ── Preuves comportementales ──────────────────────────────────────────────
+  const statsHtml=`<div style="font-size:11px;color:var(--ink3);display:flex;flex-direction:column;gap:3px">
+    <div>💎 Fragments obtenus : <strong>${(ST.earnedFragments||[]).length}/40</strong></div>
+    <div>✨ Traits débloqués : <strong>${(ST.earnedTraits||[]).length}/10</strong></div>
+    <div>🏆 Titres débloqués : <strong>${allUnlocked.length}</strong></div>
+    <div style="margin-top:4px;border-top:1px solid #e8e0d4;padding-top:4px">
+      Body : ${ST.totalBody} | Mind : ${ST.totalMind} | Disc : ${ST.totalDisc} | Streak : ${ST.streak}j
+    </div>
+  </div>`;
+
+  // ── Render HTML ───────────────────────────────────────────────────────────
+  document.getElementById('id-equipped').innerHTML=equippedHtml;
+  document.getElementById('id-titles-row').innerHTML=titlesRowHtml;
+  document.getElementById('id-traits').innerHTML=traitsHtml;
+  document.getElementById('id-new-titles').innerHTML=
+    renderTitleGroup(NEW_TITLES_LEGENDARY,'Légendaires','👑')+
+    renderTitleGroup(NEW_TITLES_EPIC,'Épiques','💜')+
+    renderTitleGroup(NEW_TITLES_COMMON,'Communs','⬜');
+  document.getElementById('id-old-titles').innerHTML=oldTitlesHtml;
+  document.getElementById('id-stats').innerHTML=statsHtml;
+  // Keep unlocked grid for backward compat
+  if(document.getElementById('id-unlocked'))document.getElementById('id-unlocked').innerHTML='';
+  if(document.getElementById('id-locked'))document.getElementById('id-locked').innerHTML='';
 }
-
+function _equipNewTitle(tid){
+  var all=[].concat(NEW_TITLES_COMMON,NEW_TITLES_EPIC,NEW_TITLES_LEGENDARY);
+  var t=all.find(function(x){return x.id===tid;});
+  if(t)equipTitle(t.name);
+}
 function equipTitle(name){
-  const wasEquipped=ST.equippedTitle===name;
+  var wasEquipped=ST.equippedTitle===name;
   ST.equippedTitle=wasEquipped?null:name;
-  if(!wasEquipped)SND.perfect(); else SND.reveal();
+  if(!wasEquipped)SND.perfect();else SND.reveal();
   vib([60]);
   save();renderIdentity();
-  const tt=document.getElementById('title-text');
+  var tt=document.getElementById('title-text');
   if(tt&&ST.equippedTitle)tt.textContent=ST.equippedTitle;
   else if(tt)tt.textContent=getRank().title;
-  toast(ST.equippedTitle?`Titre équipé : "${ST.equippedTitle}"`:' Titre retiré');
+  toast(ST.equippedTitle?'Titre équipé : "'+ST.equippedTitle+'"':' Titre retiré');
 }
 function renderRewards(){
   document.getElementById('rw-pts').textContent=ST.points+' pts';
@@ -2897,12 +3251,13 @@ function _svgHeatmap(dayLog,totalDays){
     var entry=logMap[dayN];
     var color='#d4c9b0';
     if(dayN<=totalDays&&entry){
-      // surpassé=dark green(all quests), réussi=green(NN ok), raté=red(>=1 NN fail), échec=bright red(all NN fail)
-      if(entry.perfect)color='#00694b';
+      if(entry.shield)color='#6c7ae0';
+      else if(entry.perfect)color='#00694b';
       else if(entry.success)color='#00b894';
       else if(entry.body===false&&entry.mind===false&&entry.disc===false)color='#b71c1c';
       else color='#c0392b';
-    } else if(dayN<=totalDays){color='#c0392b';}
+    } else if(dayN<totalDays){color='#c0392b';} // past day, no entry = red
+    // dayN===totalDays with no entry = today not yet done = grey (#d4c9b0)
     svg+='<rect x="'+(14+wk*(cs+gap))+'" y="'+(dow*(cs+gap))+'" width="'+cs+'" height="'+cs+'" rx="2" fill="'+color+'" opacity="0.85"/>';
   }
   svg+='</svg>';return svg;
@@ -3557,6 +3912,9 @@ function finishOB(){
   if(ST.lastDate&&ST.lastDate.startsWith('test-')){ST.lastDate=today;save();}
   if(ST.lastDate&&ST.lastDate!==today&&nowH()>=10){advDay();ST.lastDate=today;save();}else if(!ST.lastDate){ST.lastDate=today;save();}
   if(!ST.weekPlan||!ST.weekPlan.length){ST.weekPlan=genWeek();save();}
+  checkFragments(); // Check fragments on every app load
+  // Fragment 9: detect 10h-10h15 opening
+  (function(){var _ih=nowH();var _im=new Date().getMinutes();if(_ih===10&&_im<=15){if(!ST.openedAt10h)ST.openedAt10h=0;ST.openedAt10h++;ST._openedAt10h=true;save();}})();
   // Sanction blocks everything - restore from saved text
   if(ST.sanctionPending&&!ST.dayDone){
     _updateAbsenceDays();
