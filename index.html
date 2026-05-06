@@ -949,10 +949,10 @@ function _trackFragmentData(questId,status){
     if(questId==='water0'){if(!ST.waterDone)ST.waterDone=0;ST.waterDone++;}
     // Screen time (d1 = réseaux sociaux)
     if(questId==='d1'||questId==='d7'){if(!ST.screenQuestDone)ST.screenQuestDone=0;ST.screenQuestDone++;if(!ST._secScreenOk)ST._secScreenOk=0;ST._secScreenOk++;}
-    // Pornography (d4)
-    if(questId==='d4'){if(!ST.pornQuestDone)ST.pornQuestDone=0;ST.pornQuestDone++;if(!ST._secPornoOk)ST._secPornoOk=0;ST._secPornoOk++;}
-    // Cold shower secondary (sh2)
-    if(questId==='sh2'){if(!ST._secColdShower)ST._secColdShower=0;ST._secColdShower++;}
+    // Pornography (d4 = NN, sh4 = secondaire abstinence)
+    if(questId==='d4'||questId==='sh4'||(q.id.startsWith('sh')&&q.name&&q.name.toLowerCase().includes('pornographie'))){if(!ST.pornQuestDone)ST.pornQuestDone=0;ST.pornQuestDone++;if(!ST._secPornoOk)ST._secPornoOk=0;ST._secPornoOk++;}
+    // Cold shower secondary (sh2 base id, but generated as "sh"+d — match by name)
+    if(q.id==='sh2'||q.id.startsWith('sh')&&q.name&&q.name.toLowerCase().includes('douche froide')){if(!ST._secColdShower)ST._secColdShower=0;ST._secColdShower++;}
     // Resisted
     if(q.type==='disc'&&status==='perfect'){if(!ST.resistedCount)ST.resistedCount=0;ST.resistedCount++;}
   }
@@ -993,7 +993,7 @@ const FRAGMENTS=[
   {id:24,cat:'mind',name:'Terminer 7 quêtes MIND d\'affilé',desc:'7 quêtes Mind d\'affilé sans fail',check:s=>(s._mindNoSkip7||false)},
   {id:25,cat:'mind',name:'Répondre à 1 question d\'introspection',desc:'Répondre à 1 question d\'introspection',check:s=>(s.reflections||[]).length>=1},
   {id:26,cat:'mind',name:'Terminer 10 quêtes MIND',desc:'10 quêtes Mind validées',check:s=>(s.totalMind||0)>=10},
-  {id:27,cat:'mind',name:'Terminer 3 quêtes secondaires Temps d\'écran',desc:'Valider 3 quêtes secondaires temps d\'écran',check:s=>(s._secScreenOk||0)>=3},
+  {id:27,cat:'mind',name:'Terminer 3 quêtes Temps d\'écran / Réseaux sociaux',desc:'Valider 3 fois les quêtes de résistance aux écrans (d1 ou d7)',check:s=>(s._secScreenOk||0)>=3},
   {id:28,cat:'mind',name:'Terminer 15 quêtes MIND',desc:'15 quêtes Mind validées',check:s=>(s.totalMind||0)>=15},
   {id:29,cat:'mind',name:'Terminer 20 quêtes MIND',desc:'20 quêtes Mind validées',check:s=>(s.totalMind||0)>=20},
   {id:30,cat:'mind',name:'Terminer 30 quêtes MIND',desc:'30 quêtes Mind validées',check:s=>(s.totalMind||0)>=30},
@@ -1902,6 +1902,8 @@ function trig(id,lv){
     else{flash(isNN?'orange':'green',350);}
     // Track hard mode quest completion (F37)
     if(lv==='perfect'&&q&&q.hardMode){ST._hardModeQuestsDone=(ST._hardModeQuestsDone||0)+1;save();}
+    // Track fragment-specific quest counters
+    if(lv==='perfect'||lv==='clear'){_trackFragmentData(id,lv);}
     if(lv==='perfect'&&Math.random()<.1&&allNNDone()){const b=Math.round(v*.5);ST.xp+=b;ST.points+=Math.round(p*.5);setTimeout(()=>{SND.rare();flash('gold',600);toast('Bonus rare ! +'+b+' XP');},500);}
     toast('+'+v+' XP +'+p+' pts - '+(lv==='perfect'?'Accomplie !':'En partie'));
     if(checkRankUp())return;
@@ -2291,11 +2293,15 @@ function renderMain(){
   var dOk=needDiscCheck?(wb.discFail||0)<=2:true;
   var bWon=bPct>=100&&mPct>=100&&dOk;
   const bossClaimable=bWon&&!ST._bossShownThisWeek;
+  const unclaimedPrev=(ST.unclaimedBoss||0);
   var bossHTML='<div class="boss-card"><div class="boss-title">&#128293; Boss hebdomadaire'+(bWon?' - &#127942; Vaincu !':'')+'</div>';
   bossHTML+='<div class="boss-row"><span>Body '+bDisp2+'/'+needBody+'</span><span>'+bPct+'%</span></div><div class="boss-bar"><div class="boss-fill body" style="width:'+bPct+'%"></div></div>';
   if(needMind>0)bossHTML+='<div class="boss-row"><span>Mind '+mDisp2+'/'+needMind+'</span><span>'+mPct+'%</span></div><div class="boss-bar"><div class="boss-fill mind" style="width:'+mPct+'%"></div></div>';
   if(needDiscCheck)bossHTML+='<div class="boss-row"><span>Discipline (max 2 fails) : '+(wb.discFail||0)+'</span><span style="color:'+(dOk?'#00b894':'#e74c3c')+'">'+(dOk?'&#10003;':'&#10007;')+'</span></div>';
+  // Bouton pour boss de la semaine actuelle (non réclamé)
   if(bossClaimable)bossHTML+='<button class="btn gold full" style="margin-top:8px;animation:pulse-welcome 2s infinite" onclick="claimBossFromMain()">&#127942; Réclamer la victoire !</button>';
+  // Bouton pour boss des semaines précédentes non réclamés
+  if(unclaimedPrev>0)bossHTML+='<button class="btn gold full" style="margin-top:6px;opacity:.9" onclick="claimPendingBoss()">&#127941; Réclamer '+(unclaimedPrev>1?unclaimedPrev+' victoires passées':'1 victoire passée')+'</button>';
   bossHTML+='</div>';
   document.getElementById('boss-zone').innerHTML=bossHTML;
 
@@ -2317,6 +2323,12 @@ function renderMain(){
 function claimBossFromMain(){
   ST._bossShownThisWeek=true;save();
   ST._bossFromMain=true; // flag: return to main after victory, not showDone
+  showBossVictory();
+}
+function claimPendingBoss(){
+  if(!(ST.unclaimedBoss>0))return;
+  ST.unclaimedBoss--;
+  ST._bossFromMain=true;
   showBossVictory();
 }
 function showDone(){
@@ -2475,6 +2487,8 @@ function submitReview(){
     // Integrity recovery: +7 if perfect day, +3 if just NN done
     const intRecov=allFullDone()?7:3;
     ST.integrity=Math.min(100,ST.integrity+intRecov);
+    // Fragment 40: track days with integrity > 95
+    if((ST.integrity||0)>95){ST._integrity95streak=(ST._integrity95streak||0)+1;}else{ST._integrity95streak=0;}
     // Debt reduction: -15 if all quests done (perfect day), -8 if only NN done
     if(getRank().label!==rb){SND.rankUp();flash('purple',800);toast('Rang supérieur - '+getRank().label+' !');}
     if(ST.resistedToday===false)ST.integrity=Math.max(0,ST.integrity-5);
@@ -2797,16 +2811,12 @@ function advDay(){
   }
   // Hard cap on debt - can never exceed 200
   if(getWk()>ST.week){
-    // Auto-collect ALL unclaimed boss rewards before reset
+    // Boss won this week but not yet claimed — store as pending (user must claim manually)
     var _wb=ST.weeklyBoss||{body:0,mind:0,discFail:0};
     var _bwk=ST.week||1;var _bNeedM=_bwk>=2?4:0;var _bNeedDisc=_bwk>=3;
     if((_wb.body||0)>=3&&(_bwk<2||(_wb.mind||0)>=_bNeedM)&&(!_bNeedDisc||(_wb.discFail||0)<=2)&&!ST._bossShownThisWeek){
-      // Unclaimed boss from this week - auto-collect
+      // Do NOT auto-collect — just mark as unclaimed so the button shows next week
       ST.unclaimedBoss=(ST.unclaimedBoss||0)+1;
-      ST.xp+=40;ST.points+=20;ST.bossWins=(ST.bossWins||0)+1;
-      if(!ST.bossQuoteIdx)ST.bossQuoteIdx=0;ST.bossQuoteIdx=(ST.bossQuoteIdx+1)%BOSS_QUOTES.length;
-      var _btr={1:'Tueur de Boss',4:'Chasseur Chevronné',8:"Élite de l'Ombre",12:'Légende'};
-      if(_btr[ST.bossWins]){if(!ST.unlockedTitles)ST.unlockedTitles=[];if(!ST.unlockedTitles.includes(_btr[ST.bossWins]))ST.unlockedTitles.push(_btr[ST.bossWins]);}
     }
     (function(){
     // Do NOT auto-claim boss — user must claim manually via the button
@@ -3044,10 +3054,8 @@ function renderIdentity(){
     var isEpic=titles===NEW_TITLES_EPIC;
     var isLeg=titles===NEW_TITLES_LEGENDARY;
     var hdrClr=isLeg?'#c0713a':isEpic?'#7c3aed':'var(--ink3)';
-    return'<div style="margin-bottom:10px">'
-      +'<div style="font-size:9px;font-weight:700;letter-spacing:.08em;color:'+hdrClr+';text-transform:uppercase;margin-bottom:6px">'+icon+' '+label+'</div>'
-      +'<div style="display:flex;flex-direction:column;gap:4px">'
-      +titles.map(function(t){
+    // Grouper par paires de 2 pour gain de place
+    var _cards=titles.map(function(t){
         var done=(ST.earnedNewTitles||[]).indexOf(t.id)>=0;
         var reqTraits=t.traits.map(function(tid){
           var tr=TRAITS.find(function(x){return x.id===tid;})||{name:tid};
@@ -3086,32 +3094,43 @@ function renderIdentity(){
           :'';
         var lockIcon=!done?(isLeg?'🔒 ':isEpic?'🔒 ':''):''
         var chk=done?'✓ ':lockIcon;
-        return'<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:7px 9px;border-radius:9px;background:'+cardBg+';border:'+cardBorder+'">'
+        return'<div style="display:flex;flex-direction:column;justify-content:space-between;padding:7px 9px;border-radius:9px;height:100%;background:'+cardBg+';border:'+cardBorder+'">'
           +'<div>'
           +'<div style="font-size:11px;font-weight:'+nameFw+';color:'+nameClr+'">'+chk+t.name+'</div>'
           +'<div style="font-size:9px;color:var(--ink4);margin-top:2px">'+reqTraits+'</div>'
           +'</div>'
           +eqBtn
           +'</div>';
-      }).join('')
-      +'</div></div>';
+    });
+    // Render en grille 2 colonnes par paires
+    var _rows='';
+    var _hdr='<div style="font-size:9px;font-weight:700;letter-spacing:.08em;color:'+hdrClr+';text-transform:uppercase;margin-bottom:6px">'+icon+' '+label+'</div>';
+    for(var _ri=0;_ri<_cards.length;_ri+=2){
+      var _c1=_cards[_ri],_c2=_cards[_ri+1]||'';
+      _rows+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:5px">'+_c1+_c2+'</div>';
+    }
+    return'<div style="margin-bottom:10px">'+_hdr+_rows+'</div>';
   }
 
   // ── Anciens titres ────────────────────────────────────────────────────────
   const oldLocked=ID_T.filter(t=>!t.ok(ST));
   const oldUnlockedNames=ID_T.filter(t=>t.ok(ST)).map(t=>t.name);
-  const oldTitlesHtml=`<div style="margin-bottom:10px">
-    <div style="font-size:9px;font-weight:700;letter-spacing:.08em;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">🏆 Titres classiques</div>`+
-    ID_T.map(function(t){
-      const done=t.ok(ST);
-      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 8px;border-radius:8px;background:${done?'rgba(46,125,50,.08)':'transparent'};border:1px solid ${done?'var(--green)':'#e8e0d4'};margin-bottom:3px">
-        <div style="font-size:11px;font-weight:${done?'700':'400'};color:${done?'#2e7d32':'var(--ink3)'}">${done?'✓ ':''}${t.name}</div>
-        ${done?'<div style="display:flex;align-items:center;gap:6px">'+
-          `<div onclick="equipTitle('${t.name}')" style="font-size:9px;font-weight:700;color:var(--accent);cursor:pointer;padding:3px 7px;border:1px solid var(--accent);border-radius:6px">${equipped===t.name?'Équipé ✓':'Équiper'}</div>`
-          +'</div>':
-          `<span style="font-size:9px;color:var(--ink4)">${t.cond}</span>`}
-      </div>`;
-    }).join('')+`</div>`;
+  // Anciens titres en grille 2 colonnes
+  var _oldCards=ID_T.map(function(t){
+    const done=t.ok(ST);
+    const _eqBtn=done?'<div onclick="equipTitle(\''+t.name+'\')" style="font-size:9px;font-weight:700;color:var(--accent);cursor:pointer;padding:3px 7px;border:1px solid var(--accent);border-radius:6px">'+(equipped===t.name?'Équipé ✓':'Équiper')+'</div>':'<span style="font-size:9px;color:var(--ink4)">'+t.cond+'</span>';
+    return'<div style="display:flex;flex-direction:column;justify-content:space-between;padding:6px 8px;border-radius:8px;height:100%;background:'+(done?'rgba(46,125,50,.08)':'transparent')+';border:1px solid '+(done?'var(--green)':'#e8e0d4')+'">'
+      +'<div style="font-size:10px;font-weight:'+(done?'700':'400')+';color:'+(done?'#2e7d32':'var(--ink3)')+'">'+(done?'✓ ':'🔒 ')+t.name+'</div>'
+      +'<div style="margin-top:4px">'+_eqBtn+'</div>'
+      +'</div>';
+  });
+  var _oldRows='';
+  for(var _oi=0;_oi<_oldCards.length;_oi+=2){
+    _oldRows+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:5px">'+_oldCards[_oi]+(_oldCards[_oi+1]||'<div></div>')+'</div>';
+  }
+  const oldTitlesHtml='<div style="margin-bottom:10px">'
+    +'<div style="font-size:9px;font-weight:700;letter-spacing:.08em;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">🏆 Titres classiques</div>'
+    +_oldRows+'</div>';
 
   // ── Preuves comportementales ──────────────────────────────────────────────
   const statsHtml=`<div style="font-size:11px;color:var(--ink3);display:flex;flex-direction:column;gap:3px">
@@ -4243,14 +4262,14 @@ function _testAutoOneDay(){
   if(ST.dayLog.length>400)ST.dayLog=ST.dayLog.slice(-400);
   if(energy<=2)ST.fatigueScore=Math.max(1,ST.fatigueScore-1);else if(energy>=4)ST.fatigueScore=Math.min(4,ST.fatigueScore+1);
   if(ok){ST.streak++;ST.bestStreak=Math.max(ST.bestStreak,ST.streak);ST.failStreak=0;ST.integrity=Math.min(100,ST.integrity+3);if(ST.streak>=2&&ST.fatigueScore<=1)ST.fatigueScore=2;if(ST.integrity>=60)ST.rankDowngrade=false;if(ST.integrity>0)ST.rankDowngraded=false;}
-  else{ST.failStreak=(ST.failStreak||0)+1;if(ST.failStreak>=3)ST.streak=0;else ST.streak=Math.max(0,ST.streak-1);if(failed.length>=2){ST.totalSanctions=(ST.totalSanctions||0)+1;ST.sanctionsCompleted=(ST.sanctionsCompleted||0)+1;}}
-  if(ST.day%7===0){var wb=ST.weeklyBoss||{};var _tw=ST.week||1;var _tnm=_tw>=2?4:0;var _tnd=_tw>=3;if((wb.body||0)>=3&&(_tw<2||(wb.mind||0)>=_tnm)&&(!_tnd||(wb.discFail||0)<=2)){ST.xp+=40;ST.points+=20;ST.bossWins=(ST.bossWins||0)+1;}}
-  // Boss check BEFORE advDay
+  else{ST.failStreak=(ST.failStreak||0)+1;if(ST.failStreak>=3)ST.streak=0;else ST.streak=Math.max(0,ST.streak-1);if(failed.length>=2){ST.totalSanctions=(ST.totalSanctions||0)+1;ST.sanctionsCompleted=(ST.totalSanctions||0)+1;}}
+  // Fragment 40: integrity95streak (test mode)
+  if((ST.integrity||0)>95){ST._integrity95streak=(ST._integrity95streak||0)+1;}else{ST._integrity95streak=0;}
+  // Boss check BEFORE advDay — store as unclaimed only, no auto-collect
   var wbC=ST.weeklyBoss||{body:0,mind:0,discFail:0};var _twC=ST.week||1;var _tnmC=_twC>=2?4:0;var _tndC=_twC>=3;
   if((wbC.body||0)>=3&&(_twC<2||(wbC.mind||0)>=_tnmC)&&(!_tndC||(wbC.discFail||0)<=2)&&!ST._bossShownThisWeek){
+    ST.unclaimedBoss=(ST.unclaimedBoss||0)+1;
     ST._bossShownThisWeek=true;
-    ST.xp+=40;ST.points+=20;ST.bossWins=(ST.bossWins||0)+1;
-    if(!ST.bossQuoteIdx)ST.bossQuoteIdx=0;ST.bossQuoteIdx=(ST.bossQuoteIdx+1)%BOSS_QUOTES.length;
   }
   ST.dayDone=true;ST.reviewDone=true;ST.sanctionPending=false;save();
   _testDateCounter++;ST.lastDate='test-'+(_testDateCounter-1);
