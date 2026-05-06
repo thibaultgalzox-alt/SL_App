@@ -49,6 +49,14 @@ body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size
 @keyframes int-blink{0%,100%{background:var(--red-bg)}50%{background:#f9c9c9}}
 @keyframes hm-blink{0%,100%{opacity:1}50%{opacity:.4}}
 @keyframes int-blink-fast{0%,100%{background:#B82D2D}50%{background:#e74c3c}}
+/* ─── TITRES COSMÉTIQUES ─── */
+@keyframes title-epic-glow{0%,100%{text-shadow:0 0 8px rgba(155,89,182,.5),0 0 20px rgba(155,89,182,.2)}50%{text-shadow:0 0 14px rgba(155,89,182,.9),0 0 32px rgba(155,89,182,.4)}}
+@keyframes title-legendary-glow{0%,100%{text-shadow:0 0 10px rgba(212,144,58,.6),0 0 24px rgba(240,180,80,.3),0 0 40px rgba(212,144,58,.15)}50%{text-shadow:0 0 18px rgba(240,180,80,1),0 0 40px rgba(212,144,58,.7),0 0 60px rgba(255,200,80,.3)}}
+@keyframes title-legendary-flicker{0%,92%,96%,100%{opacity:1;letter-spacing:-.02em}93%{opacity:.85;letter-spacing:.01em}95%{opacity:.95;letter-spacing:-.01em}}
+@keyframes legendary-pill-pulse{0%,100%{background:linear-gradient(135deg,#c0713a,#e8a050);box-shadow:0 2px 10px rgba(212,144,58,.5)}50%{background:linear-gradient(135deg,#e8a050,#f5c060);box-shadow:0 2px 18px rgba(240,180,80,.8),0 0 30px rgba(212,144,58,.4)}}
+.hdr h1.title-epic{color:#7c3aed;animation:title-epic-glow 2.5s ease-in-out infinite}
+.hdr h1.title-legendary{background:linear-gradient(135deg,#c0713a 0%,#e8a050 40%,#f5c060 60%,#c0713a 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:title-legendary-glow 2s ease-in-out infinite,title-legendary-flicker 8s ease-in-out infinite}
+.pill.pill-legendary{animation:legendary-pill-pulse 2s ease-in-out infinite !important}
 .sc .v{font-size:17px;font-weight:700;color:var(--ink)}
 .sc .l{font-size:8px;color:var(--ink3);margin-top:2px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
 
@@ -320,8 +328,8 @@ body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size
 </div>
 
 
-<div class="screen" id="s-boss-victory">
-  <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1.5rem;text-align:center;background:linear-gradient(180deg,#f5f0e8 0%,#e8ddd0 100%)">
+<div class="screen" id="s-boss-victory" style="overflow:hidden;height:100dvh">
+  <div style="height:100%;overflow:hidden;touch-action:none;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1.5rem;text-align:center;background:linear-gradient(180deg,#f5f0e8 0%,#e8ddd0 100%)" ontouchmove="event.preventDefault()">
     <div style="margin-bottom:1rem;position:relative">
       <svg viewBox="0 0 120 120" width="120" height="120" style="filter:drop-shadow(0 0 20px rgba(253,203,110,.4))">
         <defs>
@@ -473,7 +481,7 @@ body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size
 
   <!-- Traits (10 cartes accordion) -->
   <div class="slbl">Traits</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px" id="id-traits"></div>
+  <div style="margin-bottom:14px" id="id-traits"></div>
 
   <!-- Nouveaux titres par rareté -->
   <div class="slbl">Titres</div>
@@ -1939,6 +1947,7 @@ function renderMainDone(t,locked){
   // Update header
   const rk=getRank();const _drk=getDisplayRank();
   document.getElementById('rank-pill').textContent=_drk.label;document.getElementById('title-text').textContent=ST.equippedTitle||_drk.title;
+  _applyTitleCosmetics(ST.equippedTitle||null);
   _updateStatBlocks();
   renderXPBar();
   const nnD=t.nn.filter(q=>ST.questStatus[q.id]==='perfect'||ST.questStatus[q.id]==='clear'||ST.questStatus[q.id]==='dayoff').length;
@@ -2007,6 +2016,7 @@ function _updateStatBlocks(){
 }
 function _updateHeader(t){
   const rk=getRank();const _drk=getDisplayRank();document.getElementById('rank-pill').textContent=_drk.label;document.getElementById('title-text').textContent=ST.equippedTitle||_drk.title;
+  _applyTitleCosmetics(ST.equippedTitle||null);
   _updateStatBlocks();
   renderXPBar();
   if(t){const nnD=t.nn.filter(q=>ST.questStatus[q.id]==='perfect'||ST.questStatus[q.id]==='clear'||ST.questStatus[q.id]==='dayoff').length;document.getElementById('nn-count').textContent=nnD+'/'+t.nn.length;}
@@ -2292,6 +2302,7 @@ function renderMain(){
   // V3: debt shown in state badge
 
   const rk=getRank();const _drk=getDisplayRank();document.getElementById('rank-pill').textContent=_drk.label;document.getElementById('title-text').textContent=ST.equippedTitle||_drk.title;
+  _applyTitleCosmetics(ST.equippedTitle||null);
   _updateStatBlocks();
   renderXPBar();
   const nnD=t.nn.filter(q=>ST.questStatus[q.id]&&ST.questStatus[q.id]!=='fail').length;document.getElementById('nn-count').textContent=nnD+'/'+t.nn.length;
@@ -2419,7 +2430,9 @@ function submitReview(){
   ST.sr7.push(ok?1:0);
   if(!ST.bilans)ST.bilans=[];const d=new Date();
   var _bqs=[];var _allPerf=true;if(t){[...t.nn,t.water,...(t.secs||[])].filter(Boolean).forEach(function(q){var _qs=ST.questStatus[q.id]||'skip';_bqs.push({n:q.name.substring(0,35),s:_qs});if(_qs!=='perfect'&&_qs!=='dayoff')_allPerf=false;});}
-  ST.bilans.push({day:ST.day,date:`${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`,energy,disc,resisted:ST.resistedToday,relapse,block,success:ok,perfect:ok&&_allPerf,quests:_bqs,morningMood:ST.todayMood||null});
+  const _bodyOkBilan=t?t.nn.filter(q=>q.type==='body'&&(ST.questStatus[q.id]==='perfect'||ST.questStatus[q.id]==='clear'||ST.questStatus[q.id]==='dayoff'||ST.questStatus[q.id]==='shield')).length>0:false;
+  const _mindOkBilan=t?t.nn.filter(q=>q.type==='mind'&&(ST.questStatus[q.id]==='perfect'||ST.questStatus[q.id]==='clear'||ST.questStatus[q.id]==='dayoff'||ST.questStatus[q.id]==='shield')).length>0:false;
+  ST.bilans.push({day:ST.day,date:`${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`,energy,disc,resisted:ST.resistedToday,relapse,block,success:ok,perfect:ok&&_allPerf,quests:_bqs,morningMood:ST.todayMood||null,body:_bodyOkBilan,mind:_mindOkBilan});
 
   // ─── V2: Track day data for stats dashboard ───
   if(!ST.dayLog)ST.dayLog=[];
@@ -2832,24 +2845,33 @@ function _updateFragmentTrackers(){
   }
   // Fragment 18: body while bad mood
   if(!ST._bodyWhileBad){
-    const b=ST.bilans||[];
-    for(const x of b){
+    // Check bilans (new format has body field), fallback to dayLog
+    const _b18=ST.bilans||[];
+    for(const x of _b18){
       if(x.morningMood==='bad'&&x.body)ST._bodyWhileBad=true;
+    }
+    if(!ST._bodyWhileBad){
+      for(const x of (ST.dayLog||[])){
+        if(x.morningMood==='bad'&&x.body)ST._bodyWhileBad=true;
+      }
     }
   }
   // Fragment 20: 7 days no body skip
   if(!ST._bodyNoSkip7){
-    const b=ST.bilans||[];let c=0;
-    for(const x of b){
+    // Prefer dayLog (more reliable body field)
+    const _b20=(ST.dayLog||[]).filter(x=>!x.absent);
+    let c=0;
+    for(const x of _b20){
       if(x.body)c++;else c=0;
       if(c>=7){ST._bodyNoSkip7=true;break;}
     }
   }
   // Fragment 24: 7 consecutive mind quest days
   if(!ST._mindNoSkip7){
-    var _mindLog=ST.bilans||[];var _mc=0;
-    for(var _mi=_mindLog.length-1;_mi>=0;_mi--){
-      if(_mindLog[_mi].mind)_mc++;else break;
+    // Prefer dayLog for mind field
+    var _mindLog2=(ST.dayLog||[]).filter(x=>!x.absent);var _mc=0;
+    for(var _mi=_mindLog2.length-1;_mi>=0;_mi--){
+      if(_mindLog2[_mi].mind)_mc++;else break;
     }
     if(_mc>=7)ST._mindNoSkip7=true;
   }
@@ -2923,6 +2945,14 @@ function checkFragments(){
   if(newFrags.length||newTraits.length||newTitles.length){save();}
 }
 
+function _toggleTraitPair(el){
+  var pair=el.closest('.trait-pair');
+  if(!pair)return;
+  var details=pair.querySelectorAll('.trait-detail');
+  var isOpen=details[0]&&details[0].style.display==='block';
+  details.forEach(function(d){d.style.display=isOpen?'none':'block';});
+}
+
 function renderIdentity(){
   // ── All unlocked titles (old + new) ──────────────────────────────────────
   const oldUnlocked=[
@@ -2955,17 +2985,29 @@ function renderIdentity(){
   // ── Section: Titres débloqués (cliquables) ───────────────────────────────
   const allTitlesData=[].concat(NEW_TITLES_COMMON,NEW_TITLES_EPIC,NEW_TITLES_LEGENDARY);
   const titlesRowHtml=allUnlocked.length
-    ?`<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px">`+allUnlocked.map(function(name){
-      const isEq=equipped===name;
-      const tData=allTitlesData.find(function(x){return x.name===name;});
-      const r=tData?tData.rarity:'common';
-      const safe=name.replace(/'/g,"\\'").replace(/"/g,'&quot;');
-      return`<div onclick="equipTitle('${safe}')" style="cursor:pointer;touch-action:manipulation;padding:5px 10px;border-radius:20px;background:${isEq?'var(--accent)':'var(--card)'};border:1.5px solid ${isEq?'transparent':rarityColor(r)};font-size:10px;font-weight:700;color:${isEq?'#fff':rarityColor(r)}">${isEq?'⭐ ':''} ${name}</div>`;
-    }).join('')+`</div>`
-    :`<div style="font-size:11px;color:var(--ink3);margin-bottom:12px">Aucun titre encore débloqué.</div>`;
+    ?'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px">'+allUnlocked.map(function(name){
+      var isEq=equipped===name;
+      var tData=allTitlesData.find(function(x){return x.name===name;});
+      var r=tData?tData.rarity:'common';
+      var safe=name.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+      var pillBg,pillBorder,pillClr,pillAnim,pillExtra;
+      if(isEq){
+        if(r==='legendary'){pillBg='linear-gradient(135deg,#c0713a,#e8a050)';pillBorder='none';pillClr='#fff';pillAnim='animation:legendary-pill-pulse 2s ease-in-out infinite';}
+        else if(r==='epic'){pillBg='#7c3aed';pillBorder='none';pillClr='#fff';pillAnim='';}
+        else{pillBg='var(--accent)';pillBorder='none';pillClr='#fff';pillAnim='';}
+        pillExtra='\u2b50 ';
+      } else {
+        if(r==='legendary'){pillBg='rgba(192,113,58,.08)';pillBorder='1.5px solid rgba(192,113,58,.5)';pillClr='#c0713a';pillAnim='';}
+        else if(r==='epic'){pillBg='rgba(124,58,237,.07)';pillBorder='1.5px solid rgba(124,58,237,.4)';pillClr='#7c3aed';pillAnim='';}
+        else{pillBg='var(--card)';pillBorder='1.5px solid '+rarityColor(r);pillClr=rarityColor(r);pillAnim='';}
+        pillExtra='';
+      }
+      return'<div onclick="equipTitle(\''+safe+'\')" style="cursor:pointer;touch-action:manipulation;padding:5px 10px;border-radius:20px;background:'+pillBg+';border:'+pillBorder+';font-size:10px;font-weight:700;color:'+pillClr+';'+pillAnim+'">'+pillExtra+name+'</div>';
+    }).join('')+'</div>'
+    :'<div style="font-size:11px;color:var(--ink3);margin-bottom:12px">Aucun titre encore débloqué.</div>';
 
   // ── Section: Traits ──────────────────────────────────────────────────────
-  const traitsHtml=TRAITS.map(function(tr){
+  function _buildTraitCard(tr){
     const unlocked=ST.earnedTraits&&ST.earnedTraits.indexOf(tr.id)>=0;
     const fragsDone=tr.frags.filter(function(fid){return !!ST.earnedFragments&&ST.earnedFragments.indexOf(fid)>=0;}).length;
     const fragsTotal=tr.frags.length;
@@ -2973,28 +3015,37 @@ function renderIdentity(){
     const fragsDetail=tr.frags.map(function(fid){
       const f=FRAGMENTS.find(function(x){return x.id===fid;});
       const done=!!ST.earnedFragments&&ST.earnedFragments.indexOf(fid)>=0;
-      return`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #e8e0d4;font-size:10px;color:${done?'#2e7d32':'var(--ink3)'}">
-        <span style="width:16px;text-align:center">${done?'✓':'○'}</span>
-        <span>${f?f.name:'Fragment '+fid}</span>
-      </div>`;
+      return'<div style="display:flex;align-items:flex-start;gap:6px;padding:5px 0;border-bottom:1px solid #e8e0d4;font-size:9px;color:'+(done?'#2e7d32':'var(--ink3)')+'"><span style="min-width:14px;text-align:center;margin-top:1px">'+(done?'✓':'○')+'</span><span style="line-height:1.35">'+(f?f.name:'Fragment '+fid)+'</span></div>';
     }).join('');
-    return`<div style="background:var(--card);border-radius:var(--r-sm);padding:10px;border:1.5px solid ${unlocked?'var(--green)':'#d4c9b0'};position:relative">
-      <div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" style="cursor:pointer;display:flex;align-items:center;gap:8px">
-        <span style="font-size:18px">${tr.icon}</span>
-        <div style="flex:1">
-          <div style="font-size:11px;font-weight:700;color:${unlocked?'var(--green)':'var(--ink)'}">${tr.name}${unlocked?' ✓':''}</div>
-          <div style="height:4px;background:#e8e0d4;border-radius:2px;margin-top:4px"><div style="height:4px;background:${unlocked?'var(--green)':'var(--accent)'};border-radius:2px;width:${pct}%;transition:width .4s"></div></div>
-          <div style="font-size:9px;color:var(--ink3);margin-top:2px">${fragsDone}/${fragsTotal} fragments</div>
-        </div>
-      </div>
-      <div style="display:none;margin-top:8px;padding-top:6px;border-top:1px solid #e8e0d4">${fragsDetail}</div>
-    </div>`;
-  }).join('');
+    return'<div style="background:var(--card);border-radius:var(--r-sm);padding:10px;border:1.5px solid '+(unlocked?'var(--green)':'#d4c9b0')+'" data-trait-id="'+tr.id+'" onclick="_toggleTraitPair(this)">'
+      +'<div style="cursor:pointer;display:flex;align-items:center;gap:8px">'
+      +'<span style="font-size:18px">'+tr.icon+'</span>'
+      +'<div style="flex:1">'
+      +'<div style="font-size:11px;font-weight:700;color:'+(unlocked?'var(--green)':'var(--ink)')+'">'+tr.name+(unlocked?' ✓':'')+'</div>'
+      +'<div style="height:4px;background:#e8e0d4;border-radius:2px;margin-top:4px"><div style="height:4px;background:'+(unlocked?'var(--green)':'var(--accent)')+';border-radius:2px;width:'+pct+'%;transition:width .4s"></div></div>'
+      +'<div style="font-size:9px;color:var(--ink3);margin-top:2px">'+fragsDone+'/'+fragsTotal+' fragments</div>'
+      +'</div></div>'
+      +'<div class="trait-detail" style="display:none;margin-top:8px;padding-top:6px;border-top:1px solid #e8e0d4">'+fragsDetail+'</div>'
+      +'</div>';
+  }
+  // Grouper par paires (lignes de 2) — les deux s'ouvrent ensemble
+  var traitsHtml='';
+  for(var _ti=0;_ti<TRAITS.length;_ti+=2){
+    var _ta=TRAITS[_ti],_tb=TRAITS[_ti+1];
+    var _pairId='tp-'+_ti;
+    traitsHtml+='<div class="trait-pair" data-pair="'+_pairId+'" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">';
+    traitsHtml+=_buildTraitCard(_ta);
+    traitsHtml+=_tb?_buildTraitCard(_tb):'<div></div>';
+    traitsHtml+='</div>';
+  }
 
   // ── Section: Nouveaux Titres par rareté ──────────────────────────────────
   function renderTitleGroup(titles,label,icon){
+    var isEpic=titles===NEW_TITLES_EPIC;
+    var isLeg=titles===NEW_TITLES_LEGENDARY;
+    var hdrClr=isLeg?'#c0713a':isEpic?'#7c3aed':'var(--ink3)';
     return'<div style="margin-bottom:10px">'
-      +'<div style="font-size:9px;font-weight:700;letter-spacing:.08em;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">'+icon+' '+label+'</div>'
+      +'<div style="font-size:9px;font-weight:700;letter-spacing:.08em;color:'+hdrClr+';text-transform:uppercase;margin-bottom:6px">'+icon+' '+label+'</div>'
       +'<div style="display:flex;flex-direction:column;gap:4px">'
       +titles.map(function(t){
         var done=(ST.earnedNewTitles||[]).indexOf(t.id)>=0;
@@ -3005,10 +3056,39 @@ function renderIdentity(){
         }).join(', ');
         var rc=rarityColor(t.rarity);
         var isEq=equipped===t.name;
-        var eqBtn=done?('<div onclick="_equipNewTitle(\'' + t.id + '\')" style="font-size:9px;font-weight:700;color:var(--accent);cursor:pointer;white-space:nowrap;padding:3px 7px;border:1px solid var(--accent);border-radius:6px">'+(isEq?'Équipé ✓':'Équiper')+'</div>')  :'';
-        return'<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:6px 8px;border-radius:8px;background:'+(done?'rgba(46,125,50,.08)':'transparent')+';border:1px solid '+(done?'var(--green)':'#e8e0d4')+'">'
+        var cardBg,cardBorder,nameFw,nameClr,btnBg,btnClr,btnBorder;
+        if(isLeg&&done){
+          cardBg='linear-gradient(135deg,rgba(192,113,58,.12),rgba(232,160,80,.08))';
+          cardBorder='1.5px solid rgba(192,113,58,.5)';
+          nameFw='800';nameClr='#c0713a';
+          btnBg='linear-gradient(135deg,#c0713a,#e8a050)';btnClr='#fff';btnBorder='none';
+        } else if(isEpic&&done){
+          cardBg='rgba(124,58,237,.07)';
+          cardBorder='1.5px solid rgba(124,58,237,.35)';
+          nameFw='700';nameClr='#7c3aed';
+          btnBg='rgba(124,58,237,.12)';btnClr='#7c3aed';btnBorder='1px solid #7c3aed';
+        } else if(isLeg&&!done){
+          cardBg='transparent';cardBorder='1px solid rgba(192,113,58,.2)';
+          nameFw='500';nameClr='rgba(192,113,58,.5)';
+          btnBg='transparent';btnClr='var(--ink4)';btnBorder='none';
+        } else if(isEpic&&!done){
+          cardBg='transparent';cardBorder='1px solid rgba(124,58,237,.15)';
+          nameFw='500';nameClr='rgba(124,58,237,.4)';
+          btnBg='transparent';btnClr='var(--ink4)';btnBorder='none';
+        } else {
+          cardBg=done?'rgba(46,125,50,.08)':'transparent';
+          cardBorder='1px solid '+(done?'var(--green)':'#e8e0d4');
+          nameFw=done?'700':'500';nameClr=done?rc:'var(--ink3)';
+          btnBg='transparent';btnClr='var(--accent)';btnBorder='1px solid var(--accent)';
+        }
+        var eqBtn=done
+          ?('<div onclick="_equipNewTitle(\'' + t.id + '\')" style="font-size:9px;font-weight:700;cursor:pointer;white-space:nowrap;padding:3px 8px;border-radius:6px;background:'+btnBg+';color:'+btnClr+';border:'+btnBorder+'">'+(isEq?'Équipé \u2713':'Équiper')+'</div>')
+          :'';
+        var lockIcon=!done?(isLeg?'🔒 ':isEpic?'🔒 ':''):''
+        var chk=done?'✓ ':lockIcon;
+        return'<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:7px 9px;border-radius:9px;background:'+cardBg+';border:'+cardBorder+'">'
           +'<div>'
-          +'<div style="font-size:11px;font-weight:'+(done?'700':'500')+';color:'+(done?rc:'var(--ink3)')+'">'+(done?'✓ ':'')+t.name+'</div>'
+          +'<div style="font-size:11px;font-weight:'+nameFw+';color:'+nameClr+'">'+chk+t.name+'</div>'
           +'<div style="font-size:9px;color:var(--ink4);margin-top:2px">'+reqTraits+'</div>'
           +'</div>'
           +eqBtn
@@ -3062,6 +3142,24 @@ function _equipNewTitle(tid){
   var t=all.find(function(x){return x.id===tid;});
   if(t)equipTitle(t.name);
 }
+function _getTitleRarity(name){
+  if(!name)return null;
+  var all=[].concat(NEW_TITLES_COMMON,NEW_TITLES_EPIC,NEW_TITLES_LEGENDARY);
+  var t=all.find(function(x){return x.name===name;});
+  return t?t.rarity:null;
+}
+function _applyTitleCosmetics(name){
+  var tt=document.getElementById('title-text');
+  var pill=document.getElementById('rank-pill');
+  if(!tt)return;
+  // Reset classes
+  tt.classList.remove('title-epic','title-legendary');
+  if(pill)pill.classList.remove('pill-legendary');
+  if(!name)return;
+  var r=_getTitleRarity(name);
+  if(r==='epic'){tt.classList.add('title-epic');}
+  else if(r==='legendary'){tt.classList.add('title-legendary');if(pill)pill.classList.add('pill-legendary');}
+}
 function equipTitle(name){
   var wasEquipped=ST.equippedTitle===name;
   ST.equippedTitle=wasEquipped?null:name;
@@ -3071,6 +3169,7 @@ function equipTitle(name){
   var tt=document.getElementById('title-text');
   if(tt&&ST.equippedTitle)tt.textContent=ST.equippedTitle;
   else if(tt)tt.textContent=getRank().title;
+  _applyTitleCosmetics(ST.equippedTitle);
   toast(ST.equippedTitle?'Titre équipé : "'+ST.equippedTitle+'"':' Titre retiré');
 }
 function renderRewards(){
@@ -3325,8 +3424,8 @@ function _svgSpider(questLog){
     if(gen>0)cats.push({name:labels[k]||k,gen:gen,ok:ok,userRate:gen>0?ok/gen:0});
   }
   if(cats.length<3)return'<div style="font-size:10px;color:var(--ink3);text-align:center;padding:1rem">Pas encore assez de données.</div>';
-  // Fixed scale: outer ring = 100 quests generated — toile grows from inside out over time
-  var SCALE=100;
+  // Fixed scale: outer ring = 200 quests generated — toile grows from inside out over time
+  var SCALE=200;
   var n=cats.length,size=270,cx=size/2,cy=size/2+8,r=size*.30;
   var svg='<svg viewBox="0 0 '+size+' '+(size+16)+'" style="width:100%;max-width:290px;height:auto;margin:0 auto;display:block">';
   var angles=[];for(var i=0;i<n;i++)angles.push(-Math.PI/2+(2*Math.PI/n)*i);
@@ -3337,10 +3436,10 @@ function _svgSpider(questLog){
     svg+='<polygon points="'+pts+'" fill="none" stroke="var(--bg2)" stroke-width="0.5"/>';
   }
   // Scale labels (25/50/75/100)
-  svg+='<text x="'+(cx+2)+'" y="'+(cy-r*.25-2)+'" font-size="6" fill="var(--ink4)" font-family="sans-serif">25</text>';
-  svg+='<text x="'+(cx+2)+'" y="'+(cy-r*.50-2)+'" font-size="6" fill="var(--ink4)" font-family="sans-serif">50</text>';
-  svg+='<text x="'+(cx+2)+'" y="'+(cy-r*.75-2)+'" font-size="6" fill="var(--ink4)" font-family="sans-serif">75</text>';
-  svg+='<text x="'+(cx+2)+'" y="'+(cy-r-2)+'" font-size="6" fill="var(--ink4)" font-family="sans-serif">100</text>';
+  svg+='<text x="'+(cx+2)+'" y="'+(cy-r*.25-2)+'" font-size="6" fill="var(--ink4)" font-family="sans-serif">50</text>';
+  svg+='<text x="'+(cx+2)+'" y="'+(cy-r*.50-2)+'" font-size="6" fill="var(--ink4)" font-family="sans-serif">100</text>';
+  svg+='<text x="'+(cx+2)+'" y="'+(cy-r*.75-2)+'" font-size="6" fill="var(--ink4)" font-family="sans-serif">150</text>';
+  svg+='<text x="'+(cx+2)+'" y="'+(cy-r-2)+'" font-size="6" fill="var(--ink4)" font-family="sans-serif">200</text>';
   // Axes
   for(var i=0;i<n;i++)svg+='<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+r*Math.cos(angles[i]))+'" y2="'+(cy+r*Math.sin(angles[i]))+'" stroke="var(--bg2)" stroke-width="0.5"/>';
   // Grey polygon = quests generated (grows toward 100)
@@ -3358,7 +3457,7 @@ function _svgSpider(questLog){
     svg+='<text x="'+lx+'" y="'+ly+'" text-anchor="'+anchor+'" font-size="8" font-weight="600" fill="var(--ink2)" font-family="sans-serif">'+cats[i].name+'</text>';
     svg+='<text x="'+lx+'" y="'+(ly+10)+'" text-anchor="'+anchor+'" font-size="7" fill="var(--green)" font-family="sans-serif">'+cats[i].ok+'/'+cats[i].gen+' ('+Math.round(cats[i].userRate*100)+'%)</text>';
   }
-  svg+='</svg><div style="font-size:9px;color:var(--ink4);text-align:center;margin-top:2px">— · — Générées &nbsp;&nbsp; — Réussies &nbsp;&nbsp; (bordure = 100 quêtes)</div>';
+  svg+='</svg><div style="font-size:9px;color:var(--ink4);text-align:center;margin-top:2px">— · — Générées &nbsp;&nbsp; — Réussies &nbsp;&nbsp; (bordure = 200 quêtes)</div>';
   return svg;
 }
 
@@ -3926,7 +4025,7 @@ function finishOB(){
     SND.sanction();
     show('s-sanction');return;
   }
-  if(ST.dayDone){showDone();}else{nav('s-main');SND.open();scheduleNotif();}
+  if(ST.dayDone){showDone();}else{nav('s-main');SND.open();scheduleNotif();_applyTitleCosmetics(ST.equippedTitle||null);}
 })();
 
 setInterval(()=>{
@@ -3979,7 +4078,7 @@ setInterval(()=>{
       }
     }
   }
-  if(document.getElementById('s-main').classList.contains('active'))renderMain();
+  if(document.getElementById('s-main').classList.contains('active')){renderMain();_applyTitleCosmetics(ST.equippedTitle||null);}
   if(document.getElementById('s-done').classList.contains('active'))updateCD();
 },60000);
 
