@@ -529,7 +529,7 @@ body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size
   </div>
 
   <!-- FLÈCHE RETOUR -->
-  <button id="ob-back-btn" onclick="obBack()" style="display:none;position:fixed;top:18px;left:18px;z-index:101;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:50%;width:36px;height:36px;color:#fff;font-size:18px;cursor:pointer;backdrop-filter:blur(8px);transition:all .2s;line-height:1" aria-label="Retour">&#8592;</button>
+  <button id="ob-back-btn" onclick="obBack()" style="display:none;position:fixed;top:16px;left:16px;z-index:101;background:rgba(192,113,58,.18);border:1.5px solid rgba(192,113,58,.5);border-radius:10px;padding:8px 14px;color:#f0c080;font-size:12px;font-weight:700;cursor:pointer;backdrop-filter:blur(8px);transition:all .2s;font-family:inherit;letter-spacing:.04em;display:none;align-items:center;gap:6px" aria-label="Retour"><span style="font-size:15px">&#8592;</span> Retour</button>
 
   <!-- CONTENEUR PRINCIPAL -->
   <div id="ob-stage" style="position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1.5rem;max-width:430px;margin:0 auto;left:50%;transform:translateX(-50%);right:auto;width:100%">
@@ -3851,8 +3851,6 @@ function _flowZone(el,label,rate,color){
 // ─── V2 RENDER STATS ───
 function renderStats(){
   const dayLog=ST.dayLog||[];
-  const bilans=ST.bilans||[];
-  const sr7=ST.sr7||[];
   const totalDays=sr7.length||0;
   const successDays=sr7.filter(x=>x===1).length;
   const last30=sr7.slice(-30);
@@ -4341,31 +4339,50 @@ function _obShowIntro(){
   _obSetProgress(0);
   _obShowBack(false);
 
+  // SVG oeil/portail animé
+  var svgEye='<svg viewBox="0 0 120 120" width="90" height="90" style="display:block;margin:0 auto 20px;filter:drop-shadow(0 0 18px rgba(192,113,58,.45))">'
+    +'<defs><radialGradient id="ig1" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#f5c060" stop-opacity=".9"/><stop offset="60%" stop-color="#c0713a" stop-opacity=".6"/><stop offset="100%" stop-color="#3a1a08" stop-opacity="0"/></radialGradient></defs>'
+    // Anneaux orbitaux
+    +'<circle cx="60" cy="60" r="52" fill="none" stroke="rgba(192,113,58,.12)" stroke-width="1" stroke-dasharray="4 6"><animateTransform attributeName="transform" type="rotate" from="0 60 60" to="360 60 60" dur="18s" repeatCount="indefinite"/></circle>'
+    +'<circle cx="60" cy="60" r="40" fill="none" stroke="rgba(240,192,80,.15)" stroke-width="1" stroke-dasharray="2 8"><animateTransform attributeName="transform" type="rotate" from="360 60 60" to="0 60 60" dur="12s" repeatCount="indefinite"/></circle>'
+    // Corps de l\'oeil
+    +'<ellipse cx="60" cy="60" rx="28" ry="16" fill="none" stroke="rgba(192,113,58,.5)" stroke-width="1.5"/>'
+    +'<ellipse cx="60" cy="60" rx="28" ry="16" fill="url(#ig1)" opacity=".15"/>'
+    // Pupille
+    +'<circle cx="60" cy="60" r="9" fill="rgba(192,113,58,.25)" stroke="rgba(240,180,80,.6)" stroke-width="1.5"><animate attributeName="r" values="9;10.5;9" dur="3s" repeatCount="indefinite"/></circle>'
+    +'<circle cx="60" cy="60" r="4" fill="#f0c080" opacity=".9"><animate attributeName="opacity" values=".9;1;.9" dur="2s" repeatCount="indefinite"/></circle>'
+    // Éclats
+    +'<line x1="60" y1="32" x2="60" y2="24" stroke="rgba(240,180,80,.35)" stroke-width="1"><animate attributeName="opacity" values=".35;.7;.35" dur="2.5s" repeatCount="indefinite"/></line>'
+    +'<line x1="60" y1="88" x2="60" y2="96" stroke="rgba(240,180,80,.35)" stroke-width="1"><animate attributeName="opacity" values=".35;.7;.35" dur="2.5s" begin=".5s" repeatCount="indefinite"/></line>'
+    +'<line x1="88" y1="60" x2="96" y2="60" stroke="rgba(240,180,80,.35)" stroke-width="1"><animate attributeName="opacity" values=".35;.7;.35" dur="2.5s" begin="1s" repeatCount="indefinite"/></line>'
+    +'<line x1="32" y1="60" x2="24" y2="60" stroke="rgba(240,180,80,.35)" stroke-width="1"><animate attributeName="opacity" values=".35;.7;.35" dur="2.5s" begin="1.5s" repeatCount="indefinite"/></line>'
+    +'</svg>';
+
   var html =
-    '<div data-anim style="text-align:center;margin-bottom:32px">'
-    +'<div style="font-size:11px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:rgba(192,113,58,.7);margin-bottom:16px">Solo Leveling</div>'
-    +'<div style="width:64px;height:2px;background:linear-gradient(90deg,transparent,#c0713a,transparent);margin:0 auto 24px"></div>'
-    +'<p id="ob-intro-text" class="ob-narr" style="min-height:120px"></p>'
+    '<div data-anim style="text-align:center;margin-bottom:24px">'
+    +svgEye
+    +'<div style="font-size:10px;font-weight:700;letter-spacing:.35em;text-transform:uppercase;color:rgba(192,113,58,.6);margin-bottom:12px">Solo Leveling</div>'
+    +'<div style="width:48px;height:1px;background:linear-gradient(90deg,transparent,#c0713a,transparent);margin:0 auto 20px"></div>'
     +'</div>'
-    +'<button id="ob-intro-btn" class="ob-btn-primary" onclick="_obQ1()" style="opacity:0;pointer-events:none;max-width:280px;margin:0 auto;display:block">Compris</button>';
+    +'<div data-anim>'
+    +'<p id="ob-intro-text" class="ob-narr" style="min-height:100px;font-size:13px"></p>'
+    +'</div>'
+    +'<div data-anim style="margin-top:28px">'
+    +'<button id="ob-intro-btn" class="ob-btn-primary" onclick="_obQ1()" style="opacity:0;pointer-events:none;max-width:300px;margin:0 auto;display:block">Compris</button>'
+    +'</div>';
 
   _obSetStage(html, 'fade', 0);
 
-  // Typewriter après l'animation du stage
   setTimeout(function(){
     var el=document.getElementById('ob-intro-text');
     if(!el)return;
-    var text='Bienvenue.\n\nTu as décidé de changer — c\'était le premier pas.\n\nPour créer un programme adapté, réponds honnêtement aux questions suivantes.\nNe te surestime pas. C\'est la condition d\'un programme efficace.';
+    var text='Bienvenue. Tu as décidé de changer, et c\'était le premier pas. Félicitations.\n\nPour créer un programme adapté, il faut que tu répondes au préalable à quelques questions : réponds-y honnêtement et sans honte, ne te surestime pas. C\'est nécessaire à la création d\'un programme adapté !';
     el.style.whiteSpace='pre-line';
-    _obTypewriter(el, text, 22, function(){
+    _obTypewriter(el, text, 20, function(){
       var btn=document.getElementById('ob-intro-btn');
-      if(btn){
-        btn.style.transition='opacity .5s ease';
-        btn.style.opacity='1';
-        btn.style.pointerEvents='auto';
-      }
+      if(btn){btn.style.transition='opacity .5s ease';btn.style.opacity='1';btn.style.pointerEvents='auto';}
     });
-  }, 600);
+  }, 700);
 }
 
 // ═══════════════════ ACTE I ═══════════════════
@@ -4376,10 +4393,17 @@ function _obQ1(){
   _obShowBack(false);
   if(!ST._ob)ST._ob={};
 
+  var svgScan='<svg viewBox="0 0 100 60" width="80" height="48" style="display:block;margin:0 auto 4px;opacity:.55">'
+    +'<rect x="8" y="12" width="84" height="36" rx="6" fill="none" stroke="rgba(160,140,220,.3)" stroke-width="1" stroke-dasharray="3 4"/>'
+    +'<line x1="8" y1="30" x2="92" y2="30" stroke="rgba(160,140,220,.5)" stroke-width=".8"><animate attributeName="y1" values="14;44;14" dur="2.5s" repeatCount="indefinite"/><animate attributeName="y2" values="14;44;14" dur="2.5s" repeatCount="indefinite"/></line>'
+    +'<circle cx="16" cy="16" r="2" fill="rgba(160,140,220,.6)"/><circle cx="84" cy="16" r="2" fill="rgba(160,140,220,.6)"/>'
+    +'<circle cx="16" cy="44" r="2" fill="rgba(160,140,220,.6)"/><circle cx="84" cy="44" r="2" fill="rgba(160,140,220,.6)"/>'
+    +'</svg>';
+
   var html =
     '<div data-anim class="ob-act-label" style="color:rgba(160,140,220,.7);border-color:rgba(160,140,220,.2)">Acte I — Identification</div>'
+    +'<div data-anim style="text-align:center">'+svgScan+'</div>'
     +'<div data-anim class="ob-q-title">Quel âge as-tu ?</div>'
-    +'<div data-anim class="ob-q-sub">Calibre le vocabulaire et l\'intensité du programme</div>'
     +'<div data-anim class="ob-opts">'
     +['15–18 ans','19–24 ans','25–30 ans','30 ans et plus'].map(function(o,i){
       var sel=ST._ob.age===i;
@@ -4408,7 +4432,7 @@ function _obQ2(){
 
   var html =
     '<div data-anim class="ob-act-label" style="color:rgba(160,140,220,.7);border-color:rgba(160,140,220,.2)">Acte I — Identification</div>'
-    +'<div data-anim class="ob-q-title">Ta situation actuelle ?</div>'
+    +'<div data-anim style="text-align:center"><svg viewBox=\"0 0 80 60\" width=\"72\" height=\"54\" style=\"display:block;margin:0 auto 4px;opacity:.5\"><circle cx=\"40\" cy=\"22\" r=\"10\" fill=\"none\" stroke=\"rgba(160,140,220,.55)\" stroke-width=\"1.5\"/><path d=\"M20 52 C20 38 60 38 60 52\" fill=\"none\" stroke=\"rgba(160,140,220,.45)\" stroke-width=\"1.5\"/><line x1=\"8\" y1=\"30\" x2=\"22\" y2=\"30\" stroke=\"rgba(160,140,220,.25)\" stroke-width=\"1\"/><line x1=\"58\" y1=\"30\" x2=\"72\" y2=\"30\" stroke=\"rgba(160,140,220,.25)\" stroke-width=\"1\"/></svg></div>'+'<div data-anim class="ob-q-title">Ta situation actuelle ?</div>'
     +'<div data-anim class="ob-q-sub">Adapte les horaires et le contenu des quêtes</div>'
     +'<div data-anim class="ob-opts">'
     +[['🎓','Lycéen / Étudiant'],['💼','En activité'],['🔍','En transition'],['🏠','Sans activité principale']].map(function(o,i){
@@ -4436,10 +4460,16 @@ function _obQ3(){
   _obSetProgress(30);
   _obShowBack(true);
 
+  // SVG feu / énergie pour Acte II Corps
+  var svgFire='<svg viewBox="0 0 80 80" width="64" height="64" style="display:block;margin:0 auto 6px;filter:drop-shadow(0 0 10px rgba(192,113,58,.4))">'
+    +'<path d="M40 72 C20 60 16 44 24 34 C28 40 30 44 32 44 C28 32 34 20 40 10 C44 22 42 30 44 34 C50 28 52 20 50 12 C60 22 64 36 60 50 C58 58 52 66 40 72Z" fill="rgba(192,113,58,.2)" stroke="rgba(240,160,60,.6)" stroke-width="1.5"><animate attributeName="d" values="M40 72 C20 60 16 44 24 34 C28 40 30 44 32 44 C28 32 34 20 40 10 C44 22 42 30 44 34 C50 28 52 20 50 12 C60 22 64 36 60 50 C58 58 52 66 40 72Z;M40 70 C22 58 18 42 26 32 C30 38 31 43 33 43 C30 31 35 19 41 8 C45 21 43 29 45 33 C51 27 53 19 51 11 C61 21 65 35 61 49 C59 57 53 65 40 70Z;M40 72 C20 60 16 44 24 34 C28 40 30 44 32 44 C28 32 34 20 40 10 C44 22 42 30 44 34 C50 28 52 20 50 12 C60 22 64 36 60 50 C58 58 52 66 40 72Z" dur="3s" repeatCount="indefinite"/></path>'
+    +'<circle cx="40" cy="48" r="8" fill="rgba(240,180,80,.15)" stroke="rgba(240,180,80,.4)" stroke-width="1"><animate attributeName="r" values="8;10;8" dur="2s" repeatCount="indefinite"/></circle>'
+    +'</svg>';
+
   var html =
     '<div data-anim class="ob-act-label" style="color:rgba(192,113,58,.8);border-color:rgba(192,113,58,.2)">Acte II — Corps</div>'
+    +'<div data-anim style="text-align:center">'+svgFire+'</div>'
     +'<div data-anim class="ob-q-title">Ton rapport au sport en ce moment ?</div>'
-    +'<div data-anim class="ob-q-sub">Détermine le rythme de montée en difficulté</div>'
     +'<div data-anim class="ob-opts">'
     +[['🔥','Je m\'entraîne déjà régulièrement'],['⚡','J\'essaie, mais c\'est irrégulier'],['💤','Je ne fais rien du tout']].map(function(o,i){
       var sel=ST._ob.sportLevel===i;
@@ -4466,7 +4496,8 @@ function _obQ4(){
 
   var html =
     '<div data-anim class="ob-act-label" style="color:rgba(192,113,58,.8);border-color:rgba(192,113,58,.2)">Acte II — Corps</div>'
-    +'<div data-anim class="ob-q-title">Quel objectif physique vises-tu ?</div>'
+    +'<div data-anim style="text-align:center"><svg viewBox=\"0 0 80 80\" width=\"56\" height=\"56\" style=\"display:block;margin:0 auto 4px;opacity:.6\"><circle cx=\"40\" cy=\"40\" r=\"32\" fill=\"none\" stroke=\"rgba(192,113,58,.15)\" stroke-width=\"1\"/><circle cx=\"40\" cy=\"40\" r=\"22\" fill=\"none\" stroke=\"rgba(192,113,58,.25)\" stroke-width=\"1.2\"/><circle cx=\"40\" cy=\"40\" r=\"12\" fill=\"none\" stroke=\"rgba(192,113,58,.45)\" stroke-width=\"1.5\"/><circle cx=\"40\" cy=\"40\" r=\"4\" fill=\"rgba(240,180,80,.8)\"><animate attributeName=\"r\" values=\"4;5;4\" dur=\"1.8s\" repeatCount=\"indefinite\"/></circle><line x1=\"40\" y1=\"8\" x2=\"40\" y2=\"20\" stroke=\"rgba(192,113,58,.3)\" stroke-width=\"1\"/><line x1=\"60\" y1=\"40\" x2=\"72\" y2=\"40\" stroke=\"rgba(192,113,58,.3)\" stroke-width=\"1\"/></svg></div>'+'<div data-anim class="ob-q-title">Quel objectif physique vises-tu ?</div>'
+    +'<div data-anim class="ob-q-sub">Oriente le type et la structure des quêtes body</div>'
     +'<div data-anim class="ob-q-sub">Oriente le type de quêtes body générées</div>'
     +'<div data-anim class="ob-opts">'
     +[['💪','Prise de masse / muscle'],['🔥','Sécher — perdre du poids, affiner'],['🏃','Améliorer mon endurance'],['⚖️','Juste bouger plus']].map(function(o,i){
@@ -4497,26 +4528,26 @@ function _obQ5(){
 
   // Avertissement prise de masse si salle pas cochée
   var warnHtml='';
-  if(ST._ob.physGoal===0&&ST._ob.sportAccess.indexOf(0)<0){
-    warnHtml='<div data-anim style="background:rgba(192,113,58,.12);border:1px solid rgba(192,113,58,.3);border-radius:12px;padding:12px 14px;font-size:11px;color:rgba(240,180,100,.9);line-height:1.6;margin-bottom:16px">'
-      +'⚠️ Objectif <strong>Prise de masse</strong> sélectionné. Une salle de sport est fortement recommandée. Le poids de corps reste possible mais moins optimal.'
+  if(ST._ob.physGoal===0){
+    warnHtml='<div data-anim style="background:rgba(192,113,58,.1);border:1px solid rgba(192,113,58,.28);border-radius:12px;padding:12px 14px;font-size:11px;color:rgba(240,180,100,.9);line-height:1.6;margin-bottom:4px">'
+      +'⚠️ Tu as sélectionné l\'objectif <strong>Prise de masse</strong>. Il est alors fortement recommandé d\'avoir accès à une salle de sport. Sinon, tu peux fonctionner en poids de corps.'
       +'</div>';
   }
 
   var sportAccessOpts=[
-    ['🏋️','Salle de muscu — j\'ai accès / vais m\'inscrire'],
-    ['🏠','Pas de salle — uniquement poids de corps'],
+    ['🏋️','J\'ai accès à une salle de sport / je vais m\'y inscrire'],
+    ['🏠','Pas de salle — je peux faire du sport à la maison'],
     ['🏃','Je peux courir dehors'],
-    ['⚽','Je fais un sport collectif régulier'],
+    ['⚽','Je fais en plus un sport collectif régulier'],
   ];
 
   var checkboxes=sportAccessOpts.map(function(o,i){
     var sel=ST._ob.sportAccess.indexOf(i)>=0;
-    var extra=i===3&&sel?_obQ5SportSub():'';
-    return '<button class="ob-chk'+(sel?' sel':'')+'" onclick="_obToggleSportAccess('+i+')" id="ob-sa-'+i+'">'
+    var extra=i===3&&sel?'<div id="ob-sport-sub">'+_obQ5SportSub()+'</div>':'';
+    return '<button class="ob-chk'+(sel?' sel':'')+'" id="ob-sa-'+i+'" onclick="_obToggleSportAccess('+i+')">'
       +'<div class="cb">'+(sel?'✓':'')+'</div>'
       +'<span>'+o[0]+' '+o[1]+'</span>'
-      +'</button>'+(extra?'<div id="ob-sport-sub">'+extra+'</div>':'');
+      +'</button>'+extra;
   }).join('');
 
   var html =
@@ -4553,8 +4584,33 @@ function _obToggleSportAccess(i){
   if(!ST._ob.sportAccess)ST._ob.sportAccess=[];
   var idx=ST._ob.sportAccess.indexOf(i);
   if(idx>=0)ST._ob.sportAccess.splice(idx,1);else ST._ob.sportAccess.push(i);
-  // Mettre à jour l'avertissement et le sous-menu si nécessaire
-  _obQ5();
+  // Mise à jour visuelle sans rechargement complet (pas d'auto-avance)
+  var btns=document.querySelectorAll('#ob-sa-list .ob-chk');
+  btns.forEach(function(btn,bi){
+    var isSel=ST._ob.sportAccess.indexOf(bi)>=0;
+    btn.className='ob-chk'+(isSel?' sel':'');
+    var cb=btn.querySelector('.cb');
+    if(cb)cb.innerHTML=isSel?'✓':'';
+  });
+  // Gérer le sous-menu sport collectif (index 3)
+  var sub=document.getElementById('ob-sport-sub');
+  if(ST._ob.sportAccess.indexOf(3)>=0){
+    if(!sub){
+      var btn3=document.getElementById('ob-sa-3');
+      if(btn3){
+        var d=document.createElement('div');d.id='ob-sport-sub';
+        d.innerHTML=_obQ5SportSub();
+        btn3.parentNode.insertBefore(d,btn3.nextSibling);
+      }
+    }
+  } else {
+    if(sub)sub.remove();
+  }
+  // Alerte prise de masse
+  var warn=document.getElementById('ob-mass-warn');
+  if(warn){
+    warn.style.display=ST._ob.physGoal===0?'block':'none';
+  }
 }
 
 function _obToggleCollectifJour(i){
@@ -4562,7 +4618,7 @@ function _obToggleCollectifJour(i){
   var idx=ST._ob.collectifJours.indexOf(i);
   if(idx>=0)ST._ob.collectifJours.splice(idx,1);else ST._ob.collectifJours.push(i);
   // Re-render just the days
-  var sub=document.getElementById('ob-sport-sub');
+  var sub=document.getElementById('ob-sport-sub-wrap');
   if(sub)sub.innerHTML=_obQ5SportSub();
 }
 
@@ -4581,7 +4637,7 @@ function _obQ6(){
 
   var html =
     '<div data-anim class="ob-act-label" style="color:rgba(100,180,120,.7);border-color:rgba(100,180,120,.2)">Acte III — Tête & Habitudes</div>'
-    +'<div data-anim class="ob-q-title">Comment te stimules-tu intellectuellement ?</div>'
+    +'<div data-anim style="text-align:center"><svg viewBox=\"0 0 80 70\" width=\"66\" height=\"58\" style=\"display:block;margin:0 auto 4px;opacity:.55\"><rect x=\"15\" y=\"10\" width=\"50\" height=\"50\" rx=\"4\" fill=\"none\" stroke=\"rgba(100,180,120,.4)\" stroke-width=\"1.5\"/><line x1=\"24\" y1=\"25\" x2=\"56\" y2=\"25\" stroke=\"rgba(100,180,120,.35)\" stroke-width=\"1\"/><line x1=\"24\" y1=\"33\" x2=\"50\" y2=\"33\" stroke=\"rgba(100,180,120,.25)\" stroke-width=\"1\"/><line x1=\"24\" y1=\"41\" x2=\"46\" y2=\"41\" stroke=\"rgba(100,180,120,.2)\" stroke-width=\"1\"/><line x1=\"40\" y1=\"10\" x2=\"40\" y2=\"60\" stroke=\"rgba(100,180,120,.15)\" stroke-width=\"1\"/><circle cx=\"62\" cy=\"18\" r=\"6\" fill=\"none\" stroke=\"rgba(240,180,80,.4)\" stroke-width=\"1\"><animate attributeName=\"r\" values=\"6;7.5;6\" dur=\"3s\" repeatCount=\"indefinite\"/></circle></svg></div>'+'<div data-anim class="ob-q-title">Comment te stimules-tu intellectuellement ?</div>'
     +'<div data-anim class="ob-q-sub">Calibre les quêtes Mind</div>'
     +'<div data-anim class="ob-opts">'
     +[['📚','Je lis régulièrement'],['🎧','Podcasts / vidéos éducatives'],['👻','Honnêtement, pas grand-chose']].map(function(o,i){
@@ -4608,27 +4664,30 @@ function _obQ7(){
   _obShowBack(true);
   var val=ST._ob.screenHours!==undefined?ST._ob.screenHours:3;
 
-  function getZone(v){
-    if(v<2)return{label:'Zone saine',color:'#4ade80',bg:'rgba(74,222,128,.12)'};
-    if(v<4)return{label:'Zone orange',color:'#fb923c',bg:'rgba(251,146,60,.12)'};
-    if(v<6)return{label:'Zone critique',color:'#f87171',bg:'rgba(248,113,113,.12)'};
-    return{label:'Zone danger',color:'#c026d3',bg:'rgba(192,38,211,.12)'};
-  }
-  var z=getZone(val);
+  // SVG écran stylisé
+  var svgScreen='<svg viewBox="0 0 90 60" width="70" height="46" style="display:block;margin:0 auto 6px;opacity:.6">'
+    +'<rect x="5" y="5" width="80" height="44" rx="6" fill="none" stroke="rgba(100,180,120,.4)" stroke-width="1.5"/>'
+    +'<line x1="35" y1="49" x2="55" y2="49" stroke="rgba(100,180,120,.35)" stroke-width="2"/>'
+    +'<rect x="12" y="12" width="66" height="30" rx="3" fill="rgba(100,180,120,.06)"/>'
+    +'<rect x="18" y="18" width="18" height="12" rx="2" fill="rgba(100,180,120,.15)" stroke="rgba(100,180,120,.3)" stroke-width=".8">'
+    +'<animate attributeName="opacity" values=".8;.4;.8" dur="2s" repeatCount="indefinite"/></rect>'
+    +'<rect x="42" y="18" width="28" height="4" rx="2" fill="rgba(100,180,120,.2)"/>'
+    +'<rect x="42" y="26" width="20" height="3" rx="1.5" fill="rgba(100,180,120,.12)"/>'
+    +'</svg>';
 
   var html =
     '<div data-anim class="ob-act-label" style="color:rgba(100,180,120,.7);border-color:rgba(100,180,120,.2)">Acte III — Tête & Habitudes</div>'
-    +'<div data-anim class="ob-q-title">Tes écrans — combien d\'heures par jour ?</div>'
+    +'<div data-anim style="text-align:center">'+svgScreen+'</div>'
+    +'<div data-anim class="ob-q-title">Tes écrans — combien d\'heures par jour en moyenne ?</div>'
     +'<div data-anim class="ob-q-sub">Hors travail / études obligatoires</div>'
     +'<div data-anim>'
     +'<div class="ob-slider-val" id="ob-slider-display">'+val+'h</div>'
-    +'<div class="ob-slider-zone" id="ob-slider-zone" style="background:'+z.bg+';color:'+z.color+'">'+z.label+'</div>'
     +'<div class="ob-slider-wrap" style="margin-top:16px">'
     +'<input type="range" class="ob-slider" id="ob-screen-slider" min="0" max="10" step=".5" value="'+val+'" '
     +'oninput="_obSliderChange(this.value)">'
     +'<div class="ob-slider-labels"><span>0h</span><span>2h</span><span>4h</span><span>6h</span><span>8h</span><span>10h+</span></div>'
     +'</div>'
-    +'<button class="ob-btn-primary" style="margin-top:24px" onclick="_obSliderConfirm()">Confirmer</button>'
+    +'<button class="ob-btn-primary" style="margin-top:20px" onclick="_obSliderConfirm()">Confirmer</button>'
     +'</div>';
 
   _obSetStage(html);
@@ -4637,15 +4696,7 @@ function _obQ7(){
 function _obSliderChange(v){
   ST._ob.screenHours=parseFloat(v);
   var disp=document.getElementById('ob-slider-display');
-  var zone=document.getElementById('ob-slider-zone');
-  if(disp)disp.textContent=(parseFloat(v)===10?'10h+':parseFloat(v)+'h');
-  var vf=parseFloat(v);
-  var z;
-  if(vf<2)z={label:'Zone saine',color:'#4ade80',bg:'rgba(74,222,128,.12)'};
-  else if(vf<4)z={label:'Zone orange',color:'#fb923c',bg:'rgba(251,146,60,.12)'};
-  else if(vf<6)z={label:'Zone critique',color:'#f87171',bg:'rgba(248,113,113,.12)'};
-  else z={label:'Zone danger',color:'#c026d3',bg:'rgba(192,38,211,.12)'};
-  if(zone){zone.style.color=z.color;zone.style.background=z.bg;zone.textContent=z.label;}
+  if(disp)disp.textContent=(parseFloat(v)>=10?'10h+':parseFloat(v)+'h');
 }
 
 function _obSliderConfirm(){
@@ -4672,9 +4723,7 @@ function _obQ8(){
 
   var checkboxes=opts.map(function(o,i){
     var sel=ST._ob.resistances.indexOf(i)>=0;
-    var count=ST._ob.resistances.length;
-    var disabled=!sel&&count>=3;
-    return '<button class="ob-chk'+(sel?' sel':'')+'"'+(disabled?' style="opacity:.4;cursor:not-allowed"':'')+' onclick="'+(disabled?'':'_obToggleResistance('+i+')')+'">'
+    return '<button class="ob-chk'+(sel?' sel':'')+'" onclick="_obToggleResistance('+i+')" id="ob-r-'+i+'">'
       +'<div class="cb">'+(sel?'✓':'')+'</div>'
       +'<span>'+o[0]+' '+o[1]+'</span>'
       +'</button>';
@@ -4683,7 +4732,7 @@ function _obQ8(){
   var html =
     '<div data-anim class="ob-act-label" style="color:rgba(100,180,120,.7);border-color:rgba(100,180,120,.2)">Acte III — Tête & Habitudes</div>'
     +'<div data-anim class="ob-q-title">Ce que tu as du mal à contrôler ?</div>'
-    +'<div data-anim class="ob-q-sub" id="ob-resist-sub">Sois honnête. C\'est ici que l\'app travaille le plus. <strong style="color:#f0c080">Max 3 choix</strong></div>'
+    +'<div data-anim class="ob-q-sub">Sois honnête. C\'est ici que l\'app travaille le plus.</div>'
     +'<div data-anim class="ob-opts" id="ob-resist-list">'+checkboxes+'</div>'
     +'<div data-anim><button class="ob-btn-primary" onclick="_obQ8Next()">Continuer</button></div>';
 
@@ -4694,8 +4743,15 @@ function _obToggleResistance(i){
   if(!ST._ob.resistances)ST._ob.resistances=[];
   var idx=ST._ob.resistances.indexOf(i);
   if(idx>=0)ST._ob.resistances.splice(idx,1);
-  else if(ST._ob.resistances.length<3)ST._ob.resistances.push(i);
-  _obQ8();
+  else ST._ob.resistances.push(i);
+  // Mise à jour visuelle sans rechargement complet
+  var btns=document.querySelectorAll('#ob-resist-list .ob-chk');
+  btns.forEach(function(btn,bi){
+    var isSel=ST._ob.resistances.indexOf(bi)>=0;
+    btn.className='ob-chk'+(isSel?' sel':'');
+    var cb=btn.querySelector('.cb');
+    if(cb)cb.innerHTML=isSel?'✓':'';
+  });
 }
 
 function _obQ8Next(){
@@ -4709,10 +4765,10 @@ function _obQ9(){
 
   var html =
     '<div data-anim class="ob-act-label" style="color:rgba(100,180,120,.7);border-color:rgba(100,180,120,.2)">Acte III — Tête & Habitudes</div>'
-    +'<div data-anim class="ob-q-title">Tu dors combien d\'heures en moyenne ?</div>'
-    +'<div data-anim class="ob-q-sub">Calibre le fatigueScore et les horaires de notification</div>'
+    +'<div data-anim style="text-align:center"><svg viewBox=\"0 0 80 70\" width=\"60\" height=\"52\" style=\"display:block;margin:0 auto 4px;opacity:.55\"><path d=\"M48 20 C38 20 30 28 30 38 C30 48 38 56 48 56 C42 56 34 50 32 42 C36 44 42 42 44 38 C44 32 42 26 48 20Z\" fill=\"rgba(160,140,220,.2)\" stroke=\"rgba(160,140,220,.45)\" stroke-width=\"1.5\"><animate attributeName=\"opacity\" values=\"0.8;1;0.8\" dur=\"4s\" repeatCount=\"indefinite\"/></path><circle cx=\"20\" cy=\"18\" r=\"2\" fill=\"rgba(240,220,160,.5)\"><animate attributeName=\"opacity\" values=\"0.5;1;0.5\" dur=\"2s\" repeatCount=\"indefinite\"/></circle><circle cx=\"55\" cy=\"12\" r=\"1.5\" fill=\"rgba(240,220,160,.4)\"><animate attributeName=\"opacity\" values=\"0.4;.9;0.4\" dur=\"3s\" begin=\"1s\" repeatCount=\"indefinite\"/></circle><circle cx=\"65\" cy=\"32\" r=\"1\" fill=\"rgba(240,220,160,.35)\"><animate attributeName=\"opacity\" values=\"0.3;.8;0.3\" dur=\"2.5s\" begin=\".5s\" repeatCount=\"indefinite\"/></circle></svg></div>'+'<div data-anim class="ob-q-title">Tu dors combien d\'heures en moyenne ?</div>'
+    +'<div data-anim class="ob-q-sub">Calibre l\'intensité des premières quêtes</div>'
     +'<div data-anim class="ob-opts">'
-    +[['😵','Moins de 6h — dette de sommeil'],['😐','6 à 7h — le minimum'],['😌','8h et plus — récupération correcte']].map(function(o,i){
+    +[['😵','Moins de 6h'],['😐','6 à 7h'],['😌','8h et plus']].map(function(o,i){
       var sel=ST._ob.sleep===i;
       return '<button class="ob-opt'+(sel?' sel':'')+'" onclick="_obSelSleep('+i+')">'
         +'<span class="ob-opt-icon">'+o[0]+'</span>'
@@ -4739,10 +4795,10 @@ function _obQ10(){
 
   var html =
     '<div data-anim class="ob-act-label" style="color:rgba(212,164,80,.8);border-color:rgba(212,164,80,.25)">Acte IV — Ancrage</div>'
-    +'<div data-anim class="ob-q-title">Pourquoi veux-tu changer ?</div>'
-    +'<div data-anim class="ob-q-sub">La réponse ne sera visible que par toi. Elle te sera réaffichée dans les moments difficiles.</div>'
+    +'<div data-anim style="text-align:center"><svg viewBox=\"0 0 80 80\" width=\"56\" height=\"56\" style=\"display:block;margin:0 auto 6px;filter:drop-shadow(0 0 10px rgba(212,164,80,.4))\"><circle cx=\"40\" cy=\"40\" r=\"30\" fill=\"none\" stroke=\"rgba(212,164,80,.2)\" stroke-width=\"1\" stroke-dasharray=\"3 5\"><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0 40 40\" to=\"360 40 40\" dur=\"20s\" repeatCount=\"indefinite\"/></circle><circle cx=\"40\" cy=\"40\" r=\"18\" fill=\"rgba(212,164,80,.08)\" stroke=\"rgba(212,164,80,.4)\" stroke-width=\"1.5\"/><path d=\"M40 24 L43 35 L55 35 L46 42 L49 54 L40 47 L31 54 L34 42 L25 35 L37 35Z\" fill=\"rgba(212,164,80,.25)\" stroke=\"rgba(240,200,80,.5)\" stroke-width=\"1\"><animate attributeName=\"opacity\" values=\".6;1;.6\" dur=\"2.5s\" repeatCount=\"indefinite\"/></path></svg></div>'+'<div data-anim class="ob-q-title">Pourquoi veux-tu changer ?</div>'
+    +'<div data-anim class="ob-q-sub">La réponse ne sera visible que par toi. Elle est là pour te permettre de clarifier ton pourquoi, et te sera réaffichée dans les moments difficiles.</div>'
     +'<div data-anim>'
-    +'<textarea id="ob-why-input" class="ob-textarea" placeholder="J\'en ai marre de…&#10;Je veux devenir…&#10;La dernière fois que j\'ai été fier de moi c\'était…" oninput="_obWhyInput()">'+(ST.myWhy||'')+'</textarea>'
+    +'<textarea id="ob-why-input" class="ob-textarea" placeholder="J\'en ai marre de… / Je veux devenir… / La dernière fois que j\'ai été fier de moi c\'était…" oninput="_obWhyInput()">'+(ST.myWhy||'')+'</textarea>'
     +'<button id="ob-why-btn" class="ob-btn-primary" onclick="_obSaveWhy()" '+(ST.myWhy?'':'disabled')+'>Continuer</button>'
     +'<button class="ob-btn-ghost" style="width:100%;display:block;text-align:center;margin-top:8px" onclick="_obSkipWhy()">Passer cette étape</button>'
     +'</div>';
@@ -4782,8 +4838,14 @@ function _obShowClose(){
 
   var html =
     '<div data-anim style="text-align:center">'
-    +'<div style="font-size:11px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:rgba(192,113,58,.6);margin-bottom:20px">Analyse en cours</div>'
-    +'<p class="ob-narr" style="margin-bottom:28px">Nous estimons ton niveau de départ<br/>et créons ton programme…</p>'
+    +'<div style="font-size:10px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:rgba(192,113,58,.6);margin-bottom:18px">Calibration</div>'
+    +'<svg viewBox="0 0 100 100" width="76" height="76" style="display:block;margin:0 auto 18px;filter:drop-shadow(0 0 14px rgba(192,113,58,.35))">'  
+    +'<circle cx="50" cy="50" r="40" fill="none" stroke="rgba(192,113,58,.18)" stroke-width="1.5" stroke-dasharray="6 8"><animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="8s" repeatCount="indefinite"/></circle>'
+    +'<circle cx="50" cy="50" r="26" fill="none" stroke="rgba(240,180,80,.28)" stroke-width="1" stroke-dasharray="3 6"><animateTransform attributeName="transform" type="rotate" from="360 50 50" to="0 50 50" dur="5s" repeatCount="indefinite"/></circle>'
+    +'<circle cx="50" cy="50" r="12" fill="rgba(192,113,58,.1)" stroke="rgba(192,113,58,.5)" stroke-width="1.5"><animate attributeName="r" values="12;14;12" dur="2s" repeatCount="indefinite"/></circle>'
+    +'<text x="50" y="55" font-size="10" fill="rgba(240,180,80,.8)" text-anchor="middle" font-weight="700" font-family="sans-serif">SL</text>'
+    +'</svg>'
+    +'<p class="ob-narr" style="margin-bottom:24px">Nous estimons ton niveau de départ<br/>et créons ton programme…</p>'
     +'<div class="ob-loading-bar-wrap"><div class="ob-loading-bar-fill"></div></div>'
     +'</div>';
 
@@ -4835,7 +4897,8 @@ function _obShowProgResult(prog){
 function _obContractHTML(){
   return '<div class="ob-contract-text">'
     +'« Je promets de faire de mon mieux pour réussir les 67 premiers jours, '
-    +'et de ne jamais abandonner sans m\'être battu jusqu\'au bout. »'
+    +'et de ne jamais abandonner sans m\'être battu jusqu\'au bout. »<br/><br/>'
+    +'<em style="font-size:11px;opacity:.7">En signant, je m\'engage personnellement. Pas pour l\'app — pour moi.</em>'
     +'</div>'
     +'<div class="ob-sig-label">Signe pour confirmer ton engagement</div>'
     +'<canvas id="ob-sig-canvas" class="ob-sig-canvas" width="600" height="240"></canvas>'
