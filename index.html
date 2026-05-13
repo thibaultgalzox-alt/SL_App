@@ -1356,7 +1356,7 @@ const NEW_TITLES_LEGENDARY=[
 
 const SP={body:["Pompes : {n} reps avant 10h","Squats : {n} reps avant 10h","Planche : {n}s avant 10h","Course : {n} km avant 10h"],mind:["Révision : {n} min avant 10h","Lire {n} pages avant 10h","Voltaire : {n} min avant 10h"],disc:["Journal rechute + {n} pompes maintenant","Mode avion jusqu'à 10h demain"]};
 
-const DEF={onboarded:false,waitingForTomorrow:false,answers:{},multiAnswers:{},obQ:0,day:1,week:1,xp:0,points:0,streak:0,bestStreak:0,integrity:100,weekPlan:null,questStatus:{},gymW:0,runW:0,lastBody:[],lastMind:[],lastDisc:[],lastSE:[],lastSM:[],lastSH:[],customR:[],totalBody:0,totalMind:0,totalDisc:0,sr7:[],bilans:[],dayDone:false,lastDate:null,notifOk:false,failStreak:0,sanctionPending:false,sanctionText:'',sanctionCtx:'',sanctionMult:'1.5',sanctionConfirmedAt:null,totalSanctions:0,sanctionsCompleted:0,hadFailYesterday:false,fatigueScore:3,todayEvent:null,rankDowngrade:false,rankDowngraded:false,lastRankDowngradeDay:0,disciplineDebt:0,lockRewards:false,weeklyBoss:{body:0,mind:0,discFail:0},bossWins:0,failByType:{body:0,mind:0,disc:0},successByType:{body:0,mind:0,disc:0},weekTruthDone:false,reviewDone:false,equippedTitle:null,unlockedTitles:[],lastApartmentDay:-99,dayLog:[],validationHours:[],questLog:{},lastBodyType:[],sanctionStartedAt:null,absenceDays:0,returnOfferShown:false,reconstructionDay:0,reconstructionCooldown:0,recentNNFails:[],shieldDays:0,shieldStartDay:0,fragments:{},unlockedTraits:[],newTitles:[],openedAt10h:0,waterDone:0,screenQuestDone:0,pornQuestDone:0,resistedCount:0,bodyPerfectStreak:0,reboundDays:0,hardDayWon:0,earnedFragments:[],earnedTraits:[],earnedNewTitles:[],_openedAt10h:false,_secPornoOk:0,_secScreenOk:0,_bodyPerfect5c:false,_waterStreak3:false,_bodyWhileBad:false,_bodyNoSkip7:false,_hardDayWin:false,_mindNoSkip7:false,_secColdShower:0,_hardModeQuestsDone:0,_totalSpent:0,_integrity95streak:0};
+const DEF={onboarded:false,waitingForTomorrow:false,answers:{},multiAnswers:{},obQ:0,day:1,week:1,xp:0,points:0,streak:0,bestStreak:0,integrity:100,weekPlan:null,questStatus:{},gymW:0,runW:0,lastBody:[],lastMind:[],lastDisc:[],lastSE:[],lastSM:[],lastSH:[],customR:[],totalBody:0,totalMind:0,totalDisc:0,sr7:[],bilans:[],dayDone:false,lastDate:null,notifOk:false,failStreak:0,sanctionPending:false,sanctionText:'',sanctionCtx:'',sanctionMult:'1.5',sanctionConfirmedAt:null,totalSanctions:0,sanctionsCompleted:0,hadFailYesterday:false,fatigueScore:3,todayEvent:null,rankDowngrade:false,rankDowngraded:false,lastRankDowngradeDay:0,disciplineDebt:0,lockRewards:false,weeklyBoss:{body:0,mind:0,discFail:0},bossWins:0,failByType:{body:0,mind:0,disc:0},successByType:{body:0,mind:0,disc:0},weekTruthDone:false,reviewDone:false,equippedTitle:null,unlockedTitles:[],lastApartmentDay:-99,dayLog:[],validationHours:[],questLog:{},lastBodyType:[],sanctionStartedAt:null,absenceDays:0,returnOfferShown:false,reconstructionDay:0,reconstructionCooldown:0,recentNNFails:[],shieldDays:0,shieldStartDay:0,fragments:{},unlockedTraits:[],newTitles:[],openedAt10h:0,waterDone:0,screenQuestDone:0,pornQuestDone:0,resistedCount:0,bodyPerfectStreak:0,reboundDays:0,hardDayWon:0,earnedFragments:[],earnedTraits:[],earnedNewTitles:[],_openedAt10h:false,_secPornoOk:0,_secScreenOk:0,_bodyPerfect5c:false,_waterStreak3:false,_bodyWhileBad:false,_bodyNoSkip7:false,_hardDayWin:false,_mindNoSkip7:false,_secColdShower:0,_hardModeQuestsDone:0,_totalSpent:0,_integrity95streak:0,_obScore:0,_obMode:'Standard',_hasSalle:false,_hasVelo:false,_hasSport:false,_physGoal:1,lastBody:[]};
 // ─── IndexedDB storage (fallback to localStorage) ────────────────────────
 const DB_NAME='solo_leveling_db_v2',DB_STORE='app_state',DB_KEY='main';
 let _db=null;
@@ -1690,88 +1690,76 @@ function ptsV(tp){return Math.round(xpV(tp)*.4);}
 
 // gBody replaced by gBodyGym / gBodyNoGym in genWeek
 function gMind(){
-  const red=isRed();const rd=isReconstruction();
-  // RECONSTRUCTION pool - Pomodoro, méditation, journal, lecture, Voltaire, doc économique
+  var red=isRed();var rd=isReconstruction();
+  // Reconstruction : pool allégé
   if(rd){
-    const reconPool=[
-      {id:"m1",name:`Pomodoro : ${sc(20,40)} min de focus`,desc:pick(["Aucune distraction. Met un minuteur. Au bout de 20 minutes, fais une courte pause, puis recommence.","Travailler avec la méthode Pomodoro permet +20 à 35% de productivité (LifeAt)","La méthode Pomodoro réduit de 20% la fatigue mentale, comparé à des sessions sans pause (BMC Medical Education, 2025)"])},
-      {id:"m3",name:`Méditation musicale : ${sc(15,25)} min`,desc:pick(["Ferme les yeux & respire calmement. Musique instrumentale de fond recommandée.","Avec la méditation, le cerveau change structurellement en 8 semaines, notamment avec une augmentation de la matière grise dans l'hippocampe (Hölzel, 2011)","Après 8 semaines, l'amygdale (zone liée à la peur & au stress) diminue en densité (Lazar et al, Harvard, 2011)"])},
-      {id:"m5",name:`Écrire dans un Journal : ${sc(20,30)} min`,desc:pick(["Écris ce qui te passe par la tête : sans filtre, sans relecture.","68% des études montrent des résultats significativement positifs sur la santé mentale (Sohal et al, 2022)","Écrire un journal quotidien réduit l'anxiété & la dépression de 20 à 45% sur le long terme (Baikie & Wihelm, 2005)","L'écriture expressive booste l'activité des lymphocytes et renforce ton immunité (Pennebaker, 1988)"])},
-      {id:"ml1",name:`Lire ${sc(10,25)} pages`,desc:pick(["Lire quotidiennement réduit le risque de mortalité de 20% sur 12 ans, toutes causes confondues (Yale)","Les grands lecteurs (3h30/semaine) vivent en moyenne 23 mois de plus (Yale)","La lecture réduit en moyenne le niveau de stress de 68% en 6 minutes. C'est plus efficace que marcher ou écouter de la musique (université de Sussex)","La lecture quotidienne prévient le déclin cognitif à long terme (Chang, Wu & Hsiung, 2021)","La lecture de fiction améliore les zones du cerveau liées à la cognition sociale : tu comprends mieux les autres (Psychology of Aesthetics, Creativity, and the Arts)","La lecture améliore ton orthographe et ton vocabulaire, avec une corrélation de 0,96 (Treiman, 2024, sur 1116 individus)"])},
-      {id:"ml3",name:`Projet Voltaire ou Français Facile : ${sc(20,35)} min`,desc:pick(["Améliore ton orthographe & paraît plus crédible : mails, recruteurs, CV…","Autres alternatives gratuites : Dictaly, La Conjugaison, Orthodidacte…"])},
-      {id:"ml2",name:`Prise de notes d'un document économique - ${sc(15,25)} min`,desc:"Note 5 points clés. Élargis tes connaissances & ton esprit critique !"},
+    var reconPool=[
+      {id:'M001',name:'Effectuer '+sc(20,60)+'min d\'étude sans distraction (Pomodoro)',desc:pick(['Aucune distraction. Minuteur obligatoire.','Pomodoro : +20 à 35% de productivité (LifeAt)'])},
+      {id:'M004',name:'Méditer avec de la musique : '+sc(10,30)+'min',desc:pick(['Ferme les yeux & respire calmement.','La méditation réduit le stress et améliore la concentration.'])},
+      {id:'M005',name:'Écrire dans son journal : '+sc(15,25)+'min',desc:'Sans filtre, sans relecture. Flux de conscience.'},
+      {id:'M007',name:'Lire '+sc(3,15)+' pages',desc:'Lecture non-fiction ou fiction de qualité.'},
+      {id:'M002',name:'Effectuer '+sc(1,2)+' exercice(s) d\'orthographe',desc:'Projet Voltaire ou Français Facile.'},
     ];
-    const c=pickAntiMonotony(reconPool,ST.lastMind);ST.lastMind.push(c.id);if(ST.lastMind.length>6)ST.lastMind.shift();
-    const isReading=c.id==='ml1'||c.id==='ml2'||c.id==='ml3';
-    return{...c,id:"nn1",type:"mind",icon:isReading?"&#128214;":"&#128218;",cls:"qi-mind",tag:"tag-mind",tagLbl:isReading?"Mind - Lecture":"Mind - Étude",xp:xpV('mind'),pts:ptsV('mind')};
+    var rc=pickAntiMonotony(reconPool,ST.lastMind||[]);
+    ST.lastMind=ST.lastMind||[];ST.lastMind.push(rc.id);if(ST.lastMind.length>6)ST.lastMind.shift();
+    return{...rc,id:'nn1',type:'mind',icon:'&#128214;',cls:'qi-mind',tag:'tag-mind',tagLbl:'Mind',xp:xpV('mind'),pts:ptsV('mind')};
   }
-  if(Math.random()<.6){
-    // STUDY pool (60%) - per spec: pomodoro, maths, méditation, s'ennuyer, journal
-    const full=[
-      {id:"m1",name:`Pomodoro : ${sc(20,120)} min de focus`,desc:pick(["Aucune distraction. Met un minuteur. Au bout de 20 minutes, fais une courte pause, puis recommence.","Travailler avec la méthode Pomodoro permet +20 à 35% de productivité (LifeAt)","La méthode Pomodoro réduit de 20% la fatigue mentale, comparé à des sessions sans pause (BMC Medical Education, 2025)"])},
-      {id:"m1",name:`Pomodoro : ${sc(20,120)} min de focus`,desc:pick(["Aucune distraction. Met un minuteur. Au bout de 20 minutes, fais une courte pause, puis recommence.","Travailler avec la méthode Pomodoro permet +20 à 35% de productivité (LifeAt)","La méthode Pomodoro réduit de 20% la fatigue mentale, comparé à des sessions sans pause (BMC Medical Education, 2025)"])},
-      {id:"m2",name:`${sc(1,4)} exercice(s) de maths`,desc:"Exercices au choix, difficulté croissante. Idéalement dans ton domaine d'étude/de travail."},
-      {id:"m2",name:`${sc(1,4)} exercice(s) de maths`,desc:"Exercices au choix, difficulté croissante. Idéalement dans ton domaine d'étude/de travail."},
-      {id:"m3",name:`Méditation musicale : ${sc(15,55)} min`,desc:pick(["Ferme les yeux & respire calmement. Musique instrumentale de fond recommandée.","Avec la méditation, le cerveau change structurellement en 8 semaines, notamment avec une augmentation de la matière grise dans l'hippocampe (Hölzel, 2011)","Après 8 semaines, l'amygdale (zone liée à la peur & au stress) diminue en densité (Lazar et al, Harvard, 2011)"])},
-      {id:"m3",name:`Méditation musicale : ${sc(15,55)} min`,desc:pick(["Ferme les yeux & respire calmement. Musique instrumentale de fond recommandée.","Avec la méditation, le cerveau change structurellement en 8 semaines, notamment avec une augmentation de la matière grise dans l'hippocampe (Hölzel, 2011)","Après 8 semaines, l'amygdale (zone liée à la peur & au stress) diminue en densité (Lazar et al, Harvard, 2011)"])},
-      {id:"m4",name:`S'ennuyer : ${sc(15,55)} min`,desc:pick(["Quand as-tu offert une vraie pause à ton cerveau pour la dernière fois ?","L'ennui permet moins de stimulation constante : les petites choses redeviennent satisfaisantes.","L'ennui augmente significativement la créativité (Man & Cadman, 2014)"])},
-      {id:"m4",name:`S'ennuyer : ${sc(15,55)} min`,desc:pick(["Quand as-tu offert une vraie pause à ton cerveau pour la dernière fois ?","L'ennui permet moins de stimulation constante : les petites choses redeviennent satisfaisantes.","L'ennui augmente significativement la créativité (Man & Cadman, 2014)"])},
-      {id:"m5",name:`Écrire dans un Journal : ${sc(20,45)} min`,desc:pick(["Écris ce qui te passe par la tête : sans filtre, sans relecture.","68% des études montrent des résultats significativement positifs sur la santé mentale (Sohal et al, 2022)","Écrire un journal quotidien réduit l'anxiété & la dépression de 20 à 45% sur le long terme (Baikie & Wihelm, 2005)","L'écriture expressive booste l'activité des lymphocytes et renforce ton immunité (Pennebaker, 1988)"])},
-    ];
-    const reduced=[
-      {id:"m1",name:`Travail via Pomodoro : ${sc(20,60)} min`,desc:pick(["Aucune distraction. Met un minuteur. Au bout de 20 minutes, fais une courte pause, puis recommence.","Travailler avec la méthode Pomodoro permet +20 à 35% de productivité (LifeAt)","La méthode Pomodoro réduit de 20% la fatigue mentale, comparé à des sessions sans pause (BMC Medical Education, 2025)"])},
-      {id:"m4",name:`S'ennuyer : ${sc(15,45)} min`,desc:pick(["Quand as-tu offert une vraie pause à ton cerveau pour la dernière fois ?","L'ennui permet moins de stimulation constante : les petites choses redeviennent satisfaisantes.","L'ennui augmente significativement la créativité (Man & Cadman, 2014)"])},
-      {id:"m5",name:`Journal : ${sc(20,45)} min`,desc:pick(["Écris ce qui te passe par la tête : sans filtre, sans relecture.","68% des études montrent des résultats significativement positifs sur la santé mentale (Sohal et al, 2022)","Écrire un journal quotidien réduit l'anxiété & la dépression de 20 à 45% sur le long terme (Baikie & Wihelm, 2005)","L'écriture expressive booste l'activité des lymphocytes et renforce ton immunité (Pennebaker, 1988)"])},
-    ];
-    const pool=red?reduced:full;const c=pickAntiMonotony(pool,ST.lastMind);ST.lastMind.push(c.id);if(ST.lastMind.length>6)ST.lastMind.shift();
-    return{...c,id:"nn1",type:"mind",icon:"&#128218;",cls:"qi-mind",tag:"tag-mind",tagLbl:"Mind - Étude",xp:xpV('mind'),pts:ptsV('mind')};
-  }
-  // READING pool (40%) - per spec: lire des pages, article économique, Voltaire
-  const pages=sc(10,red?40:50);
-  const full=[
-    {id:"ml1",name:`Lire ${pages} pages`,desc:pick(["Lire quotidiennement réduit le risque de mortalité de 20% sur 12 ans, toutes causes confondues (Yale)","Les grands lecteurs (3h30/semaine) vivent en moyenne 23 mois de plus (Yale)","La lecture réduit en moyenne le niveau de stress de 68% en 6 minutes. C'est plus efficace que marcher ou écouter de la musique (université de Sussex)","La lecture quotidienne prévient le déclin cognitif à long terme (Chang, Wu & Hsiung, 2021)","La lecture de fiction améliore les zones du cerveau liées à la cognition sociale : tu comprends mieux les autres (Psychology of Aesthetics, Creativity, and the Arts)","La lecture améliore ton orthographe et ton vocabulaire, avec une corrélation de 0,96 (Treiman, 2024, sur 1116 individus)"])},
-    {id:"ml2",name:`Prise de notes d'un document économique - ${sc(15,red?45:55)} min`,desc:"Note 5 points clés. Élargis tes connaissances & ton esprit critique !"},
-    {id:"ml3",name:`Projet Voltaire ou Français Facile : ${sc(20,red?45:55)} min`,desc:pick(["Améliore ton orthographe & paraît plus crédible : mails, recruteurs, CV…","Autres alternatives gratuites : Dictaly, La Conjugaison, Orthodidacte…"])},
+  // Pool complet #M001-#M009 — probabilités égales
+  var pool=[
+    {id:'M001',name:'Effectuer '+scR(20,90)+'min d\'étude sans distraction (Pomodoro)',desc:pick(['Aucune distraction. Met un minuteur.','Pomodoro : +20 à 35% de productivité (LifeAt)','La méthode Pomodoro réduit de 20% la fatigue mentale (BMC Medical Education, 2025)'])},
+    {id:'M002',name:'Effectuer '+scR(1,4)+' exercice(s) d\'orthographe',desc:pick(['Projet Voltaire ou Français Facile : mails, CV, crédibilité.','Dictaly, La Conjugaison, Orthodidacte sont également disponibles.'])},
+    {id:'M003',name:"S'ennuyer volontairement : "+scR(5,30)+"min",desc:pick(['Quand as-tu offert une vraie pause à ton cerveau ?','L\'ennui augmente significativement la créativité (Man & Cadman, 2014)'])},
+    {id:'M004',name:'Méditer avec de la musique : '+scR(10,45)+'min',desc:pick(['Ferme les yeux & respire calmement. Musique instrumentale.','La méditation change structurellement le cerveau en 8 semaines (Hölzel, 2011)'])},
+    {id:'M005',name:'Écrire dans son journal : '+scR(15,25)+'min',desc:pick(['Sans filtre, sans relecture. Ce qui te passe par la tête.','68% des études montrent des résultats positifs sur la santé mentale (Sohal et al, 2022)'])},
+    {id:'M006',name:'Effectuer '+scR(1,4)+' exercice(s) de mathématiques',desc:'Exercices au choix, difficulté croissante. Idéalement dans ton domaine.'},
+    {id:'M007',name:'Lire '+scR(3,20)+' pages',desc:pick(['La lecture réduit le stress de 68% en 6 minutes (Université de Sussex)','Les grands lecteurs vivent en moyenne 23 mois de plus (Yale)'])},
+    {id:'M008',name:'Effectuer '+scR(5,25)+'min d\'exercices d\'élocution, à voix haute',desc:'Textes à voix haute, virelangues. Enregistre-toi.'},
+    {id:'M009',name:scR(10,35)+'min prise de notes sérieuse : documentaire, document économique…',desc:'Note 5 points clés. Élargis tes connaissances & ton esprit critique.'},
   ];
-  const c=pickAntiMonotony(full,ST.lastMind);ST.lastMind.push(c.id);if(ST.lastMind.length>6)ST.lastMind.shift();
-  return{...c,id:"nn1",type:"mind",icon:"&#128214;",cls:"qi-mind",tag:"tag-mind",tagLbl:"Mind - Lecture",xp:xpV('mind'),pts:ptsV('mind')};
+  var c=pickAntiMonotony(pool,ST.lastMind||[]);
+  ST.lastMind=ST.lastMind||[];ST.lastMind.push(c.id);if(ST.lastMind.length>6)ST.lastMind.shift();
+  return{...c,id:'nn1',type:'mind',icon:'&#128214;',cls:'qi-mind',tag:'tag-mind',tagLbl:'Mind',xp:xpV('mind'),pts:ptsV('mind')};
 }
+
 function gDisc(){
-  const sl=ST.answers.addiction_screen||0,pl=ST.answers.addiction_porno||0,al=ST.answers.addiction_alc||0,fl=ST.answers.addiction_food||0;
-  const hard=ST.multiAnswers.hardest||[];const red=isRed();
-  // Screen time: progressive reduction from day 1 to day 80
-  // sl=0 (4h+/day): 3h → 20min over 80 days
-  // sl=1 (2-4h):    2h → 20min over 80 days
-  // sl=2 (1-2h):    1h → 20min over 80 days
-  // sl=3 (<1h):     30min → 20min over 80 days (already disciplined)
-  function screenLimit(){
-    const startMins=[180,120,60,30][sl];// starting values in minutes
-    const endMins=20;// target for everyone at day 80
-    const progress=Math.min(1,(ST.day-1)/79);// 0 at day 1, 1 at day 80
-    const raw=Math.round(startMins+(endMins-startMins)*progress);
-    const mins=red?Math.round(raw*1.5):raw;// reduced mode: more lenient
-    // Format as Xh Ymin or Xmin
-    if(mins>=60){const h=Math.floor(mins/60);const m=mins%60;return m===0?`${h}h`:`${h}h${m}`;}
-    return`${mins} min`;
-  }
-  const screenLbl=screenLimit();
-  const pool=[];
-  // Per spec: désactivation applis distractives jusqu'à 18h
-  if(!red)pool.push({id:"d3",name:"Zéro application distractive avant 18h",desc:pick(["Jeux, Instagram, TikTok, YouTube, Twitter… désactivés jusqu'à 18h.","L'absence de stimulation tôt dans la journée préserve les ressources attentionnelles pour les tâches complexes.","Tu donnes littéralement ton attention à des entreprises : quand reprends-tu le contrôle ?","Procrastination réduite : l'accès immédiat à des apps distractives est le principal déclencheur de l'évitement de tâche (Biwer et al, 2023)"])});
-  // Per spec: déconnexion Instagram jusqu'au lendemain 8h
-  pool.push({id:"d7",name:"Désactive Instagram et Tiktok jusqu'à demain 8h",desc:pick(["Supprime l'application si nécessaire : tu la réinstalleras demain. Sinon, mets un contrôle de temps d'écran depuis tes paramètres & demande à un ami de créer un mot de passe.","L'attention, la mémoire de travail et la capacité à résister à une impulsion sont grandement détériorées sur le long terme par les TikTok/Reels (PsyPost, 2025, 100 000 individus)","Chaque swipe libère de la dopamine, rendant les tâches longues insupportables (Paltaratskaya, 2023)","La consommation fragmentée conduit à un traitement superficiel de l'information : ta pensée critique se dégrade (Researchgate, 2019-2025)"])});
-  // Per spec: déconnexion totale écrans 22h-7h
-  pool.push({id:"d2",name:`Déconnexion écrans de ${ST.day<30?"2h à 10h":ST.day<60?"23h à 8h":"22h à 7h"}`,desc:"Mode avion ou téléphone éteint : alarme classique si besoin."});
-  // Screen time limit
-  pool.push({id:"d1",name:`Réseaux sociaux : maximum ${screenLbl} aujourd'hui`,desc:red?"Objectif allégé : fais de ton mieux.":pick(["Verrouille le temps maximum depuis tes paramètres avec un code compliqué : confie-le à un ami.","Avec un plafond de 30min/jour et au bout de deux semaines, l'anxiété, la dépression et la solitude sont significativement réduites (Iowa State University, 230 étudiants).","Après 4 mois de réduction, le bien-être & la satisfaction de vie sont augmentés (Brailovskaia et al, 2023)."])});
-  // Addiction quests
-  if(pl<=2||hard.includes("Résister à la pornographie"))
-    pool.push({id:"d4",name:"Zéro pornographie jusqu'à demain 8h",desc:red?"Si tentation : note le contexte.":pick(["Identifie les endroits où tu craques : essaie d'y passer le moins de temps possible.","Même avant addiction, une consommation régulière réduit mesurablement la matière grise dans le striatum droit (JAMA Psychiatry)","La zone du contrôle inhibiteur (qui te fait résister aux pulsions) se détériore : tu deviens une larve (Kühn & Gallinat, 2014)","Fonction cognitive altérée : les grands consommateurs montrent une connectivité préfrontale réduite, affectant concentration, mémoire de travail & régulation émotionnelle (PMC, 2025)"])});
-  if(al<=1)pool.push({id:"d5",name:"Zéro alcool, cigarette et drogues aujourd'hui",desc:"Aucune substance : hydratation eau uniquement."});
-  if(fl<=1)pool.push({id:"d6",name:"Zéro fast-food aujourd'hui",desc:pick(["Cuisine par toi-même. La meilleure façon de réduire ton habitude aux fast-foods, c'est d'avoir un frigo rempli.","Il y a +51% de dépression chez les consommateurs réguliers, vs ceux qui n'en consomment pas (Public Health Nutrition)","Meilleure qualité de sommeil : l'alimentation riche en graisses et sucres perturbe le sommeil, qui affecte cognition, humeur et résilience émotionnelle (Tanaka et al, 2018)"])});
-  const c=pickAntiMonotony(pool,ST.lastDisc);ST.lastDisc.push(c.id);if(ST.lastDisc.length>6)ST.lastDisc.shift();
-  return{...c,id:"nn2",type:"disc",icon:"&#128683;",cls:"qi-disc",tag:"tag-disc",tagLbl:"Discipline",xp:xpV('disc'),pts:ptsV('disc')};
+  var red=isRed();
+  var res=ST._ob&&ST._ob.resistances?ST._ob.resistances:(ST.answers&&ST.answers.addiction_porno<=2?[3]:[]);
+  var nr=res.length;
+  // Probabilité de tomber dans le pool standard D001-D007
+  var xPct=[1.00,0.875,0.78,0.70,0.6363][Math.min(nr,4)];
+
+  // Pool standard #D001-#D007
+  var basePool=[
+    {id:'D001',name:'Prendre une douche froide de '+scR(10,240)+'s (température minimale)',desc:'Respire lentement. Tiens jusqu\'à acclimatement complet.'},
+    {id:'D002',name:'Zéro appli distractive avant 18h',desc:'Jeux, Instagram, TikTok, YouTube, Twitter… désactivés jusqu\'à 18h.'},
+    {id:'D003',name:"Désactiver Insta & TikTok jusqu'à demain 8h",desc:'Supprime si nécessaire. Mets un contrôle de temps d\'écran avec mot de passe.'},
+    {id:'D004',name:"Prendre tous ses repas sans téléphone aujourd'hui",desc:'Mange lentement, concentre-toi sur le repas.'},
+    {id:'D005',name:'Éteindre le téléphone après 22h30',desc:'Mode avion ou éteint. Alarme classique si besoin.'},
+    {id:'D006',name:"Faire un compliment sincère à quelqu'un",desc:'Précis et authentique. Pas une politesse vague.'},
+    {id:'D007',name:"Rendre un service à quelqu'un sans rien attendre en retour",desc:'Concret. Aujourd\'hui.'},
+  ];
+
+  // Pool personnalisé selon Q8 (D101-D104)
+  var extraPool=[];
+  if(res.indexOf(6)>=0||(ST.answers&&ST.answers.hard_outside===1))
+    extraPool.push({id:'D101',name:"Parler avec un inconnu aujourd'hui (pas seulement un bonjour)",desc:'Rue, café, transport. Vrai échange, 2 min minimum.'});
+  if(res.indexOf(4)>=0||(ST.answers&&ST.answers.addiction_food<=1))
+    extraPool.push({id:'D102',name:"Pas de junk food (au moins jusqu'à demain 10h)",desc:pick(['Cuisine toi-même. La meilleure façon : avoir un frigo rempli.','51% de dépression en plus chez les consommateurs réguliers (Public Health Nutrition)'])});
+  if(res.indexOf(5)>=0||(ST.answers&&ST.answers.addiction_alc<=1))
+    extraPool.push({id:'D103',name:'Pas d\'alcool & drogue (au moins jusqu\'à demain 10h)',desc:'Aucune substance. Hydratation eau uniquement.'});
+  if(res.indexOf(3)>=0||(ST.answers&&ST.answers.addiction_porno<=2))
+    extraPool.push({id:'D104',name:"Pas de pornographie (au moins jusqu'à demain 10h)",desc:pick(['Identifie les contextes où tu craques : évite-les.','La zone du contrôle inhibiteur se détériore avec une consommation régulière (Kühn & Gallinat, 2014)'])});
+
+  // Tirer dans basePool ou extraPool selon probabilité
+  var useBase=extraPool.length===0||Math.random()<xPct;
+  var pool=useBase?basePool:extraPool;
+  if(pool.length===0)pool=basePool;
+
+  var c=pickAntiMonotony(pool,ST.lastDisc||[]);
+  ST.lastDisc=ST.lastDisc||[];ST.lastDisc.push(c.id);if(ST.lastDisc.length>6)ST.lastDisc.shift();
+  return{...c,id:'nn2',type:'disc',icon:'&#128683;',cls:'qi-disc',tag:'tag-disc',tagLbl:'Discipline',xp:xpV('disc'),pts:ptsV('disc')};
 }
+
 function gWater(){return{id:"water0",name:"Boire 2,5 L d'eau",desc:pick(["Prends l'habitude de les répartir : notamment un verre au réveil, et pendant chaque repas.","Avec une hydratation de 500ml au réveil, +55% d'énergie ressentie (IJERPH, 2020, 64 individus)","Ton cerveau est constitué à 80% de fluide : 16h de déshydratation réduisent son volume de 0,55%. Dès 1,5L, tu l'augmentes au contraire de 0,72% (Durning et al, 2005)","56% des adultes sont physiologiquement déshydratés sans le savoir ! (PREMIMED, 2023)","Humeur & sommeil améliorés chez les personnes qui augmentent leur consommation de <1L à 2,5L/jour (PLoS ONE, 2014)"]),type:"water",icon:"&#128166;",cls:"qi-mind",tag:"tag-water",tagLbl:"Hydratation - 100%",xp:xpV('water'),pts:ptsV('water')};}
 function gSE(di){
   const pq=PHILO[Math.floor(Math.random()*PHILO.length)];
@@ -1833,177 +1821,236 @@ function getAdaptation(){
   }
   return adapt;
 }
+// ═══════════════════════════════════════════════════════════════════
+// GÉNÉRATION HEBDOMADAIRE — V4 (système IDs #B001-#B309, #M001-#M009, #D001-#D104)
+// ═══════════════════════════════════════════════════════════════════
+
+// ── Multiplicateur de départ progressif (J0→J14) ──
+function _startRamp(){
+  var base=ST._startMult||0.4;
+  if(ST.day>=14)return 1;
+  return base+(1-base)*((ST.day-1)/13);
+}
+
+// ── sc() avec rampe de départ ──
+function scR(a,b){
+  var v=sc(a,b);
+  var r=_startRamp();
+  return Math.max(a,Math.round(a+(v-a)*r));
+}
+
+// ── Nombre de NN pour le jour courant ──
+function getNNTarget(){
+  var mode=ST._obMode||'Standard';
+  var d=ST.day;
+  if(mode==='Discipline')return 3;
+  if(mode==='Standard')return d>=5?3:2;
+  // Foundation
+  if(d>=7)return 3;
+  if(d>=5)return 2;
+  return 1;
+}
+
+// ── Helper : piocher sans répéter ──
+function _pickNoRepeat(pool,last,n){
+  n=n||1;var avail=pool.filter(function(q){return last.indexOf(q.id)<0;});
+  if(avail.length<n)avail=pool.slice();
+  var result=[];var used=[];
+  while(result.length<n&&avail.length>0){
+    var idx=Math.floor(Math.random()*avail.length);
+    result.push(avail[idx]);used.push(avail[idx].id);
+    avail.splice(idx,1);
+  }
+  return result;
+}
+
+// ════ QUÊTES BODY SALLE — Grosses séances ════
+function _gBodyGymPool(){
+  var g=ST._physGoal||0;
+  var hasSalle=ST._hasSalle;
+  // Salle : masse
+  var B001={id:'B001',name:'Séance push – 1h',desc:"Pectoraux, épaules, triceps. Donne tout.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Salle',xp:xpV('body'),pts:ptsV('body')};
+  var B002={id:'B002',name:'Séance pull – 1h',desc:"Dos, biceps, trapèzes. Progression sur les charges.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Salle',xp:xpV('body'),pts:ptsV('body')};
+  var B003={id:'B003',name:'Séance jambes – 1h',desc:"Quadriceps, ischio, fessiers, mollets. Ne skippe pas.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Salle',xp:xpV('body'),pts:ptsV('body')};
+  var B004={id:'B004',name:'Séance au choix – 1h',desc:"Groupe musculaire au choix. Intensité maximale.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Salle',xp:xpV('body'),pts:ptsV('body')};
+  // Salle : sécher
+  var B005={id:'B005',name:'Séance full body – 1h',desc:"Circuit complet. Charge modérée, reps élevées, tempo soutenu.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Salle',xp:xpV('body'),pts:ptsV('body')};
+  var B006={id:'B006',name:'Séance jambes – 1h',desc:"Jambes + cardio finisher 10 min. Brûle les réserves.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Salle',xp:xpV('body'),pts:ptsV('body')};
+  // Salle : maintien/bouger
+  var B007={id:'B007',name:'Séance full body – 1h',desc:"Maintien : travaille chaque groupe, progression stable.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Salle',xp:xpV('body'),pts:ptsV('body')};
+  var B008={id:'B008',name:'Séance jambes – 1h',desc:"Jambes en priorité. Mobilité + force.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Salle',xp:xpV('body'),pts:ptsV('body')};
+  // Endurance salle
+  var B009={id:'B009',name:'Séance jambes – 1h',desc:"Jambes + core. Endurance musculaire : séries longues.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Salle',xp:xpV('body'),pts:ptsV('body')};
+  // Maison : masse
+  var B101={id:'B101',name:'Séance push – 1h',desc:"Pompes larges, pompes serrées, dips, extensions triceps, élévations latérales, crunchs.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Maison',xp:xpV('body'),pts:ptsV('body')};
+  var B102={id:'B102',name:'Séance pull – 1h',desc:"Rows sous table, Superman, tirage élastique, rowing coudes serrés.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Maison',xp:xpV('body'),pts:ptsV('body')};
+  var B103={id:'B103',name:'Séance jambes – 1h',desc:"Squats, fentes, hip thrusts, mollets, squat sauté, gainage.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Maison',xp:xpV('body'),pts:ptsV('body')};
+  var B104={id:'B104',name:'Séance au choix – 1h',desc:"Groupe musculaire au choix. Corps entier si indécis.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Maison',xp:xpV('body'),pts:ptsV('body')};
+  // Maison : sécher
+  var B105={id:'B105',name:'Séance full body – 1h',desc:"Circuit full body : burpees, pompes, squats, fentes, mountain climbers.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Maison',xp:xpV('body'),pts:ptsV('body')};
+  var B106={id:'B106',name:'Séance jambes – 1h',desc:"Jambes poids de corps : squat sauté, fentes, hip thrusts, mollets.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Maison',xp:xpV('body'),pts:ptsV('body')};
+  // Maison : maintien
+  var B107={id:'B107',name:'Séance full body – 1h',desc:"Maintien poids de corps : circuit équilibré haut/bas.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Maison',xp:xpV('body'),pts:ptsV('body')};
+  var B108={id:'B108',name:'Séance jambes – 1h',desc:"Jambes poids de corps. Profondeur et contrôle.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Maison',xp:xpV('body'),pts:ptsV('body')};
+  // Run
+  var B201={id:'B201',name:'Courir '+scR(3,16)+' km, allure au choix',desc:pick(["25 à 40% de risque de mortalité prématurée en moins chez les coureurs (Progress in Cardiovascular Diseases)","2 semaines de course suffisent pour réduire les symptômes dépressifs (ScienceDirect, 2021)","La course renforce la densité osseuse et améliore la sensibilité à l'insuline."]),type:'body',icon:'&#128099;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Run',xp:xpV('body'),pts:ptsV('body')};
+  var B201b={id:'B201',name:'Courir '+scR(3,16)+' km, allure au choix',desc:"Deuxième sortie run de la semaine. Gère ton allure.",type:'body',icon:'&#128099;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Run',xp:xpV('body'),pts:ptsV('body')};
+  var B202={id:'B202',name:'Séance fractionné',desc:scR(4,10)+'×400m allure rapide (60s récup) — ou : '+scR(8,20)+' répétitions 30s modéré / 30s rapide.',type:'body',icon:'&#128099;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Run',xp:xpV('body'),pts:ptsV('body')};
+  // Vélo
+  var B203={id:'B203',name:'Séance cardio – vélo : '+scR(3,20)+' km',desc:"Allure soutenue. Dehors ou home-trainer.",type:'body',icon:'&#128690;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Vélo',xp:xpV('body'),pts:ptsV('body')};
+
+  return {B001,B002,B003,B004,B005,B006,B007,B008,B009,
+          B101,B102,B103,B104,B105,B106,B107,B108,
+          B201,B201b,B202,B203};
+}
+
+// ════ QUÊTES BODY NORMALES #B301-#B309 ════
+function _gBodyNormalePool(){
+  return [
+    {id:'B301',name:'Effectuer '+scR(15,60)+' pompes',desc:"En plusieurs séries si besoin. 60s de récup entre chaque."},
+    {id:'B302',name:'Effectuer '+scR(15,60)+' squats',desc:"Descends bien et contrôle le mouvement."},
+    {id:'B303',name:'Effectuer '+scR(30,480)+'s de gainage en planche',desc:"Veille à respirer & rester gainé."},
+    {id:'B304',name:'Effectuer '+scR(10,60)+' abdos (crunchs & latéraux)',desc:"Type d\'abdo au choix : veille à respirer."},
+    {id:'B305',name:'Effectuer '+scR(5,20)+' min d\'étirements musculaires',desc:"Étirements, travailler abdominaux & fessiers."},
+    {id:'B306',name:'Effectuer '+scR(500,3000)+'m de marche',desc:"Idéalement en extérieur, rythme soutenu."},
+    {id:'B307',name:'Effectuer '+scR(15,60)+' dips',desc:"Sur chaise ou canapé. Dos droit, amplitude complète."},
+    {id:'B308',name:'Effectuer '+scR(15,40)+' fentes',desc:"Alternées, grand pas, genou arrière proche du sol."},
+    {id:'B309',name:'Effectuer '+scR(20,60)+' Superman',desc:"Allongé ventre, soulève bras et jambes en même temps. Tiens 2s."},
+  ];
+}
+
+// ════ GÉNÉRATION HEBDOMADAIRE ════
 function genWeek(){
   ST.gymW=0;ST.runW=0;
-  const plan=[];const nh=noHard();
+  var plan=[];var nh=noHard();
+  var g=ST._physGoal||0;          // 0=masse,1=sécher,2=endurance,3=bouger
+  var hasSalle=ST._hasSalle;
+  var hasVelo=ST._hasVelo;
+  var B=_gBodyGymPool();
 
-  // Gym sessions from onboarding: 0=2, 1=3, 2=4
-  var targetGym=[2,3,4][ST.answers.gym_sessions||0];
-  var targetRun=[0,1,2][ST.answers.run_freq||0];
+  // ── Définir le programme de la semaine selon objectif×accès ──
+  // Format: {heavy:[quêtes obligatoires dans la semaine], normalCount:N}
+  // Les heavy tombent entre lundi(0) et samedi(5), jamais 2 de suite, ordre aléatoire unique
+  var heavyPool=[];var normalCount=0;var runPool=[];
 
-  // V3: Fatigue adaptation - reduce if globalState is fatigue or adaptation says miniMode
-  var adapt=getAdaptation();
-  if(getGlobalState()==='fatigue'||adapt.miniMode){
-    targetGym=Math.min(targetGym,3);
-    targetRun=Math.min(targetRun,1);
-  }
+  if(g===0&&hasSalle){heavyPool=[B.B001,B.B002,B.B003,B.B004];normalCount=3;}
+  else if(g===0&&!hasSalle){heavyPool=[B.B101,B.B102,B.B103,B.B104];normalCount=3;}
+  else if(g===1&&hasSalle){heavyPool=[B.B005,B.B006];runPool=[B.B201,B.B202];normalCount=3;}
+  else if(g===1&&!hasSalle){heavyPool=[B.B105,B.B106];runPool=[B.B201,B.B202];normalCount=3;}
+  else if(g===2&&hasSalle){heavyPool=[B.B009];runPool=[B.B201,B.B201b,B.B202];normalCount=3;}
+  else if(g===2&&!hasSalle){heavyPool=[B.B103];runPool=[B.B201,B.B201b,B.B202];normalCount=3;}
+  else if(g===3&&hasSalle){heavyPool=[B.B007,B.B008];runPool=[B.B201];normalCount=4;}
+  else{heavyPool=[B.B107,B.B108];runPool=[B.B201];normalCount=4;}
 
-  // Guarantee exactly targetGym gym days, avoid consecutive
-  const gymDays=new Set();
-  const shuffled=[0,1,2,3,4,5,6].sort(()=>Math.random()-.5);
-  for(const d of shuffled){
-    if(gymDays.size>=targetGym)break;
-    const prev=d>0&&gymDays.has(d-1);const next=d<6&&gymDays.has(d+1);
-    if(!prev&&!next)gymDays.add(d);
-  }
-  // Fallback if not enough non-consecutive slots
-  for(const d of [0,1,2,3,4,5,6]){if(gymDays.size>=targetGym)break;gymDays.add(d);}
+  // Vélo possible si coché et pas de run ce jour
+  // On ajoute B203 dans le pool normal si vélo disponible
+  var normalPool=_gBodyNormalePool();
+  if(hasVelo&&runPool.length===0)normalPool.push(B.B203);
 
-  // Roll events for all 7 days
-  // Strategy: guarantee the week always has at least 2-3 non-null events
-  // by seeding fixed events on specific days, then filling the rest randomly
-  const events=[];
-  // Guaranteed events this week: pick 2-3 from the pool weighted by their rates
-  const guaranteed=['doubleXP','hardMode','easyDay','shadow'];
-  const weights=[5,7,10,3]; // doubleXP, hardMode, easyDay, shadow
-  function pickGuaranteed(){
-    const total=weights.reduce((a,b)=>a+b,0);
-    let r=Math.random()*total;
-    for(let i=0;i<guaranteed.length;i++){r-=weights[i];if(r<=0)return guaranteed[i];}
-    return guaranteed[0];
-  }
-  // Assign guaranteed events to 2 random days out of 7
-  const guaranteedDays=new Set();
-  while(guaranteedDays.size<2){guaranteedDays.add(Math.floor(Math.random()*7));}
-  const guaranteedEvents=[pickGuaranteed(),pickGuaranteed()];
-  let gi=0;
-  let prevEv=null;
-  for(let d=0;d<7;d++){
-    let ev;
-    if(guaranteedDays.has(d)){
-      ev=guaranteedEvents[gi++];
-      // Don't repeat same event as previous day
-      if(ev===prevEv)ev=pickGuaranteed();
-    } else {
-      ev=rollEv();
-      if(ev!==null&&ev===prevEv)ev=rollEv(); // one retry
+  // ── Placer les grosses séances + run dans la semaine ──
+  var allHeavy=[...heavyPool,...runPool];
+  var shuffledHeavy=allHeavy.slice().sort(function(){return Math.random()-.5;});
+  // Slots disponibles : lundi(0) à samedi(5), jamais dimanche(6) pour grosse séance
+  var slots=[0,1,2,3,4,5].sort(function(){return Math.random()-.5;});
+  var heavyDays=new Set();
+  var usedSlots=[];
+  for(var i=0;i<shuffledHeavy.length&&i<6;i++){
+    for(var j=0;j<slots.length;j++){
+      var s=slots[j];
+      if(!heavyDays.has(s)&&!heavyDays.has(s-1)&&!heavyDays.has(s+1)){
+        heavyDays.add(s);usedSlots.push(s);break;
+      }
     }
-    events.push(ev);
-    prevEv=ev;
+    // fallback : forcer si plus de slots non-consécutifs
+    if(usedSlots.length<=i){
+      for(var j=0;j<slots.length;j++){
+        if(!heavyDays.has(slots[j])){heavyDays.add(slots[j]);usedSlots.push(slots[j]);break;}
+      }
+    }
   }
-  // V3: No events before day 14
-  for(let e=0;e<events.length;e++){if(ST.day+e<14)events[e]=null;}
-  // RECONSTRUCTION: force doubleXP every day, override events
-  const reconActive=isReconstruction();
-  if(reconActive){for(let e=0;e<events.length;e++)events[e]='doubleXP';}
+  // Mapper slot → quête heavy
+  var dayToHeavy={};
+  for(var i=0;i<usedSlots.length&&i<shuffledHeavy.length;i++){
+    dayToHeavy[usedSlots[i]]=shuffledHeavy[i];
+  }
+  // Jours sans heavy → body normale (tirage anti-monotonie)
+  var lastBodyNorm=ST.lastBody||[];
+
+  // ── Événements de la semaine ──
+  var events=[];
+  var guaranteed=['doubleXP','hardMode','easyDay','shadow'];
+  var weights=[5,7,10,3];
+  function pickGuaranteed(){var t=weights.reduce(function(a,b){return a+b;},0);var r=Math.random()*t;for(var i=0;i<guaranteed.length;i++){r-=weights[i];if(r<=0)return guaranteed[i];}return guaranteed[0];}
+  var guaranteedDays=new Set();
+  while(guaranteedDays.size<2){guaranteedDays.add(Math.floor(Math.random()*7));}
+  var ge=[pickGuaranteed(),pickGuaranteed()];var gi=0;var prevEv=null;
+  for(var d=0;d<7;d++){
+    var ev;
+    if(guaranteedDays.has(d)){ev=ge[gi++];if(ev===prevEv)ev=pickGuaranteed();}
+    else{ev=rollEv();if(ev!==null&&ev===prevEv)ev=rollEv();}
+    events.push(ev);prevEv=ev;
+  }
+  var secStart=ST._secStart||7;
+  for(var e=0;e<events.length;e++){if(ST.day+e<14)events[e]=null;}
+  var reconActive=isReconstruction();
+  if(reconActive){for(var e=0;e<events.length;e++)events[e]='doubleXP';}
   ST.todayEvent=events[0];
 
-  for(let d=0;d<7;d++){
-    const rd=isReconstruction(); // re-check per day (reconstructionDay advances)
-    // RECONSTRUCTION: no gym, use body recon pool; no secondaries
-    const isGymDay=gymDays.has(d);
-    const last2Heavy=ST.lastBodyType&&ST.lastBodyType.slice(-2).every(t=>t==='heavy');
-    const body=rd?gBodyNoGym(false):(isGymDay&&!last2Heavy)?gBodyGym():gBodyNoGym(d>0&&gymDays.has(d-1));
-    ST.lastBodyType=ST.lastBodyType||[];ST.lastBodyType.push((isGymDay&&!last2Heavy&&!rd)?'heavy':'light');if(ST.lastBodyType.length>7)ST.lastBodyType=ST.lastBodyType.slice(-7);
-    const nn=[body,gMind(),gDisc()];nn[0].id="nn0";nn[1].id="nn1";nn[2].id="nn2";
-    const water={...gWater()};const secs=[];
-    const fat=ST.fatigueScore||3;
-    const dEv=events[d];
+  // ── Générer les 7 jours ──
+  for(var d=0;d<7;d++){
+    var rd=isReconstruction();
+    var dEv=events[d];
+    var nnCount=getNNTarget();
 
-    // Discipline Day: replace random secondary with a disc-themed secondary (extra resistance quest)
-    const isDiscDay=false; // removed in V3
+    // Body
+    var bodyQ;
+    if(rd){
+      // Reconstruction : pool léger
+      var reconPool=_gBodyNormalePool().slice(0,5);
+      var rc=pickAntiMonotony(reconPool,ST.lastBody||[]);
+      ST.lastBody=ST.lastBody||[];ST.lastBody.push(rc.id);if(ST.lastBody.length>6)ST.lastBody.shift();
+      bodyQ={...rc,id:'nn0',type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body',xp:xpV('body'),pts:ptsV('body')};
+    } else if(dayToHeavy[d]){
+      var hq=dayToHeavy[d];
+      bodyQ={...hq,id:'nn0'};
+    } else {
+      var nc=pickAntiMonotony(normalPool,ST.lastBody||[]);
+      ST.lastBody=ST.lastBody||[];ST.lastBody.push(nc.id);if(ST.lastBody.length>6)ST.lastBody.shift();
+      bodyQ={...nc,id:'nn0',type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body',xp:xpV('body'),pts:ptsV('body')};
+    }
 
-    // RECONSTRUCTION: no secondaries at all
+    // Mind, Disc, Water
+    var mindQ=gMind();var discQ=gDisc();var water=gWater();
+    var nn=[bodyQ,mindQ,discQ].slice(0,nnCount);
+    nn[0].id='nn0';if(nn[1])nn[1].id='nn1';if(nn[2])nn[2].id='nn2';
+
+    // Secondaires
+    var secs=[];
+    var fat=ST.fatigueScore||3;
     if(!rd){
-      if(!isMin()&&ST.day>=7&&Math.random()<.70)secs.push({...gSE(ST.day+d),id:"se"+d});
-      if(!isMin()&&ST.day>=14&&Math.random()<.40)secs.push({...gSM(),id:"sm"+d});
-      if(!nh&&ST.day>=21&&Math.random()<.15)secs.push({...gSH(),id:"sh"+d});
-
-      // Hard Mode: add extra quest - only after day 7
-      if(dEv==='hardMode'&&(ST.day+d)>=7){
-        if(!isMin()){
-          let hmQuest;
-          if(fat<=1)hmQuest={...gSE(ST.day+d),id:"se_hm_"+d};
-          else if(fat===2)hmQuest={...gSM(),id:"sm_hm_"+d};
-          else hmQuest={...gSH(),id:"sh_hm_"+d};
-          hmQuest.hardMode=true;
-          secs.push(hmQuest);
-        }
+      if(!isMin()&&ST.day+d>=secStart&&Math.random()<.70)secs.push({...gSE(ST.day+d),id:'se'+d});
+      if(!isMin()&&ST.day+d>=(secStart+7)&&Math.random()<.40)secs.push({...gSM(),id:'sm'+d});
+      if(!nh&&ST.day+d>=(secStart+14)&&Math.random()<.15)secs.push({...gSH(),id:'sh'+d});
+      if(dEv==='hardMode'&&(ST.day+d)>=7&&!isMin()){
+        var hmQ;
+        if(fat<=1)hmQ={...gSE(ST.day+d),id:'se_hm_'+d};
+        else if(fat===2)hmQ={...gSM(),id:'sm_hm_'+d};
+        else hmQ={...gSH(),id:'sh_hm_'+d};
+        hmQ.hardMode=true;secs.push(hmQ);
       }
     }
 
-    // Discipline Day: guaranteed extra discipline secondary quest (zone de confort / résistance)
-    if(isDiscDay&&!isMin()){
-      const discExtras=[
-        {id:"disc_d1_"+d,name:"Zéro réseaux sociaux pendant 3h consécutives",desc:"Pour réussir, n'hésite pas à bloquer tes apps avec un mot de passe (demande à un ami de le créer).",type:"se",icon:"&#128683;",cls:"qi-sec",tag:"tag-easy",tagLbl:"Discipline Day",xp:xpV('se'),pts:ptsV('se'),discDay:true},
-        {id:"disc_d2_"+d,name:"Journée sans consommation passive d'écran",desc:"Pas de jeux, swipe, YouTube… Pour réussir, n'hésite pas à bloquer tes apps avec un mot de passe (demande à un ami de le créer).",type:"se",icon:"&#128683;",cls:"qi-sec",tag:"tag-easy",tagLbl:"Discipline Day",xp:xpV('se'),pts:ptsV('se'),discDay:true},
-        {id:"disc_d3_"+d,name:"30min sans bruit de fond, d'ennui, uniquement avec tes pensées",desc:"Pas de musique, podcast, ni vidéo en fond. Être avec soi-même.",type:"se",icon:"&#128263;",cls:"qi-sec",tag:"tag-easy",tagLbl:"Discipline Day",xp:xpV('se'),pts:ptsV('se'),discDay:true},
-      ];
-      secs.push(pick(discExtras));
-    }
-
-    // V3: Track quest generation for spider chart
+    // Quest log pour spider chart
     if(!ST.questLog)ST.questLog={};
-    var _qnames={body:'Body (Salle/Sport)',mind:'Mind (Étude/Lecture)',disc:'Discipline',water:'Hydratation',se:'Secondaire Facile',sm:'Secondaire Moyen',sh:'Secondaire Dur'};
+    var _qnames={body:'Body',mind:'Mind',disc:'Discipline',water:'Hydratation',se:'Secondaire Facile',sm:'Secondaire Moyen',sh:'Secondaire Dur'};
     nn.forEach(function(q){var k=q.type;if(!ST.questLog[k])ST.questLog[k]={name:_qnames[k]||k,gen:0,ok:0};ST.questLog[k].gen++;});
-    if(water){var k='water';if(!ST.questLog[k])ST.questLog[k]={name:'Hydratation',gen:0,ok:0};ST.questLog[k].gen++;}
+    if(water){var kw='water';if(!ST.questLog[kw])ST.questLog[kw]={name:'Hydratation',gen:0,ok:0};ST.questLog[kw].gen++;}
     secs.forEach(function(q){var k=q.type;if(!ST.questLog[k])ST.questLog[k]={name:_qnames[k]||k,gen:0,ok:0};ST.questLog[k].gen++;});
     plan.push({nn,water,secs,event:dEv});
   }
   return plan;
 }
 
-function gBodyGym(){
-  const goal=ST.answers.goal||0;
-  const gnPools=[
-    ["Pendant une perte de poids, un manque de sommeil peut augmenter de 24% la faim et jusqu'à 33% de consommation d'aliments caloriques denses (Spiegel & al, 2022)","Les boissons sucrées ne déclenchent pas les hormones de satiété, comme les aliments solides : évite-les ! (Moulin & al)","Lier muscu & cardio : en cardio seul, 78% de la perte vient de la graisse, dont ça tape dans tes muscles. Avec musculation : jusqu'à 97% vient de la graisse ! (Stiegler & Cunliffe, 2006)","Pour maintenir une perte de poids à long terme, il faut viser idéalement 4h de sport par semaine (StatPearls)","Un déficit > 500kcal/jour altère la synthèse des protéines musculaires, augmentant la perte musculaire. Vas-y progressivement ! (Consensus)"],
-    ["Donne ton maximum. Supplément créatine/whey au possible !","Surplus calorique modéré : un surplus trop large augmente le gras sans gain musculaire (Slater et al, 2019)","Le seuil optimal pour la croissance musculaire est entre 1,6 à 2,2g de protéines par kg de poids de corps, journaliers (PMID)","Après une nuit sans sommeil, tu risques jusqu'à -18% de synthèse protéique musculaire, et jusqu'à -24% de testostérone (Lamon et al, 2021)"],
-    [""],
-    [""],
-  ];
-  const gnNames=["Séance Salle 1h : Fin de séance, 10 min de cardio (déficit)","Séance Salle 1h","Séance Salle 1h","Séance Salle 1h"];
-  const gn=pick(gnPools[goal]||gnPools[0]);
-  ST.gymW++;
-  return{id:"nn0",name:gnNames[goal],desc:gn,type:"body",icon:"&#9889;",cls:"qi-body",tag:"tag-body",tagLbl:"Body - Salle",xp:xpV('body'),pts:ptsV('body')};
-}
-function gBodyNoGym(afterHeavy=false){
-  const rd=isReconstruction();
-  // RECONSTRUCTION pool: marche, pompes, abdos, planche, antéversions
-  if(rd){
-    const reconBodyPool=[
-      {id:"b8",name:`Marche rapide : ${sc(2,5)} km`,desc:"Idéalement en extérieur."},
-      {id:"b1",name:`${rnd(sc(10,30),sc(10,50))} pompes`,desc:"En plusieurs séries si besoin. 60s de récup entre chaque."},
-      {id:"b4",name:`${sc(10,30)} abdos`,desc:"Type d'abdo au choix : veille à respirer & ne triche pas."},
-      {id:"b3",name:`Planche : ${sc(40,120)}s cumulées`,desc:"Veille à respirer & rester gainé."},
-      {id:"b5",name:`Antéversions du bassin + étirements : ${sc(15,20)} min`,desc:pick(["Améliore la posture. Étirements, travailler abdominaux & fessiers.","Étirements, travailler abdominaux & fessiers."])},
-    ];
-    const c=pickAntiMonotony(reconBodyPool,ST.lastBody);ST.lastBody.push(c.id);if(ST.lastBody.length>6)ST.lastBody.shift();
-    return{...c,id:"nn0",type:"body",icon:"&#9889;",cls:"qi-body",tag:"tag-body",tagLbl:"Body",xp:xpV('body'),pts:ptsV('body')};
-  }
-  var rm=[0,1,2][ST.answers.run_freq||0];
-  // Reduce run target if fatigued
-  if(getGlobalState()==='fatigue')rm=Math.min(rm,1);
-  const fat=ST.fatigueScore||3;
-  if(ST.runW<rm&&Math.random()<.55){ST.runW++;const km=Math.min(+(2+(10*(getMult()-1)/3)).toFixed(1),12);const runDescs=["2 semaines de course suffisent pour réduire les symptômes dépressifs & augmenter le volume hippocampique chez les jeunes adultes (ScienceDirect, 2021)","25 à 40% de risque de mortalité prématurée en moins chez les coureurs vs les non coureurs, et +3 années d'espérance de vie en moyenne (Progress in Cardiovascular Diseases)","La course renforce la densité osseuse, améliore la sensibilité à l'insuline, et augmente la circulation des cellules immunitaires (Progress in Cardiovascular Diseases)"];return{id:"nn0",name:`Run ${km} km, Allure libre`,desc:pick(runDescs),type:"body",icon:"&#128099;",cls:"qi-body",tag:"tag-body",tagLbl:"Body - Run",xp:xpV('body'),pts:ptsV('body')};}
-  const lim=afterHeavy||isMin()||fat<=2;
-  const lp=[
-    {id:"b5",name:`Antéversions du bassin + étirements : ${sc(10,25)} min`,desc:pick(["Étirements, travailler abdominaux & fessiers.","Améliore la posture. Étirements, travailler abdominaux & fessiers."])},
-    {id:"b8",name:`Marche rapide : ${sc(2,7)} km`,desc:"Idéalement en extérieur."},
-    {id:"b4",name:`${sc(10,60)} abdos`,desc:"Type d'abdo au choix : veille à respirer & ne triche pas."},
-  ];
-  const fp=[
-    {id:"b1",name:`${rnd(sc(10,40),sc(10,70))} pompes`,desc:"En plusieurs séries si besoin. 60s de récup entre chaque."},
-    {id:"b2",name:`${rnd(sc(10,30),sc(10,80))} squats`,desc:"Descend bien et contrôle le mouvement."},
-    {id:"b3",name:`Planche : ${sc(40,240)}s cumulées`,desc:"Veille à respirer & rester gainé."},
-    {id:"b4",name:`${sc(10,100)} abdos`,desc:"Type d'abdo au choix : veille à respirer & ne triche pas."},
-    {id:"b5",name:`Antéversions du bassin + étirements : ${sc(15,35)} min`,desc:pick(["Améliore la posture. Étirements, travailler abdominaux & fessiers.","Étirements, travailler abdominaux & fessiers."])},
-    {id:"b6",name:`Cardio vélo : ${sc(10,75)} min`,desc:"Effort modéré à soutenu."},
-    {id:"b7",name:`Natation : ${sc(20,90)} min`,desc:"Veille à prioriser la durée plutôt que la vitesse. Nage, crawl, papillon…"},
-    {id:"b8",name:`Marche rapide : ${sc(2,10)} km`,desc:"Idéalement en extérieur."},
-  ];
-  const pool=lim?lp:fp;const c=pickAntiMonotony(pool,ST.lastBody);ST.lastBody.push(c.id);if(ST.lastBody.length>6)ST.lastBody.shift();
-  return{...c,id:"nn0",type:"body",icon:"&#9889;",cls:"qi-body",tag:"tag-body",tagLbl:"Body",xp:xpV('body'),pts:ptsV('body')};
-}
 function getToday(){if(!ST.weekPlan||!ST.weekPlan.length)return null;return ST.weekPlan[Math.min((ST.day-1)%7,ST.weekPlan.length-1)];}
 function allNNDone(){const t=getToday();if(!t)return false;return t.nn.every(q=>ST.questStatus[q.id]&&ST.questStatus[q.id]!=='fail');}
 function allNNValidated(){const t=getToday();if(!t)return false;return t.nn.every(q=>ST.questStatus[q.id]);}
@@ -4857,12 +4904,30 @@ function _obShowClose(){
   }, 5200);
 }
 
+function _obCalcScore(){
+  var ob=ST._ob||{};var score=0;
+  // Q2 situation
+  var sitPts=[0,0,1,2];score+=sitPts[ob.situation||0]||0;
+  // Q3 sport level
+  var spoPts=[0,2,3];score+=spoPts[ob.sportLevel||0]||0;
+  // Q4 physGoal
+  var goaPts=[3,3,2,0];score+=goaPts[ob.physGoal||0]||0;
+  // Q5 sport régulier seulement (index 3)
+  if((ob.sportAccess||[]).indexOf(3)>=0)score+=2;
+  // Q6 mind
+  var mindPts=[0,2,3];score+=mindPts[ob.mindLevel||0]||0;
+  // Q7 écrans (slider 0-10h)
+  var sh=ob.screenHours||0;
+  if(sh<=2)score+=3;else if(sh<=4)score+=2;else if(sh<=5)score+=1;else score+=0;
+  // Q8 résistances (nombre de sélections)
+  var nr=(ob.resistances||[]).length;
+  if(nr<=2)score+=3;else if(nr===3)score+=2;else if(nr===4)score+=1;else score+=0;
+  return score;
+}
 function _obCalcProg(){
-  var sl=ST._ob.sportLevel||0;
-  var res=ST._ob.resistances||[];
-  if(sl===2&&res.length>=2)return'Foundation';
-  if(sl===1)return'Standard';
-  if(sl===0)return'Standard';
+  var score=_obCalcScore();
+  if(score<=5)return'Foundation';
+  if(score<=10)return'Standard';
   return'Discipline';
 }
 
@@ -4945,48 +5010,59 @@ function obBack(){
 // ── Finir l'onboarding ──
 function _obFinish(){
   _obSetProgress(100);
-  // Appliquer les réponses au state
   var ob=ST._ob||{};
 
-  // fatigueScore depuis sommeil + niveau sport
-  ST.fatigueScore=ob.sleep===0?2:ob.sleep===2?4:3;
-  if(ob.sportLevel===0)ST.fatigueScore=Math.max(1,ST.fatigueScore-1);
+  // Score & mode
+  var score=_obCalcScore();
+  var prog=_obCalcProg();
+  ST._obScore=score;
+  ST._obMode=prog;
 
-  // Transfert des réponses vers les anciens champs (compatibilité)
+  // Accès matériels (indices Q5: 0=salle, 1=maison, 2=vélo, 3=sport régulier)
+  var access=ob.sportAccess||[];
+  ST._hasSalle=access.indexOf(0)>=0;
+  ST._hasVelo=access.indexOf(2)>=0;
+  ST._hasSport=access.indexOf(3)>=0;
+  ST._physGoal=ob.physGoal||0; // 0=masse,1=sécher,2=endurance,3=bouger
+
+  // Q4 → volumes hebdo: masse:4g+1c, sécher:2g+2c, endurance:1g+3c, bouger:2g+1c
   ST.answers=ST.answers||{};
-  if(ob.physGoal===0){ST.answers.goal=2;}        // prise de masse
-  else if(ob.physGoal===1){ST.answers.goal=0;}   // perte de poids
-  else if(ob.physGoal===2){ST.answers.goal=3;}   // endurance
-  else{ST.answers.goal=3;}                        // maintien
+  var gymMap=[4,2,1,2];
+  var runMap=[1,2,3,1];
+  ST.answers.gym_sessions=gymMap[ob.physGoal||0];
+  ST.answers.run_freq=runMap[ob.physGoal||0];
+  ST.answers.has_velo=ST._hasVelo?1:0;
+  ST.answers.goal=[2,0,3,3][ob.physGoal||0]; // goal legacy compat
 
-  // Accès salle / run
-  if(ob.sportAccess){
-    ST.answers.gym_sessions=ob.sportAccess.indexOf(0)>=0?2:0; // 0=salle index
-    ST.answers.run_freq=ob.sportAccess.indexOf(2)>=0?1:0;     // 2=run index
-  }
+  // Résistances
+  var res=ob.resistances||[];
+  ST.answers.addiction_screen=res.indexOf(2)>=0?0:3;
+  ST.answers.addiction_porno=res.indexOf(3)>=0?0:3;
+  ST.answers.addiction_alc=res.indexOf(5)>=0?0:3;
+  ST.answers.addiction_food=res.indexOf(4)>=0?0:3;
+  ST.answers.hard_sleep=res.indexOf(0)>=0?1:0;
+  ST.answers.hard_focus=res.indexOf(1)>=0?1:0;
+  ST.answers.hard_outside=res.indexOf(6)>=0?1:0;
 
-  // Résistances → addictions
-  if(ob.resistances){
-    ST.answers.addiction_screen=ob.resistances.indexOf(2)>=0?0:3; // 2=réseaux
-    ST.answers.addiction_porno=ob.resistances.indexOf(3)>=0?0:3;  // 3=porno
-    ST.answers.addiction_alc=ob.resistances.indexOf(5)>=0?0:3;    // 5=alcool
-    ST.answers.addiction_food=ob.resistances.indexOf(4)>=0?0:3;   // 4=junk food
-  }
-
-  // Niveau lecture
+  // Mind & sommeil
   ST.answers.read_level=ob.mindLevel===0?3:ob.mindLevel===1?1:0;
+  ST.fatigueScore=ob.sleep===0?2:ob.sleep===2?4:3;
+
+  // Mode → paramètres de progression
+  ST._nnTarget=prog==='Discipline'?3:prog==='Standard'?2:1;
+  ST._sanctionStart=prog==='Discipline'?7:prog==='Standard'?10:14;
+  ST._secStart=prog==='Discipline'?5:prog==='Standard'?7:10;
+  ST._startMult=prog==='Discipline'?0.6:prog==='Standard'?0.4:0.2;
 
   ST.onboarded=true;
-  ST.gymW=0;ST.runW=0;ST.week=1;ST.weekPlan=genWeek();
+  ST.gymW=0;ST.runW=0;ST.week=1;
+  ST.weekPlan=genWeek();
   ST.questStatus={};ST.lastDate=todayStr();ST.dayDone=false;
   ST.failByType={body:0,mind:0,disc:0};ST.successByType={body:0,mind:0,disc:0};
-  save();
-  askNotif();
+  save();askNotif();
 
-  // Transition finale
   var stage=document.getElementById('ob-stage');
   if(stage){stage.style.transition='opacity .6s ease';stage.style.opacity='0';}
-
   setTimeout(function(){
     var h=nowH();
     if(h>=10&&h<15){
@@ -4999,6 +5075,7 @@ function _obFinish(){
     }
   }, 800);
 }
+
 
 // ─── Compat stubs (anciens appels dans init) ───
 function showMyWhy(){_obQ10();}
