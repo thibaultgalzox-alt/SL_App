@@ -268,7 +268,7 @@ body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size
 @keyframes ob-scan-line{0%{top:-2px}100%{top:100%}}
 
 /* Fond dynamique par acte */
-#s-ob{transition:background .8s ease}
+#s-ob{transition:background .8s ease;touch-action:none;overscroll-behavior:none}
 #s-ob.act-intro{background:linear-gradient(160deg,#0a0a12 0%,#12101a 50%,#0d0b14 100%)}
 #s-ob.act-1{background:linear-gradient(160deg,#080810 0%,#0e0c1a 40%,#100d18 100%)}
 #s-ob.act-2{background:linear-gradient(160deg,#0e0a08 0%,#1a1208 50%,#140e08 100%)}
@@ -519,7 +519,7 @@ body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size
 <div class="app">
 <div class="flash" id="flash"></div>
 
-<div class="screen active" id="s-ob" style="padding:0;overflow:hidden">
+<div class="screen active" id="s-ob" style="padding:0;overflow:hidden;position:fixed;inset:0;width:100%;max-width:100%;margin:0;background:#0a0a12">
   <!-- CANVAS PARTICULES FOND -->
   <canvas id="ob-particles" style="position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.55"></canvas>
 
@@ -532,7 +532,7 @@ body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size
   <button id="ob-back-btn" onclick="obBack()" style="display:none;position:fixed;top:16px;left:16px;z-index:101;background:rgba(192,113,58,.18);border:1.5px solid rgba(192,113,58,.5);border-radius:10px;padding:8px 14px;color:#f0c080;font-size:12px;font-weight:700;cursor:pointer;backdrop-filter:blur(8px);transition:all .2s;font-family:inherit;letter-spacing:.04em;display:none;align-items:center;gap:6px" aria-label="Retour"><span style="font-size:15px">&#8592;</span> Retour</button>
 
   <!-- CONTENEUR PRINCIPAL -->
-  <div id="ob-stage" style="position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1.5rem;max-width:430px;margin:0 auto;left:50%;transform:translateX(-50%);right:auto;width:100%">
+  <div id="ob-stage" style="position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 1.5rem 2rem;width:100%;max-width:430px;left:50%;transform:translateX(-50%);overflow-y:auto;overflow-x:hidden;overscroll-behavior:none;-webkit-overflow-scrolling:auto">
   </div>
 </div>
 
@@ -1517,6 +1517,12 @@ const SND=(function(){
       tone(396,'sine',.12,.18,.08);
     },
 
+    // Tap onboarding - clic léger, bref, interface
+    tap(){
+      tone(1100,'sine',0,.025,.06,900);
+      tone(700,'sine',.02,.04,.04);
+    },
+
   };
 })();
 
@@ -1761,41 +1767,59 @@ function gDisc(){
 }
 
 function gWater(){return{id:"water0",name:"Boire 2,5 L d'eau",desc:pick(["Prends l'habitude de les répartir : notamment un verre au réveil, et pendant chaque repas.","Avec une hydratation de 500ml au réveil, +55% d'énergie ressentie (IJERPH, 2020, 64 individus)","Ton cerveau est constitué à 80% de fluide : 16h de déshydratation réduisent son volume de 0,55%. Dès 1,5L, tu l'augmentes au contraire de 0,72% (Durning et al, 2005)","56% des adultes sont physiologiquement déshydratés sans le savoir ! (PREMIMED, 2023)","Humeur & sommeil améliorés chez les personnes qui augmentent leur consommation de <1L à 2,5L/jour (PLoS ONE, 2014)"]),type:"water",icon:"&#128166;",cls:"qi-mind",tag:"tag-water",tagLbl:"Hydratation - 100%",xp:xpV('water'),pts:ptsV('water')};}
+// ════ SECONDAIRES FACILES — SF001-SF006 + Bonus — J_sec+ (70%) ════
 function gSE(di){
-  const pq=PHILO[Math.floor(Math.random()*PHILO.length)];
-  const pool=[
-    {id:"se1",name:`Apprendre quelque chose et le noter - ${sc(15,30)} min`,desc:"Podcast éducatif, TED Talk, article de fond : 3 points clés écrits."},
-    {id:"se2",name:`Python / Excel / VBA - ${sc(10,30)} min`,desc:"Finance : apprends, entraîne-toi, et crée des projets concrets."},
-    {id:"se3",name:`JetPunk - ${sc(10,30)} min`,desc:"Quiz de culture générale, cours… Retiens des connaissances sur le long terme !"},
-    {id:"se4",name:"S'informer sérieusement sur l'actualité économique",desc:"Pas de scroll passif : lis un article complet, note 2 faits clés."},
-    {id:"se5",name:`Philosophie - ${sc(20,35)} min`,desc:`Sujet : "${pq}"`},
-    {id:"se6",name:`Élocution et articulation - ${sc(10,30)} min`,desc:"Textes à voix haute, virelangues : enregistre-toi."},
+  var pq=PHILO[Math.floor(Math.random()*PHILO.length)];
+  var pool=[
+    {id:'SF001',name:scR(15,30)+' minutes de Quizz – Culture Générale (JetPunk)',desc:'Quiz de culture générale, cours… Retiens des connaissances sur le long terme !'},
+    {id:'SF002',name:"S'informer sur l'actualité économique : "+scR(10,25)+' minutes',desc:"Pas de scroll passif : lis un article complet, note 2 faits clés."},
+    {id:'SF003',name:'Philosophie : méditer '+scR(20,35)+' minutes sur papier',desc:'Sujet : "'+pq+'"'},
+    {id:'SF004',name:"Exercices d'élocution & articulation : "+scR(10,25)+' minutes',desc:"Textes à voix haute, virelangues : enregistre-toi."},
+    {id:'SF005',name:"Apprendre 10 mots d'une langue étrangère, et les noter",desc:"Écris-les + une phrase exemple. Relis-les avant de dormir."},
+    {id:'SF006',name:"Écouter un podcast éducatif & noter 3 points : "+scR(10,25)+' minutes',desc:"3 points clés écrits minimum. Podcast éducatif, TED Talk, article de fond."},
+    {id:'SF_lit',name:"Faire son lit dès le réveil",desc:"Première victoire de la journée. Prend 2 minutes."},
+    {id:'SF_marche',name:"Marcher 15min dehors dans la matinée",desc:"Air frais, lumière naturelle : calibre ton rythme circadien."},
   ];
-  const c=pickAntiMonotony(pool,ST.lastSE);ST.lastSE.push(c.id);if(ST.lastSE.length>6)ST.lastSE.shift();
-  return{...c,type:"se",icon:"&#128218;",cls:"qi-sec",tag:"tag-easy",tagLbl:"Facile - 70%",xp:xpV('se'),pts:ptsV('se')};
+  var c=pickAntiMonotony(pool,ST.lastSE||[]);
+  if(!ST.lastSE)ST.lastSE=[];
+  ST.lastSE.push(c.id);if(ST.lastSE.length>8)ST.lastSE.shift();
+  return{...c,type:'se',icon:'&#128218;',cls:'qi-sec',tag:'tag-easy',tagLbl:'Facile - 70%',xp:xpV('se'),pts:ptsV('se')};
 }
+
+// ════ SECONDAIRES MOYENNES — SM001-SM006 — J_sec+7 (40%) ════
 function gSM(){
-  const canApartment=(ST.day-(ST.lastApartmentDay||0))>=7;
-  const pool=[
-    {id:"sm1",name:"Faire la tâche la plus dure qu'on repousse",desc:"Identifie-la maintenant par écrit : accomplie avant la fin de journée."},
-    {id:"sm2",name:"30 min d'ennui intentionnel",desc:"Zéro écran, zéro tâche, zéro stimulation : être seul avec soi-même."},
-    {id:"sm3",name:"1 exercice de maths ou Voltaire",desc:"Complète entièrement : comprends pourquoi tu t'es trompé."},
-    ...(canApartment?[{id:"sm4",name:"Nettoyer entièrement l'appartement",desc:"En profondeur : sols, cuisine, salle de bain, bureau."}]:[]),
+  var canApartment=(ST.day-(ST.lastApartmentDay||0))>=7;
+  var pool=[
+    {id:'SM001',name:"Faire la tâche la plus dure que tu repousse",desc:"Identifie-la maintenant par écrit : accomplie avant la fin de journée."},
+    {id:'SM002',name:"30min d'ennui intentionnel, sans distraction",desc:"Zéro écran, zéro tâche, zéro stimulation : être seul avec soi-même."},
+    {id:'SM003',name:"Faire 1 exo de maths ou orthographe",desc:"Complète entièrement : comprends pourquoi tu t'es trompé."},
+    {id:'SM005',name:"Identifier une croyance limitante, y réfléchir et trouver son origine probable",desc:"Écris-la. Cherche d'où elle vient. Note 1 preuve que c'est faux."},
+    {id:'SM006',name:"Supprimer une application de son téléphone",desc:"Pour une longue durée. Fais de la place mentale."},
+    ...(canApartment?[{id:'SM004',name:"Nettoyer entièrement l'appartement",desc:"En profondeur : sols, cuisine, salle de bain, bureau."}]:[]),
   ];
-  const av=pool.filter(q=>noRec(ST.lastSM,q.id));const c=pickAntiMonotony(av.length?av:pool,ST.lastSM);
-  if(c.id==='sm4')ST.lastApartmentDay=ST.day;
+  var av=pool.filter(function(q){return noRec(ST.lastSM,q.id);});
+  var c=pickAntiMonotony(av.length?av:pool,ST.lastSM||[]);
+  if(c.id==='SM004')ST.lastApartmentDay=ST.day;
+  if(!ST.lastSM)ST.lastSM=[];
   ST.lastSM.push(c.id);if(ST.lastSM.length>6)ST.lastSM.shift();
-  return{...c,type:"sm",icon:"&#9733;",cls:"qi-sec",tag:"tag-med",tagLbl:"Moyenne - 40%",xp:xpV('sm'),pts:ptsV('sm')};
+  return{...c,type:'sm',icon:'&#9733;',cls:'qi-sec',tag:'tag-med',tagLbl:'Moyenne - 40%',xp:xpV('sm'),pts:ptsV('sm')};
 }
+
+// ════ SECONDAIRES DIFFICILES — SD001-SD007 — J_sec+14 (15%) ════
 function gSH(){
-  const pool=[
-    {id:"sh1",name:"Sortir et parler à un inconnu pendant 2 min minimum",desc:"Rue, café, transport : vrai échange, pas juste bonjour."},
-    {id:"sh2",name:"Douche froide à température minimale",desc:"Jusqu'à acclimatement complet : respire lentement, et tiens."},
-    {id:"sh3",name:"Reprendre contact avec une ancienne connaissance",desc:"Message sincère ou appel : pas un like, une vraie prise de contact."},
-    {id:"sh4",name:"Abstinence totale pornographie jusqu'à demain 8h",desc:""},
+  var pool=[
+    {id:'SD001',name:"Prends une douche froide jusqu'à acclimatement total",desc:"Respire lentement. Tiens jusqu'au bout."},
+    {id:'SD002',name:"Sors dans la rue, et va parler à un inconnu pendant 2min minimum",desc:"Rue, café, transport : vrai échange, pas juste bonjour."},
+    {id:'SD003',name:"Reprends contact avec une ancienne connaissance",desc:"Appel, message, en face à face. Pas un like."},
+    {id:'SD004',name:"Sors quelque part seul : visite, café, musée…",desc:"Sans téléphone en main. Sois présent."},
+    {id:'SD005',name:"Pas de pornographie avant demain 10h",desc:''},
+    {id:'SD006',name:"Se filmer en parlant d'un sujet en évitant les mots de remplissage",desc:"Puis l'analyser : compte les 'euh', 'donc', 'voilà'. Recommence."},
+    {id:'SD007',name:"2h maximum de réseaux sociaux aujourd'hui",desc:"Active un minuteur. Coupe dès que c'est atteint."},
   ];
-  const c=pickAntiMonotony(pool,ST.lastSH);ST.lastSH.push(c.id);if(ST.lastSH.length>6)ST.lastSH.shift();
-  return{...c,type:"sh",icon:"&#128293;",cls:"qi-sec",tag:"tag-hard",tagLbl:"Difficile - 15%",xp:xpV('sh'),pts:ptsV('sh')};
+  var c=pickAntiMonotony(pool,ST.lastSH||[]);
+  if(!ST.lastSH)ST.lastSH=[];
+  ST.lastSH.push(c.id);if(ST.lastSH.length>7)ST.lastSH.shift();
+  return{...c,type:'sh',icon:'&#128293;',cls:'qi-sec',tag:'tag-hard',tagLbl:'Difficile - 15%',xp:xpV('sh'),pts:ptsV('sh')};
 }
 
 
@@ -1866,39 +1890,46 @@ function _pickNoRepeat(pool,last,n){
 
 // ════ QUÊTES BODY SALLE — Grosses séances ════
 function _gBodyGymPool(){
-  var g=ST._physGoal||0;
-  var hasSalle=ST._hasSalle;
-  // Salle : masse
+  // ── Séances salle ──
   var B001={id:'B001',name:'Séance push – 1h',desc:"Pectoraux, épaules, triceps. Donne tout.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Salle',xp:xpV('body'),pts:ptsV('body')};
   var B002={id:'B002',name:'Séance pull – 1h',desc:"Dos, biceps, trapèzes. Progression sur les charges.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Salle',xp:xpV('body'),pts:ptsV('body')};
   var B003={id:'B003',name:'Séance jambes – 1h',desc:"Quadriceps, ischio, fessiers, mollets. Ne skippe pas.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Salle',xp:xpV('body'),pts:ptsV('body')};
   var B004={id:'B004',name:'Séance au choix – 1h',desc:"Groupe musculaire au choix. Intensité maximale.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Salle',xp:xpV('body'),pts:ptsV('body')};
-  // Salle : sécher
   var B005={id:'B005',name:'Séance full body – 1h',desc:"Circuit complet. Charge modérée, reps élevées, tempo soutenu.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Salle',xp:xpV('body'),pts:ptsV('body')};
   var B006={id:'B006',name:'Séance jambes – 1h',desc:"Jambes + cardio finisher 10 min. Brûle les réserves.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Salle',xp:xpV('body'),pts:ptsV('body')};
-  // Salle : maintien/bouger
   var B007={id:'B007',name:'Séance full body – 1h',desc:"Maintien : travaille chaque groupe, progression stable.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Salle',xp:xpV('body'),pts:ptsV('body')};
   var B008={id:'B008',name:'Séance jambes – 1h',desc:"Jambes en priorité. Mobilité + force.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Salle',xp:xpV('body'),pts:ptsV('body')};
-  // Endurance salle
   var B009={id:'B009',name:'Séance jambes – 1h',desc:"Jambes + core. Endurance musculaire : séries longues.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Salle',xp:xpV('body'),pts:ptsV('body')};
-  // Maison : masse
-  var B101={id:'B101',name:'Séance push – 1h',desc:"Pompes larges, pompes serrées, dips, extensions triceps, élévations latérales, crunchs.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Maison',xp:xpV('body'),pts:ptsV('body')};
-  var B102={id:'B102',name:'Séance pull – 1h',desc:"Rows sous table, Superman, tirage élastique, rowing coudes serrés.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Maison',xp:xpV('body'),pts:ptsV('body')};
-  var B103={id:'B103',name:'Séance jambes – 1h',desc:"Squats, fentes, hip thrusts, mollets, squat sauté, gainage.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Maison',xp:xpV('body'),pts:ptsV('body')};
-  var B104={id:'B104',name:'Séance au choix – 1h',desc:"Groupe musculaire au choix. Corps entier si indécis.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Maison',xp:xpV('body'),pts:ptsV('body')};
-  // Maison : sécher
-  var B105={id:'B105',name:'Séance full body – 1h',desc:"Circuit full body : burpees, pompes, squats, fentes, mountain climbers.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Maison',xp:xpV('body'),pts:ptsV('body')};
-  var B106={id:'B106',name:'Séance jambes – 1h',desc:"Jambes poids de corps : squat sauté, fentes, hip thrusts, mollets.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Maison',xp:xpV('body'),pts:ptsV('body')};
-  // Maison : maintien
-  var B107={id:'B107',name:'Séance full body – 1h',desc:"Maintien poids de corps : circuit équilibré haut/bas.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Maison',xp:xpV('body'),pts:ptsV('body')};
-  var B108={id:'B108',name:'Séance jambes – 1h',desc:"Jambes poids de corps. Profondeur et contrôle.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Maison',xp:xpV('body'),pts:ptsV('body')};
-  // Run
-  var B201={id:'B201',name:'Courir '+scR(3,16)+' km, allure au choix',desc:pick(["25 à 40% de risque de mortalité prématurée en moins chez les coureurs (Progress in Cardiovascular Diseases)","2 semaines de course suffisent pour réduire les symptômes dépressifs (ScienceDirect, 2021)","La course renforce la densité osseuse et améliore la sensibilité à l'insuline."]),type:'body',icon:'&#128099;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Run',xp:xpV('body'),pts:ptsV('body')};
-  var B201b={id:'B201',name:'Courir '+scR(3,16)+' km, allure au choix',desc:"Deuxième sortie run de la semaine. Gère ton allure.",type:'body',icon:'&#128099;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Run',xp:xpV('body'),pts:ptsV('body')};
+  // ── Séances maison — volumes progressifs ──
+  var B101={id:'B101',name:'Séance push – 1h',
+    desc:scR(10,50)+' pompes larges · '+scR(10,40)+' pompes serrées · '+scR(10,60)+' dips · '+scR(15,40)+' extensions triceps (poids) · '+scR(10,35)+' élévations latérales · '+scR(20,80)+' crunchs. En plusieurs séries.',
+    type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Maison',xp:xpV('body'),pts:ptsV('body')};
+  var B102={id:'B102',name:'Séance pull – 1h',
+    desc:scR(10,30)+' rowing sous table · '+scR(10,30)+' pull-over allongé (poids) · '+scR(8,30)+' reverse fly · '+scR(15,30)+' shrugs (lourd) · '+scR(15,30)+' curl classique · '+scR(12,30)+' hammer curl. En plusieurs séries.',
+    type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Maison',xp:xpV('body'),pts:ptsV('body')};
+  var B103={id:'B103',name:'Séance jambes – 1h',
+    desc:scR(15,50)+' squats · '+scR(15,30)+' fentes marchées · '+scR(15,35)+' mollets sur marche · '+scR(8,18)+' Romanian Deadlift (sac lourd) · '+scR(30,180)+'s wall sit. En plusieurs séries.',
+    type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Maison',xp:xpV('body'),pts:ptsV('body')};
+  var B104={id:'B104',name:'Séance au choix – 1h',
+    desc:scR(4,7)+' exercices au choix, intensité maximale. Corps entier si indécis.',
+    type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Maison',xp:xpV('body'),pts:ptsV('body')};
+  var B105={id:'B105',name:'Séance full body – 1h',
+    desc:scR(10,40)+' pompes · '+scR(10,30)+' dips · '+scR(10,30)+' ext. triceps · '+scR(10,20)+' élév. latérales · '+scR(20,40)+' crunchs · '+scR(15,30)+' curls · '+scR(10,25)+' rowing sous table · '+scR(12,25)+' hammer curl · '+scR(8,18)+' reverse fly. En plusieurs séries.',
+    type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Maison',xp:xpV('body'),pts:ptsV('body')};
+  var B106={id:'B106',name:'Séance jambes – 1h',
+    desc:scR(15,50)+' squats · '+scR(15,30)+' fentes marchées · '+scR(15,35)+' mollets sur marche · '+scR(8,18)+' Romanian Deadlift · '+scR(30,180)+'s wall sit. En plusieurs séries.',
+    type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Maison',xp:xpV('body'),pts:ptsV('body')};
+  var B107={id:'B107',name:'Séance full body – 1h',
+    desc:scR(10,40)+' pompes · '+scR(10,30)+' dips · '+scR(10,30)+' ext. triceps · '+scR(10,20)+' élév. latérales · '+scR(20,40)+' crunchs · '+scR(15,30)+' curls · '+scR(10,25)+' rowing · '+scR(12,25)+' hammer curl · '+scR(8,18)+' reverse fly. En plusieurs séries.',
+    type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Maison',xp:xpV('body'),pts:ptsV('body')};
+  var B108={id:'B108',name:'Séance jambes – 1h',
+    desc:scR(15,50)+' squats · '+scR(15,30)+' fentes marchées · '+scR(15,35)+' mollets sur marche · '+scR(8,18)+' Romanian Deadlift · '+scR(30,180)+'s wall sit. En plusieurs séries.',
+    type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Maison',xp:xpV('body'),pts:ptsV('body')};
+  // ── Run & Vélo ──
+  var B201={id:'B201',name:'Courir '+scR(3,16)+' km, allure au choix',desc:pick(['25 à 40% de risque de mortalité prématurée en moins chez les coureurs (Progress in Cardiovascular Diseases)','2 semaines de course suffisent pour réduire les symptômes dépressifs (ScienceDirect, 2021)','La course renforce la densité osseuse et améliore la sensibilité à l\'insuline.']),type:'body',icon:'&#128099;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Run',xp:xpV('body'),pts:ptsV('body')};
+  var B201b={id:'B201',name:'Courir '+scR(3,16)+' km, allure au choix',desc:'Deuxième sortie run de la semaine. Gère ton allure.',type:'body',icon:'&#128099;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Run',xp:xpV('body'),pts:ptsV('body')};
   var B202={id:'B202',name:'Séance fractionné',desc:scR(4,10)+'×400m allure rapide (60s récup) — ou : '+scR(8,20)+' répétitions 30s modéré / 30s rapide.',type:'body',icon:'&#128099;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Run',xp:xpV('body'),pts:ptsV('body')};
-  // Vélo
-  var B203={id:'B203',name:'Séance cardio – vélo : '+scR(3,20)+' km',desc:"Allure soutenue. Dehors ou home-trainer.",type:'body',icon:'&#128690;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Vélo',xp:xpV('body'),pts:ptsV('body')};
-
+  var B203={id:'B203',name:'Séance cardio – vélo : '+scR(3,20)+' km',desc:'Allure soutenue. Dehors ou home-trainer.',type:'body',icon:'&#128690;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Vélo',xp:xpV('body'),pts:ptsV('body')};
   return {B001,B002,B003,B004,B005,B006,B007,B008,B009,
           B101,B102,B103,B104,B105,B106,B107,B108,
           B201,B201b,B202,B203};
@@ -1907,15 +1938,15 @@ function _gBodyGymPool(){
 // ════ QUÊTES BODY NORMALES #B301-#B309 ════
 function _gBodyNormalePool(){
   return [
-    {id:'B301',name:'Effectuer '+scR(15,60)+' pompes',desc:"En plusieurs séries si besoin. 60s de récup entre chaque."},
-    {id:'B302',name:'Effectuer '+scR(15,60)+' squats',desc:"Descends bien et contrôle le mouvement."},
-    {id:'B303',name:'Effectuer '+scR(30,480)+'s de gainage en planche',desc:"Veille à respirer & rester gainé."},
-    {id:'B304',name:'Effectuer '+scR(10,60)+' abdos (crunchs & latéraux)',desc:"Type d\'abdo au choix : veille à respirer."},
-    {id:'B305',name:'Effectuer '+scR(5,20)+' min d\'étirements musculaires',desc:"Étirements, travailler abdominaux & fessiers."},
-    {id:'B306',name:'Effectuer '+scR(500,3000)+'m de marche',desc:"Idéalement en extérieur, rythme soutenu."},
-    {id:'B307',name:'Effectuer '+scR(15,60)+' dips',desc:"Sur chaise ou canapé. Dos droit, amplitude complète."},
-    {id:'B308',name:'Effectuer '+scR(15,40)+' fentes',desc:"Alternées, grand pas, genou arrière proche du sol."},
-    {id:'B309',name:'Effectuer '+scR(20,60)+' Superman',desc:"Allongé ventre, soulève bras et jambes en même temps. Tiens 2s."},
+    {id:'B301',name:'Effectuer '+scR(15,60)+' pompes',desc:'En plusieurs séries si besoin. 60s de récup entre chaque.'},
+    {id:'B302',name:'Effectuer '+scR(15,60)+' squats',desc:'Descends bien et contrôle le mouvement.'},
+    {id:'B303',name:'Effectuer '+scR(30,480)+'s de gainage en planche',desc:'Veille à respirer & rester gainé.'},
+    {id:'B304',name:scR(10,60)+' abdos (crunchs & latéraux)',desc:'Type d\'abdo au choix : veille à respirer.'},
+    {id:'B305',name:'Effectuer '+scR(5,20)+' min d\'étirements musculaires',desc:'Étirements, travailler abdominaux & fessiers.'},
+    {id:'B306',name:'Effectuer '+scR(500,3000)+'m de marche',desc:'Idéalement en extérieur, rythme soutenu.'},
+    {id:'B307',name:'Effectuer '+scR(15,60)+' dips',desc:'Sur chaise ou canapé. Dos droit, amplitude complète.'},
+    {id:'B308',name:'Effectuer '+scR(15,40)+' fentes',desc:'Alternées, grand pas, genou arrière proche du sol.'},
+    {id:'B309',name:'Effectuer '+scR(20,60)+' Superman',desc:'Allongé ventre, soulève bras et jambes. Tiens 2s.'},
   ];
 }
 
@@ -4378,6 +4409,10 @@ function buildOB(){
   // Reset state onboarding
   if(!ST._ob)ST._ob={};
   // Afficher l'intro narrative
+  document.body.style.overflow="hidden";
+  document.documentElement.style.overflow="hidden";
+  document.body.style.position="fixed";
+  document.body.style.width="100%";
   _obShowIntro();
 }
 
@@ -4466,6 +4501,7 @@ function _obQ1(){
 }
 
 function _obSelAge(i){
+  SND.tap();
   if(!ST._ob)ST._ob={};
   ST._ob.age=i;
   // Auto-avance après sélection
@@ -4496,6 +4532,7 @@ function _obQ2(){
 }
 
 function _obSelSituation(i){
+  SND.tap();
   ST._ob.situation=i;
   setTimeout(_obQ3, 380);
 }
@@ -4532,6 +4569,7 @@ function _obQ3(){
 }
 
 function _obSelSportLevel(i){
+  SND.tap();
   ST._ob.sportLevel=i;
   setTimeout(_obQ4, 380);
 }
@@ -4561,6 +4599,7 @@ function _obQ4(){
 }
 
 function _obSelPhysGoal(i){
+  SND.tap();
   ST._ob.physGoal=i;
   setTimeout(_obQ5, 380);
 }
@@ -4628,6 +4667,7 @@ function _obQ5SportSub(){
 }
 
 function _obToggleSportAccess(i){
+  SND.tap();
   if(!ST._ob.sportAccess)ST._ob.sportAccess=[];
   var idx=ST._ob.sportAccess.indexOf(i);
   if(idx>=0)ST._ob.sportAccess.splice(idx,1);else ST._ob.sportAccess.push(i);
@@ -4670,6 +4710,7 @@ function _obToggleCollectifJour(i){
 }
 
 function _obQ5Next(){
+  SND.tap();
   // Si rien coché → poids de corps par défaut
   if(!ST._ob.sportAccess||ST._ob.sportAccess.length===0)ST._ob.sportAccess=[1];
   setTimeout(_obQ6, 200);
@@ -4701,6 +4742,7 @@ function _obQ6(){
 }
 
 function _obSelMind(i){
+  SND.tap();
   ST._ob.mindLevel=i;
   setTimeout(_obQ7, 380);
 }
@@ -4747,6 +4789,7 @@ function _obSliderChange(v){
 }
 
 function _obSliderConfirm(){
+  SND.tap();
   if(ST._ob.screenHours===undefined)ST._ob.screenHours=3;
   setTimeout(_obQ8, 200);
 }
@@ -4787,6 +4830,7 @@ function _obQ8(){
 }
 
 function _obToggleResistance(i){
+  SND.tap();
   if(!ST._ob.resistances)ST._ob.resistances=[];
   var idx=ST._ob.resistances.indexOf(i);
   if(idx>=0)ST._ob.resistances.splice(idx,1);
@@ -4802,6 +4846,7 @@ function _obToggleResistance(i){
 }
 
 function _obQ8Next(){
+  SND.tap();
   setTimeout(_obQ9, 200);
 }
 
@@ -4829,6 +4874,7 @@ function _obQ9(){
 }
 
 function _obSelSleep(i){
+  SND.tap();
   ST._ob.sleep=i;
   setTimeout(_obQ10, 380);
 }
@@ -4861,12 +4907,14 @@ function _obWhyInput(){
 }
 
 function _obSaveWhy(){
+  SND.tap();
   ST.myWhy=((document.getElementById('ob-why-input')||{}).value||'').trim();
   save();
   setTimeout(_obShowClose, 200);
 }
 
 function _obSkipWhy(){
+  SND.tap();
   ST.myWhy='';
   save();
   setTimeout(_obShowClose, 200);
@@ -5059,6 +5107,11 @@ function _obFinish(){
   ST.weekPlan=genWeek();
   ST.questStatus={};ST.lastDate=todayStr();ST.dayDone=false;
   ST.failByType={body:0,mind:0,disc:0};ST.successByType={body:0,mind:0,disc:0};
+  // Débloquer scroll body
+  document.body.style.overflow='';
+  document.documentElement.style.overflow='';
+  document.body.style.position='';
+  document.body.style.width='';
   save();askNotif();
 
   var stage=document.getElementById('ob-stage');
