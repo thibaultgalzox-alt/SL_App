@@ -7,494 +7,343 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-title" content="Solo Leveling"/>
 <link rel="manifest" href="./manifest.json"/>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,700;0,800;1,700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,400;1,600&family=Sora:wght@400;500;600;700;800&family=Cinzel:wght@600;700&family=Playfair+Display:ital,wght@0,700;0,800;1,700&display=swap" rel="stylesheet">
 <title>Solo Leveling</title>
 <style>
 /* ═══════════════════════════════════════════════════
-   SOLO LEVELING — DESIGN SYSTEM v3 "GRIMOIRE"
+   SOLO LEVELING - DESIGN SYSTEM v3 "GRIMOIRE"
+   ═══════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════
+   SOLO LEVELING - IVORY DISCIPLINE
+   Fond ivoire · Header noir · Typographie éditoriale
    ═══════════════════════════════════════════════════ */
 :root{
-  /* ── Couleurs fond ── */
-  --bg:#1C1610;           /* Ardoise sombre - fond app */
-  --bg-mid:#221A12;       /* Entre fond et surface */
-  --surface:#2C2218;      /* Surface principale */
-  --card:#F5EFE4;          /* Parchemin chaud - cartes */
-  --card2:#EDE5D8;         /* Parchemin foncé */
-  --card-dark:#2A2018;     /* Carte sombre (nav, header) */
+  /* ── Palette Ivory ── */
+  --bg:#F8F4EE;
+  --bg2:#F0EAE0;
+  --bg3:#E4DDD2;
+  --card:#FFFFFF;
+  --card2:#FAF7F2;
+  --hdr:#1A1210;        /* Header sombre signature */
 
   /* ── Encres ── */
-  --ink:#1A120A;           /* Encre noire sur parchemin */
-  --ink2:#3D2E1E;
-  --ink3:#7A6654;
-  --ink4:#B0A090;
-  --ink-light:#EDE5D8;     /* Texte clair sur fond sombre */
-  --ink-light2:#A89880;    /* Texte secondaire clair */
-  --ink-light3:#6A5A48;    /* Texte tertiaire sur fond sombre */
+  --ink:#1A1210;
+  --ink2:#3D2E20;
+  --ink3:#8A7060;
+  --ink4:#B8A898;
 
   /* ── Accents ── */
-  --gold:#C8901C;          /* Or principal */
-  --gold2:#E8B040;         /* Or lumineux */
-  --gold3:#F5CE70;         /* Or clair */
-  --gold-bg:#FBF3E0;
-  --copper:#B05020;        /* Cuivre/rouille */
-  --copper2:#D07840;
-  --ember:#8B2010;         /* Braise */
-  --accent:var(--copper);
-  --accent2:var(--copper2);
-  --accent-soft:rgba(176,80,32,.1);
-
-  /* ── Statuts ── */
-  --green:#2A6832;--green-bg:#E8F4EA;--green-mid:#5A9E62;
-  --blue:#1A5080;--blue-bg:#E6EFF8;
-  --red:#8B1A1A;--red-bg:#F8EAEA;
-  --warn:#7A5810;--warn-bg:#FBF3E0;
+  --accent:#C85020;     /* Vermeil */
+  --accent2:#E87030;
+  --accent-soft:rgba(200,80,32,.08);
+  --green:#2A6832;--green-bg:#EAF5EC;--green-mid:#C0DEC8;
+  --blue:#1A5080;--blue-bg:#EAF0FA;
+  --red:#8B1A1A;--red-bg:#FAE8E8;
+  --gold:#A87820;--gold-bg:#FBF3E0;
+  --warn:#7A5A10;
 
   /* ── Ombres ── */
-  --shadow-xs:0 1px 2px rgba(0,0,0,.18);
-  --shadow-sm:0 2px 6px rgba(0,0,0,.22),0 1px 2px rgba(0,0,0,.12);
-  --shadow:0 4px 14px rgba(0,0,0,.28),0 1px 3px rgba(0,0,0,.14);
-  --shadow-md:0 8px 28px rgba(0,0,0,.32),0 2px 6px rgba(0,0,0,.16);
-  --shadow-lg:0 16px 48px rgba(0,0,0,.38),0 4px 10px rgba(0,0,0,.18);
-  --shadow-gold:0 4px 20px rgba(200,144,28,.4),0 0 0 1px rgba(200,144,28,.15);
-  --shadow-copper:0 4px 18px rgba(176,80,32,.35);
-  --shadow-inset:inset 0 2px 4px rgba(0,0,0,.12),inset 0 0 0 1px rgba(0,0,0,.06);
-  --shadow-inset-light:inset 0 1px 3px rgba(0,0,0,.08),inset 0 0 0 1px rgba(255,255,255,.04);
+  --shadow-xs:0 1px 2px rgba(26,18,12,.05);
+  --shadow-sm:0 2px 8px rgba(26,18,12,.07),0 1px 2px rgba(26,18,12,.04);
+  --shadow:0 4px 16px rgba(26,18,12,.09),0 1px 3px rgba(26,18,12,.05);
+  --shadow-md:0 6px 24px rgba(26,18,12,.1),0 2px 4px rgba(26,18,12,.06);
+  --shadow-lg:0 14px 48px rgba(26,18,12,.12),0 3px 8px rgba(26,18,12,.06);
+  --shadow-accent:0 4px 16px rgba(200,80,32,.28);
+  --shadow-inset:inset 0 2px 4px rgba(26,18,12,.05),inset 0 0 0 1px rgba(26,18,12,.04);
 
   /* ── Rayons ── */
-  --r:16px;--r-sm:12px;--r-lg:22px;--r-xs:8px;
+  --r:16px;--r-sm:12px;--r-lg:20px;--r-xs:8px;
 
-  /* ── Textures inline ── */
-  --noise:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
-  --grain-light:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)' opacity='.028'/%3E%3C/svg%3E");
+  /* ── Grain papier ── */
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='.022'/%3E%3C/svg%3E");
 }
 
 /* ─── BASE ─── */
 *{box-sizing:border-box;margin:0;padding:0}
-html{height:100%;background:var(--bg)}
-body{
-  font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;
-  font-size:14px;max-width:430px;margin:0 auto;
-  -webkit-font-smoothing:antialiased;
-  -webkit-text-size-adjust:100%;
-  background:var(--bg);
-  color:var(--ink);
-  min-height:100vh;
-  /* Texture parchemin sombre avec vignette */
-  background-image:
-    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(200,144,28,.12) 0%, transparent 70%),
-    radial-gradient(ellipse 60% 80% at 100% 100%, rgba(176,80,32,.06) 0%, transparent 60%),
-    var(--noise);
+html,body{
+  background:var(--bg);color:var(--ink);height:100%;
+  background-image:var(--grain);
 }
-.app{padding:.75rem 1rem 5.5rem}
+body{
+  font-family:'Sora',-apple-system,BlinkMacSystemFont,sans-serif;
+  font-size:14px;max-width:430px;margin:0 auto;
+  -webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;
+}
+body.ob-active{background:#0a0a12 !important;overflow:hidden !important;position:fixed !important;width:100% !important;max-width:100vw !important;}
+.app{padding:.5rem 1rem 5.5rem}
 .screen{display:none;visibility:hidden}
 .screen.active{display:block;visibility:visible;min-height:100dvh;overflow-y:auto}
 
-/* ─── HEADER ── fond sombre, style grimoire ─── */
+/* ─── HEADER ─── */
 .hdr{
+  background:var(--hdr);
+  padding:28px 22px 20px;
+  position:relative;overflow:hidden;
   text-align:center;
-  padding:1rem .5rem .6rem;
-  background:linear-gradient(180deg,rgba(28,22,16,.0) 0%,rgba(28,22,16,.0) 100%);
-  position:relative;
-}
-.hdr::before{
-  content:'';
-  position:absolute;inset:0;
-  background:
-    linear-gradient(180deg,rgba(200,144,28,.04) 0%,transparent 100%),
-    var(--noise);
-  pointer-events:none;border-radius:0;
 }
 .hdr::after{
-  content:'';display:block;
-  height:1px;
-  background:linear-gradient(90deg,transparent,rgba(200,144,28,.35) 25%,rgba(232,176,64,.5) 50%,rgba(200,144,28,.35) 75%,transparent);
-  margin:8px 0 0;
+  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(200,80,40,.45) 30%,rgba(220,100,50,.5) 50%,rgba(200,80,40,.45) 70%,transparent);
+}
+/* Grain léger sur le header */
+.hdr::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:var(--grain);opacity:.6;
 }
 
-/* Pill rang — métal gravé */
 .pill{
-  display:inline-flex;font-family:'Cinzel',serif;font-size:9px;font-weight:700;
-  padding:5px 18px;border-radius:20px;margin-bottom:6px;
-  background:linear-gradient(135deg,#2a1e10 0%,#3d2c18 40%,#2e2214 100%);
-  color:var(--gold3);letter-spacing:.18em;
-  border:1px solid rgba(200,144,28,.4);
-  box-shadow:
-    var(--shadow-gold),
-    inset 0 1px 0 rgba(232,176,64,.15),
-    inset 0 -1px 0 rgba(0,0,0,.3);
+  display:inline-flex;align-items:center;
+  font-family:'Sora',sans-serif;font-size:8.5px;font-weight:700;
+  padding:5px 18px;border-radius:20px;margin-bottom:8px;
+  background:rgba(255,255,255,.06);
+  color:rgba(200,80,40,.75);letter-spacing:.25em;
+  border:1px solid rgba(200,80,40,.2);
   text-transform:uppercase;
-  position:relative;overflow:hidden;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
 }
-.pill::before{
-  content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;
-  background:linear-gradient(90deg,transparent,rgba(232,176,64,.08),transparent);
-  animation:pill-sheen 4s ease-in-out infinite;
-}
-@keyframes pill-sheen{0%,100%{left:-100%}50%{left:200%}}
-
-/* Titre h1 — Cinzel, signature de l'app */
 .hdr h1{
-  font-family:'Cinzel',serif;
-  font-size:21px;font-weight:700;
-  color:var(--ink-light);
-  letter-spacing:.04em;
+  font-family:'Cormorant Garamond',serif;
+  font-size:30px;font-weight:600;font-style:italic;
+  color:#F8F4EE;letter-spacing:-.01em;line-height:1;
+  margin-bottom:3px;
   transition:color .4s,filter .4s;
-  line-height:1.2;
-  text-shadow:0 1px 8px rgba(0,0,0,.4);
 }
-.hdr p{font-size:11px;color:var(--ink-light2);margin-top:3px;letter-spacing:.02em}
+.hdr p{
+  font-family:'Sora',sans-serif;
+  font-size:9.5px;color:rgba(248,244,238,.3);letter-spacing:.08em;
+  margin-top:3px;
+}
 
-/* ─── XP BAR ─── */
-.xp-wrap{margin:12px 0 6px}
-.xp-track{
-  background:rgba(0,0,0,.3);
-  border-radius:6px;height:8px;overflow:hidden;
-  box-shadow:inset 0 1px 4px rgba(0,0,0,.4),inset 0 0 0 1px rgba(0,0,0,.2);
-}
+/* XP BAR */
+.xp-wrap{margin:14px 0 0}
+.xp-track{height:2px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
 .xp-fill{
-  height:100%;
-  background:linear-gradient(90deg,var(--copper) 0%,var(--gold) 50%,var(--gold2) 80%,var(--gold3) 100%);
-  border-radius:6px;transition:width .7s cubic-bezier(.4,0,.2,1);
-  box-shadow:0 0 12px rgba(200,144,28,.5),inset 0 1px 0 rgba(255,255,255,.2);
-  position:relative;overflow:hidden;
+  height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));
+  border-radius:2px;transition:width .7s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 0 10px rgba(200,80,32,.5);
 }
-.xp-fill::after{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.22) 50%,transparent 100%);
-  animation:xp-shine 3s ease-in-out infinite;
+.xp-row{
+  display:flex;justify-content:space-between;
+  font-size:9px;color:rgba(248,244,238,.28);
+  margin-top:5px;font-weight:600;letter-spacing:.04em;
 }
-@keyframes xp-shine{0%,100%{transform:translateX(-120%)}60%{transform:translateX(120%)}}
-.xp-row{display:flex;justify-content:space-between;font-size:10px;color:var(--ink-light2);margin-bottom:4px;font-weight:600;letter-spacing:.02em}
 
-/* ─── STAT GRID — tuiles parchemin ─── */
-.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:.6rem 0}
+/* ─── STAT GRID ─── */
+.sg{display:flex;padding:0;gap:0;border-bottom:1px solid rgba(26,18,12,.08)}
 .sc{
-  background:
-    linear-gradient(160deg,var(--card) 0%,var(--card2) 100%),
-    var(--grain-light);
-  border-radius:var(--r-sm);padding:11px 4px;text-align:center;
-  box-shadow:var(--shadow-sm);
-  border:1px solid rgba(26,18,10,.12);
-  position:relative;overflow:hidden;
+  flex:1;text-align:center;padding:14px 4px;
+  background:var(--card);
+  position:relative;
+  border-right:1px solid rgba(26,18,12,.06);
 }
-.sc::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.95) 40%,rgba(255,255,255,.95) 60%,transparent);
+.sc:last-child{border-right:none}
+.sc::before{display:none}
+.sc::after{display:none}
+.sc .v{
+  font-family:'Cormorant Garamond',serif;
+  font-size:23px;font-weight:600;color:var(--ink);letter-spacing:-.02em;
 }
-.sc::after{
-  content:'';position:absolute;bottom:0;left:0;right:0;height:40%;
-  background:linear-gradient(0deg,rgba(0,0,0,.03),transparent);
-  pointer-events:none;
-}
-.sc .v{font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
-.sc .l{font-size:7.5px;color:var(--ink3);margin-top:2px;text-transform:uppercase;letter-spacing:.08em;font-weight:700}
-.sc.int-warn{background:linear-gradient(160deg,var(--gold-bg),#fef5d0);border-color:rgba(200,144,28,.25)}
-.sc.int-crit{background:linear-gradient(160deg,var(--red-bg),#fde8e8);border-color:rgba(139,26,26,.2);animation:int-blink 1.8s ease-in-out infinite}
+.sc .l{font-family:'Sora',sans-serif;font-size:7px;color:var(--ink3);margin-top:2px;text-transform:uppercase;letter-spacing:.12em;font-weight:700}
+.sc.int-warn{background:var(--gold-bg)}
+.sc.int-crit{background:var(--red-bg);animation:int-blink 1.8s ease-in-out infinite}
 .sc.int-crit.int-zero-fixed{animation:none}
-@keyframes int-blink{0%,100%{background:linear-gradient(160deg,var(--red-bg),#fde8e8)}50%{background:linear-gradient(160deg,#fdd8d8,#fce4e4)}}
+@keyframes int-blink{0%,100%{background:var(--red-bg)}50%{background:#fdd8d8}}
 @keyframes hm-blink{0%,100%{opacity:1}50%{opacity:.4}}
 @keyframes int-blink-fast{0%,100%{background:#8B1A1A}50%{background:#c03030}}
 
 /* ─── SECTION LABELS ─── */
 .slbl{
-  font-family:'Cinzel',serif;
-  font-size:9px;font-weight:700;color:var(--ink-light2);
-  letter-spacing:.22em;text-transform:uppercase;
-  margin:1.4rem 0 .7rem;
-  display:flex;align-items:center;gap:10px;
+  font-family:'Sora',sans-serif;
+  font-size:8px;font-weight:700;letter-spacing:.22em;
+  color:var(--ink3);text-transform:uppercase;
+  padding:18px 0 8px;
+  border-bottom:1px solid rgba(26,18,12,.06);
+  margin-bottom:12px;
+  display:flex;align-items:center;gap:8px;
 }
-.slbl::before,.slbl::after{
-  content:'';flex:1;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(200,144,28,.25));
-}
-.slbl::before{background:linear-gradient(270deg,transparent,rgba(200,144,28,.25))}
+.slbl::after{content:'';flex:1;height:1px;background:rgba(26,18,12,.06)}
 
-/* ─── QUEST CARDS — parchemin texturé ─── */
-.qlist{display:flex;flex-direction:column;gap:11px}
+/* ─── QUEST CARDS ─── */
+.qlist{display:flex;flex-direction:column;gap:10px}
 .qcard{
   background:var(--card);
-  border-radius:var(--r);
-  padding:15px 16px;
+  border-radius:var(--r);padding:16px 18px;
   overflow:hidden;
   transition:all .35s cubic-bezier(.4,0,.2,1);
-  opacity:0;transform:translateY(14px);
-  box-shadow:var(--shadow-md);
-  border:1px solid rgba(26,18,10,.1);
+  opacity:0;transform:translateY(12px);
+  box-shadow:var(--shadow-sm);
+  border:1px solid rgba(26,18,12,.06);
   position:relative;
-  background-image:
-    linear-gradient(160deg,rgba(255,255,255,.6) 0%,transparent 60%),
-    var(--grain-light);
 }
-/* Ligne de lumière en haut */
-.qcard::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.98) 25%,rgba(255,255,255,.98) 75%,transparent);
-}
-/* Bande colorée latérale gauche selon type */
+.qcard::before{display:none}
+/* Bande colorée latérale - accent de type */
 .qcard::after{
-  content:'';position:absolute;left:0;top:0;bottom:0;width:3.5px;
+  content:'';position:absolute;top:0;left:0;bottom:0;width:4px;
   border-radius:var(--r) 0 0 var(--r);
-  background:linear-gradient(180deg,var(--color-strip-top,rgba(0,0,0,.1)),var(--color-strip-bot,rgba(0,0,0,.05)));
+  background:var(--strip-color,rgba(26,18,12,.12));
 }
-/* Variantes de bande selon type injecté dynamiquement */
-.qcard[data-type="body"]{--color-strip-top:var(--green);--color-strip-bot:var(--green-mid)}
-.qcard[data-type="mind"]{--color-strip-top:var(--blue);--color-strip-bot:#5588cc}
-.qcard[data-type="disc"]{--color-strip-top:var(--red);--color-strip-bot:#cc4040}
-.qcard[data-type="water"]{--color-strip-top:#2060a8;--color-strip-bot:#4090cc}
-.qcard[data-type="se"],.qcard[data-type="sm"],.qcard[data-type="sh"]{--color-strip-top:var(--gold);--color-strip-bot:var(--gold2)}
+/* Ligne lumière top */
+.qcard .ql-top{position:absolute;top:0;left:0;right:0;height:1px;background:rgba(255,255,255,.95)}
 .qcard.visible{opacity:1;transform:translateY(0)}
 .qcard.done{opacity:.22;transform:scale(.982)}
 
-/* Icône quête */
-.qh{display:flex;align-items:center;gap:11px}
+.qh{display:flex;align-items:flex-start;gap:14px}
 .qicon{
-  width:44px;height:44px;border-radius:var(--r-sm);
+  width:44px;height:44px;border-radius:12px;
   display:flex;align-items:center;justify-content:center;
-  font-size:18px;flex-shrink:0;
-  box-shadow:var(--shadow-xs),inset 0 1px 0 rgba(255,255,255,.55),inset 0 -1px 0 rgba(0,0,0,.08);
-  position:relative;overflow:hidden;
-  border:1px solid rgba(0,0,0,.06);
+  font-size:20px;flex-shrink:0;
+  border:1px solid rgba(26,18,12,.06);
 }
-.qicon::after{
-  content:'';position:absolute;top:0;left:0;right:0;height:50%;
-  background:linear-gradient(180deg,rgba(255,255,255,.25),transparent);
-}
-.qi-body{background:linear-gradient(145deg,#d8f0de,#c0e6ca)}
-.qi-mind{background:linear-gradient(145deg,#cce0f4,#b4d2ec)}
-.qi-disc{background:linear-gradient(145deg,#f4d0d0,#eab8b8)}
-.qi-sec{background:linear-gradient(145deg,#f5e4b0,#eed898)}
+.qi-body{background:linear-gradient(145deg,#EAF5EC,#D8EEE0)}
+.qi-mind{background:linear-gradient(145deg,#EAF0FA,#D8E8F5)}
+.qi-disc{background:linear-gradient(145deg,#FAE8E8,#F5D4D4)}
+.qi-sec{background:linear-gradient(145deg,#FBF0D8,#F5E4B8)}
 
-.qname{
-  font-size:13.5px;font-weight:700;flex:1;line-height:1.4;
-  color:var(--ink);letter-spacing:-.015em;
-}
-.qxp{font-size:10px;font-weight:800;white-space:nowrap;letter-spacing:.01em;opacity:.85}
-.xp-g{color:var(--green)}.xp-b{color:var(--blue)}.xp-o{color:var(--copper)}.xp-p{color:var(--copper)}
+.qname{font-family:'Sora',sans-serif;font-size:13.5px;font-weight:700;flex:1;line-height:1.4;color:var(--ink);letter-spacing:-.01em}
+.qxp{font-size:10px;font-weight:700;white-space:nowrap;color:var(--ink3)}
+.xp-g{color:var(--green)}.xp-b{color:var(--blue)}.xp-o{color:var(--accent)}.xp-p{color:var(--accent)}
 
-.qdesc{font-size:11px;color:var(--ink3);margin:7px 0 0 55px;line-height:1.65;letter-spacing:.005em}
+.qdesc{font-family:'Sora',sans-serif;font-size:10.5px;color:var(--ink3);margin:8px 0 0 58px;line-height:1.65}
 .qtag{
   display:inline-block;
-  font-family:'Cinzel',serif;
-  font-size:7.5px;font-weight:700;
-  padding:3px 10px;border-radius:4px;
-  margin:7px 0 0 55px;
-  letter-spacing:.1em;text-transform:uppercase;
+  font-family:'Sora',sans-serif;font-size:7.5px;font-weight:700;
+  padding:3px 10px;border-radius:20px;
+  margin:7px 0 0 58px;letter-spacing:.1em;text-transform:uppercase;
 }
-.tag-body{background:linear-gradient(135deg,#caecd4,#e8f5ec);color:var(--green);border:1px solid rgba(42,104,50,.15)}
-.tag-mind{background:linear-gradient(135deg,#c0dcf0,#e4eff9);color:var(--blue);border:1px solid rgba(26,80,128,.15)}
-.tag-disc{background:linear-gradient(135deg,#f0c8c8,#faeaea);color:var(--red);border:1px solid rgba(139,26,26,.15)}
-.tag-water{background:linear-gradient(135deg,#c0dcf0,#e4eff9);color:var(--blue);border:1px solid rgba(26,80,128,.15)}
-.tag-easy{background:linear-gradient(135deg,#caecd4,#e8f5ec);color:var(--green);border:1px solid rgba(42,104,50,.15)}
-.tag-med{background:linear-gradient(135deg,#f0dca0,var(--gold-bg));color:var(--warn);border:1px solid rgba(200,144,28,.2)}
-.tag-hard{background:linear-gradient(135deg,#f0c8c8,#faeaea);color:var(--red);border:1px solid rgba(139,26,26,.15)}
+.tag-body{background:var(--green-bg);color:var(--green)}
+.tag-mind{background:var(--blue-bg);color:var(--blue)}
+.tag-disc{background:var(--red-bg);color:var(--red)}
+.tag-water{background:var(--blue-bg);color:var(--blue)}
+.tag-easy{background:var(--green-bg);color:var(--green)}
+.tag-med{background:var(--gold-bg);color:var(--warn)}
+.tag-hard{background:var(--red-bg);color:var(--red)}
 
-.qactions{margin:11px 0 0 55px;display:flex;gap:7px;flex-wrap:wrap;align-items:center}
-
-/* Boutons d'action quête */
+.qactions{margin:11px 0 0 58px;display:flex;gap:7px;flex-wrap:wrap;align-items:center}
 .qbtn{
-  display:inline-flex;align-items:center;justify-content:center;border:none;
-  border-radius:var(--r-sm);padding:9px 18px;
-  font-size:12px;font-weight:700;cursor:pointer;
-  min-height:38px;transition:all .15s cubic-bezier(.4,0,.2,1);
+  display:inline-flex;align-items:center;justify-content:center;
+  border:none;border-radius:9px;padding:9px 18px;
+  font-family:'Sora',sans-serif;font-size:12px;font-weight:700;
+  cursor:pointer;min-height:38px;
+  transition:all .15s;letter-spacing:.02em;
   touch-action:manipulation;-webkit-tap-highlight-color:transparent;
-  letter-spacing:.02em;position:relative;overflow:hidden;
+  background:var(--bg2);color:var(--ink2);
+  box-shadow:var(--shadow-xs);border:1px solid rgba(26,18,12,.07);
 }
-.qbtn::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:rgba(255,255,255,.35);
-}
-.qbtn:active{transform:scale(.93);opacity:.88}
-/* Neutre */
-.qbtn{
-  background:linear-gradient(160deg,var(--card2) 0%,#ddd4c4 100%);
-  color:var(--ink2);
-  box-shadow:var(--shadow-sm),inset 0 -1px 0 rgba(0,0,0,.08);
-  border:1px solid rgba(26,18,10,.1);
-}
-/* Perfect — or */
+.qbtn:active{transform:scale(.94);opacity:.88}
 .qbtn.perfect{
-  background:linear-gradient(135deg,var(--copper) 0%,var(--gold) 55%,var(--gold2) 100%);
-  color:#fff;border:none;
-  box-shadow:var(--shadow-copper),inset 0 1px 0 rgba(255,255,255,.2),inset 0 -1px 0 rgba(0,0,0,.2);
-  text-shadow:0 1px 2px rgba(0,0,0,.25);
+  background:var(--ink);color:#fff;border:none;
+  box-shadow:0 4px 14px rgba(26,18,12,.22);
 }
-.qbtn.clear{
-  background:linear-gradient(160deg,var(--gold-bg),#faf0d0);
-  color:var(--warn);border:1px solid rgba(200,144,28,.2);
-  box-shadow:0 2px 8px rgba(200,144,28,.15);
-}
-.qbtn.fail{
-  background:linear-gradient(160deg,var(--red-bg),#fae4e4);
-  color:var(--red);border:1px solid rgba(139,26,26,.15);
-  box-shadow:0 2px 8px rgba(139,26,26,.1);
-}
-.qdone-lbl{font-size:10px;color:var(--green);font-weight:800;letter-spacing:.03em}
+.qbtn.clear{background:var(--gold-bg);color:var(--warn);border:1px solid rgba(168,120,32,.15)}
+.qbtn.fail{background:var(--red-bg);color:var(--red);border:1px solid rgba(139,26,26,.12)}
+.qdone-lbl{font-size:10px;color:var(--green);font-weight:800;letter-spacing:.02em}
 .qclear-lbl{font-size:10px;color:var(--warn);font-weight:700}
 .qfail-lbl{font-size:10px;color:var(--red);font-weight:700}
 
 /* ─── ALERTS ─── */
-.abox{
-  border-radius:var(--r-sm);padding:11px 15px;
-  font-size:11.5px;margin:.5rem 0;line-height:1.6;
-  font-weight:500;box-shadow:var(--shadow-xs);
-  border-left:3px solid;position:relative;overflow:hidden;
-}
-.abox::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:rgba(255,255,255,.6)}
-.aw{background:linear-gradient(135deg,var(--gold-bg),#fef8e0);color:var(--warn);border-color:var(--gold)}
-.ad{background:linear-gradient(135deg,var(--red-bg),#fae8e8);color:var(--red);border-color:var(--red)}
-.as{background:linear-gradient(135deg,var(--green-bg),#eaf4ec);color:var(--green);border-color:var(--green)}
-.ai{background:linear-gradient(135deg,#f0ebe2,#e8e0d4);color:var(--ink2);border-color:rgba(26,18,10,.2)}
-.ae{background:linear-gradient(135deg,var(--green-bg),#eaf4ec);color:var(--green);border-color:var(--green)}
+.abox{border-radius:var(--r-sm);padding:11px 15px;font-size:11.5px;margin:.45rem 0;line-height:1.55;font-weight:500;border-left:3px solid;background:var(--card)}
+.aw{background:var(--gold-bg);color:var(--warn);border-color:var(--gold)}
+.ad{background:var(--red-bg);color:var(--red);border-color:var(--red)}
+.as{background:var(--green-bg);color:var(--green);border-color:var(--green)}
+.ai{background:var(--bg2);color:var(--ink2);border-color:var(--bg3)}
+.ae{background:var(--green-bg);color:var(--green);border-color:var(--green)}
 
-/* ─── BOSS CARD — forge de métal ─── */
+/* ─── BOSS CARD ─── */
 .boss-card{
-  background:linear-gradient(155deg,#2a1e10 0%,#1e1608 60%,#2a1e10 100%);
+  background:var(--hdr);
   border-radius:var(--r);padding:18px;margin:.5rem 0;
-  box-shadow:var(--shadow-lg);
-  border:1px solid rgba(200,144,28,.22);
+  box-shadow:var(--shadow-md);
   position:relative;overflow:hidden;
-  background-image:var(--noise),linear-gradient(155deg,#2a1e10,#1e1608);
+  background-image:var(--grain);
 }
 .boss-card::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(200,144,28,.5) 30%,rgba(232,176,64,.6) 50%,rgba(200,144,28,.5) 70%,transparent);
+  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(200,80,40,.4) 40%,rgba(200,80,40,.4) 60%,transparent);
 }
 .boss-card::after{
-  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(200,144,28,.2) 40%,rgba(200,144,28,.2) 60%,transparent);
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.08) 40%,rgba(255,255,255,.08) 60%,transparent);
 }
-.boss-title{font-family:'Cinzel',serif;font-size:10px;font-weight:700;color:var(--gold2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.22em}
-.boss-row{display:flex;justify-content:space-between;font-size:11px;color:var(--ink-light2);font-weight:600}
-.boss-bar{height:7px;background:rgba(0,0,0,.35);border-radius:4px;overflow:hidden;margin:4px 0 10px;box-shadow:inset 0 1px 3px rgba(0,0,0,.4)}
-.boss-fill{height:100%;border-radius:4px;transition:width .7s cubic-bezier(.4,0,.2,1)}
-.boss-fill.body{background:linear-gradient(90deg,#2a8040,#4ab860)}
-.boss-fill.mind{background:linear-gradient(90deg,#1a60b0,#3a88d8)}
-.boss-fill.disc{background:linear-gradient(90deg,var(--copper),var(--gold))}
+.boss-title{font-family:'Sora',sans-serif;font-size:8.5px;font-weight:700;color:rgba(200,80,40,.7);margin-bottom:12px;text-transform:uppercase;letter-spacing:.25em}
+.boss-row{display:flex;justify-content:space-between;font-size:11px;color:rgba(248,244,238,.5);font-weight:600}
+.boss-bar{height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin:4px 0 10px}
+.boss-fill{height:100%;border-radius:2px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.boss-fill.body{background:linear-gradient(90deg,#2a8040,#50c060)}
+.boss-fill.mind{background:linear-gradient(90deg,#1a60b0,#3a90e0)}
+.boss-fill.disc{background:linear-gradient(90deg,var(--accent),var(--accent2))}
 
 /* ─── DEBT ─── */
-.debt-bar{
-  background:linear-gradient(135deg,var(--red-bg),#fae4e4);
-  border-radius:var(--r-sm);padding:12px 15px;margin:.4rem 0;
-  border-left:3px solid var(--red);box-shadow:var(--shadow-xs);
-}
-.debt-track{height:5px;background:rgba(139,26,26,.15);border-radius:3px;overflow:hidden;margin-top:6px;box-shadow:var(--shadow-inset)}
-.debt-fill{height:100%;background:linear-gradient(90deg,var(--red),#d03030);border-radius:3px;transition:width .5s}
+.debt-bar{background:var(--red-bg);border-radius:var(--r-sm);padding:12px 15px;margin:.4rem 0;border-left:3px solid var(--red)}
+.debt-track{height:4px;background:rgba(139,26,26,.12);border-radius:2px;overflow:hidden;margin-top:6px}
+.debt-fill{height:100%;background:linear-gradient(90deg,var(--red),#c84040);border-radius:2px;transition:width .5s}
 
 /* ─── BUTTONS ─── */
-.dbar{
-  background:linear-gradient(135deg,var(--red-bg),#fae4e4);
-  border-radius:var(--r-sm);padding:11px 16px;margin:.5rem 0;
-  font-size:12px;color:var(--red);font-weight:700;
-  display:flex;justify-content:space-between;align-items:center;
-  border-left:3px solid var(--red);box-shadow:var(--shadow-xs);
-}
-
-/* Bouton générique — parchemin */
+.dbar{background:var(--red-bg);border-radius:var(--r-sm);padding:11px 16px;margin:.5rem 0;font-size:12px;color:var(--red);font-weight:700;display:flex;justify-content:space-between;align-items:center;border-left:3px solid var(--red)}
 .btn{
-  border:1px solid rgba(26,18,10,.1);
-  background:linear-gradient(160deg,var(--card) 0%,var(--card2) 100%);
+  border:1px solid rgba(26,18,12,.08);
+  background:var(--card);
   border-radius:var(--r-sm);padding:11px 22px;
-  font-size:13px;color:var(--ink);cursor:pointer;
+  font-family:'Sora',sans-serif;font-size:13px;color:var(--ink);cursor:pointer;
   font-weight:700;letter-spacing:.02em;
-  box-shadow:var(--shadow-sm),inset 0 1px 0 rgba(255,255,255,.8);
+  box-shadow:var(--shadow-xs);
   touch-action:manipulation;-webkit-tap-highlight-color:transparent;
-  transition:all .15s cubic-bezier(.4,0,.2,1);
-  position:relative;overflow:hidden;
+  transition:all .15s;
 }
-.btn::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:rgba(255,255,255,.9)}
-.btn:active{transform:scale(.96);box-shadow:var(--shadow-xs);opacity:.9}
-
-/* Bouton principal — métal doré */
+.btn:active{transform:scale(.96);opacity:.88}
 .btn.primary{
-  background:linear-gradient(135deg,#2a1e10 0%,#3d2c18 35%,#4a3420 65%,#2e2214 100%);
-  color:var(--gold3);
-  border:1px solid rgba(200,144,28,.35);
-  box-shadow:var(--shadow-gold),inset 0 1px 0 rgba(232,176,64,.12),inset 0 -1px 0 rgba(0,0,0,.3);
-  text-shadow:0 1px 4px rgba(0,0,0,.4);
-  letter-spacing:.06em;
-  font-family:'Cinzel',serif;font-size:12px;
+  background:var(--ink);color:#fff;border:none;
+  box-shadow:0 4px 16px rgba(26,18,12,.22);
 }
-.btn.primary::before{background:linear-gradient(90deg,transparent,rgba(200,144,28,.08) 50%,transparent)}
-.btn.primary:active{box-shadow:var(--shadow-xs),inset 0 2px 4px rgba(0,0,0,.3)}
-
-/* Bouton or lumineux */
-.btn.gold{
-  background:linear-gradient(135deg,var(--gold),var(--gold2),var(--gold3));
-  color:#1a1208;border:none;font-weight:800;
-  box-shadow:0 4px 20px rgba(200,144,28,.4),inset 0 1px 0 rgba(255,255,255,.3);
-  text-shadow:none;
-}
-.btn.red{background:linear-gradient(135deg,var(--red-bg),#fae4e4);color:var(--red);border:1px solid rgba(139,26,26,.18)}
+.btn.gold{background:linear-gradient(135deg,var(--gold),#c8981c);color:#fff;border:none;box-shadow:0 4px 14px rgba(168,120,32,.3)}
+.btn.red{background:var(--red-bg);color:var(--red);border:1px solid rgba(139,26,26,.12)}
 .btn.full{width:100%}
 
-/* ─── BOTTOM NAV — ardoise gravée ─── */
+/* ─── BOTTOM NAV ─── */
 .bnav{
   display:flex;justify-content:space-around;
   padding:8px 6px env(safe-area-inset-bottom,8px);
   position:fixed;bottom:0;left:0;right:0;max-width:430px;margin:0 auto;
-  background:rgba(26,20,14,.94);
-  backdrop-filter:blur(30px) saturate(1.8);
-  -webkit-backdrop-filter:blur(30px) saturate(1.8);
+  background:rgba(248,244,238,.96);
+  backdrop-filter:blur(28px) saturate(1.6);-webkit-backdrop-filter:blur(28px) saturate(1.6);
+  border-top:1px solid rgba(26,18,12,.08);
+  box-shadow:0 -1px 0 rgba(26,18,12,.04),0 -8px 24px rgba(26,18,12,.05);
   z-index:50;
-  border-top:1px solid rgba(200,144,28,.18);
-  box-shadow:0 -2px 0 rgba(0,0,0,.3),0 -12px 32px rgba(0,0,0,.25);
-  background-image:var(--noise);
 }
 .ni{
-  display:flex;flex-direction:column;align-items:center;gap:3px;
-  cursor:pointer;padding:7px 16px;border-radius:14px;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  cursor:pointer;padding:7px 18px;border-radius:12px;
   border:none;background:transparent;
   transition:all .2s cubic-bezier(.4,0,.2,1);
 }
-.ni.active{
-  background:linear-gradient(160deg,rgba(200,144,28,.18) 0%,rgba(176,80,32,.12) 100%);
-  border:1px solid rgba(200,144,28,.25);
-  box-shadow:0 0 16px rgba(200,144,28,.15),inset 0 1px 0 rgba(200,144,28,.1);
-}
-.ni-i{font-size:18px;transition:filter .2s,transform .2s;opacity:.5;filter:grayscale(.5)}
-.ni.active .ni-i{opacity:1;filter:none;transform:scale(1.12)}
-.ni-l{font-family:'Cinzel',serif;font-size:7.5px;color:rgba(168,152,128,.7);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
-.ni.active .ni-l{color:var(--gold2)}
+.ni.active{background:var(--ink)}
+.ni-i{font-size:20px;opacity:.28}
+.ni.active .ni-i{opacity:1;filter:brightness(0) invert(1)}
+.ni-l{font-family:'Sora',sans-serif;font-size:7.5px;color:var(--ink3);letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+.ni.active .ni-l{color:#F8F4EE}
 
 /* ─── MISC ─── */
-.wbar{
-  background:linear-gradient(145deg,var(--card),var(--card2));
-  border-radius:var(--r-sm);padding:12px 16px;margin:.4rem 0;
-  display:flex;justify-content:space-between;align-items:center;
-  box-shadow:var(--shadow-sm);
-  border:1px solid rgba(26,18,10,.08);
-  position:relative;overflow:hidden;
-}
-.wbar::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:rgba(255,255,255,.9)}
-.wbl{font-family:'Cinzel',serif;font-size:11px;font-weight:700;color:var(--copper);letter-spacing:.06em}
+.wbar{background:var(--card);border-radius:var(--r-sm);padding:12px 16px;margin:.4rem 0;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow-xs);border:1px solid rgba(26,18,12,.06)}
+.wbl{font-family:'Sora',sans-serif;font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.04em}
 .wbs{font-size:10px;color:var(--ink3);margin-top:1px}
-.wbm{font-family:'Cinzel',serif;font-size:15px;font-weight:700;color:var(--gold)}
-
-/* Toast */
+.wbm{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--ink)}
 .toast{
-  background:linear-gradient(135deg,#2a1e10,#3a2a16);
-  border-radius:22px;padding:10px 24px;
-  font-size:12px;font-weight:700;color:var(--gold3);
+  background:var(--hdr);border-radius:22px;padding:10px 24px;
+  font-family:'Sora',sans-serif;font-size:11.5px;font-weight:700;color:rgba(248,244,238,.9);
   display:none;text-align:center;
   position:fixed;bottom:84px;left:50%;transform:translateX(-50%);
   white-space:nowrap;z-index:999;
-  box-shadow:var(--shadow-lg),0 0 0 1px rgba(200,144,28,.25);
-  border:1px solid rgba(200,144,28,.2);
+  box-shadow:var(--shadow-lg);border:1px solid rgba(200,80,40,.18);
   letter-spacing:.04em;
 }
 .toast.show{display:block;animation:fio 4.5s forwards}
-@keyframes fio{0%{opacity:0;transform:translateX(-50%) translateY(10px)}8%{opacity:1;transform:translateX(-50%) translateY(0)}75%{opacity:1}100%{opacity:0;transform:translateX(-50%) translateY(-4px)}}
-
-/* Flash overlay */
+@keyframes fio{0%{opacity:0;transform:translateX(-50%) translateY(10px)}8%{opacity:1;transform:translateX(-50%) translateY(0)}75%{opacity:1}100%{opacity:0}}
 .flash{position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:0;transition:opacity .2s}
-.flash.red{background:rgba(139,26,26,.28)}.flash.gold{background:rgba(200,144,28,.22)}.flash.purple{background:rgba(120,80,180,.2)}.flash.orange{background:rgba(176,80,32,.22)}.flash.green{background:rgba(42,104,50,.22)}.flash.grey{background:rgba(80,70,60,.18)}.flash.show{opacity:1}
-
-/* Textes divers */
-.narrative{font-size:11.5px;color:var(--ink3);font-style:italic;text-align:center;margin:.4rem 0;min-height:18px;transition:opacity .3s}
+.flash.red{background:rgba(139,26,26,.22)}.flash.gold{background:rgba(200,144,28,.18)}.flash.purple{background:rgba(120,80,180,.18)}.flash.orange{background:rgba(200,80,32,.18)}.flash.green{background:rgba(42,104,50,.18)}.flash.grey{background:rgba(80,70,60,.12)}.flash.show{opacity:1}
+.narrative{font-family:'Sora',sans-serif;font-size:11.5px;color:var(--ink3);font-style:italic;text-align:center;margin:.4rem 0;min-height:18px;transition:opacity .3s}
 .done-wrap{text-align:center;padding:2.5rem 1.2rem}
-.done-box{background:linear-gradient(135deg,var(--green-bg),#eaf5ec);border-radius:var(--r);padding:18px;font-size:13px;color:var(--green);margin:1rem 0;box-shadow:var(--shadow-md);border-left:3px solid var(--green)}
-.boss-reward{background:linear-gradient(135deg,var(--gold-bg),#fef5d8);border-radius:var(--r-sm);padding:10px 14px;margin:.5rem 0;font-size:12px;color:var(--warn);border:1px solid rgba(200,144,28,.2)}
-.nb{background:linear-gradient(135deg,var(--green-bg),#eaf4ec);border-radius:var(--r-sm);padding:11px 14px;margin:.4rem 0;font-size:11px;color:var(--green);display:flex;justify-content:space-between;align-items:center;gap:8px;border-left:3px solid var(--green);box-shadow:var(--shadow-xs)}
+.done-box{background:var(--green-bg);border-radius:var(--r);padding:18px;font-size:13px;color:var(--green);margin:1rem 0;box-shadow:var(--shadow-sm);border-left:3px solid var(--green)}
+.boss-reward{background:var(--gold-bg);border-radius:var(--r-sm);padding:10px 14px;margin:.5rem 0;font-size:12px;color:var(--warn);border-left:3px solid var(--gold)}
+.nb{background:var(--green-bg);border-radius:var(--r-sm);padding:11px 14px;margin:.4rem 0;font-size:11px;color:var(--green);display:flex;justify-content:space-between;align-items:center;gap:8px;border-left:3px solid var(--green)}
 .min-banner{border-radius:var(--r-sm);padding:13px 17px;margin:.5rem 0;font-size:12px;text-align:center;font-weight:700}
 
 /* ─── ONBOARDING IMMERSIF ─── */
@@ -511,7 +360,7 @@ body{
 @keyframes ob-scan-line{0%{top:-2px}100%{top:100%}}
 
 /* Fond dynamique par acte */
-#s-ob{transition:background .8s ease;touch-action:none;overscroll-behavior:none}
+#s-ob{transition:background .8s ease;touch-action:none;overscroll-behavior:none;overscroll-behavior-y:none;-webkit-overflow-scrolling:touch}
 #s-ob.act-intro{background:linear-gradient(160deg,#0a0a12 0%,#12101a 50%,#0d0b14 100%)}
 #s-ob.act-1{background:linear-gradient(160deg,#080810 0%,#0e0c1a 40%,#100d18 100%)}
 #s-ob.act-2{background:linear-gradient(160deg,#0e0a08 0%,#1a1208 50%,#140e08 100%)}
@@ -762,7 +611,7 @@ body{
 <div class="app">
 <div class="flash" id="flash"></div>
 
-<div class="screen active" id="s-ob" style="padding:0;overflow:hidden;position:fixed;inset:0;width:100%;max-width:100%;margin:0;background:#0a0a12">
+<div class="screen active" id="s-ob" style="padding:0;overflow:hidden;position:fixed;inset:0;width:100vw;max-width:100vw;margin:0;background:#0a0a12;left:0;right:0">
   <!-- CANVAS PARTICULES FOND -->
   <canvas id="ob-particles" style="position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.55"></canvas>
 
@@ -775,7 +624,7 @@ body{
   <button id="ob-back-btn" onclick="obBack()" style="display:none;position:fixed;top:16px;left:16px;z-index:101;background:rgba(192,113,58,.18);border:1.5px solid rgba(192,113,58,.5);border-radius:10px;padding:8px 14px;color:#f0c080;font-size:12px;font-weight:700;cursor:pointer;backdrop-filter:blur(8px);transition:all .2s;font-family:inherit;letter-spacing:.04em;display:none;align-items:center;gap:6px" aria-label="Retour"><span style="font-size:15px">&#8592;</span> Retour</button>
 
   <!-- CONTENEUR PRINCIPAL -->
-  <div id="ob-stage" style="position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 1.5rem 2rem;width:100%;max-width:430px;left:50%;transform:translateX(-50%);overflow-y:auto;overflow-x:hidden;overscroll-behavior:none;-webkit-overflow-scrolling:auto">
+  <div id="ob-stage" style="position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 1.5rem 2rem;width:100%;max-width:430px;left:50%;transform:translateX(-50%);overflow-y:auto;overflow-x:hidden;overscroll-behavior:none;overscroll-behavior-y:none;-webkit-overflow-scrolling:touch">
   </div>
 </div>
 
@@ -806,7 +655,7 @@ body{
     <div class="sc"><div class="v" id="s-day">1</div><div class="l">Jour</div></div>
     <div class="sc"><div class="v" id="s-week">1</div><div class="l">Semaine</div></div>
     <div class="sc"><div class="v" id="s-streak">0</div><div class="l">Série</div></div>
-    <div class="sc" id="sc-int"><div class="v" id="s-int">—</div><div class="l">Intégrité</div></div>
+    <div class="sc" id="sc-int"><div class="v" id="s-int">-</div><div class="l">Intégrité</div></div>
   </div>
   <div id="alert-zone"></div>
   <div id="nb-zone"></div>
@@ -1120,7 +969,7 @@ body{
         <span id="st2-xp-total" style="font-size:12px;font-weight:700;color:#c0713a">0</span>
       </div>
       <div id="st2-xp-sparkline"></div>
-      <div class="st-sparkline-labels"><span>Jour 1</span><span id="st2-xp-end">—</span></div>
+      <div class="st-sparkline-labels"><span>Jour 1</span><span id="st2-xp-end">-</span></div>
     </div>
 
     <!-- Sanctions & Profile -->
@@ -1195,12 +1044,12 @@ body{
     <div style="display:flex;gap:8px;margin-bottom:8px">
       <div class="st-card" style="flex:1;text-align:center;background:#e8f5e9;border-color:#00b894">
         <div style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#2e7d32;margin-bottom:3px">Meilleur jour</div>
-        <div id="st2-best-day" style="font-size:16px;font-weight:800;color:#2e7d32">—</div>
+        <div id="st2-best-day" style="font-size:16px;font-weight:800;color:#2e7d32">-</div>
         <div id="st2-best-day-rate" style="font-size:10px;color:#8a7e6a"></div>
       </div>
       <div class="st-card" style="flex:1;text-align:center;background:#fce8e8;border-color:#c0392b">
         <div style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#c0392b;margin-bottom:3px">Jour faible</div>
-        <div id="st2-worst-day" style="font-size:16px;font-weight:800;color:#c0392b">—</div>
+        <div id="st2-worst-day" style="font-size:16px;font-weight:800;color:#c0392b">-</div>
         <div id="st2-worst-day-rate" style="font-size:10px;color:#8a7e6a"></div>
       </div>
     </div>
@@ -1470,7 +1319,7 @@ const ID_T=[
 
 // Track fragment-specific counters in trig() and submitReview()
 function _trackFragmentData(questId,status){
-  // Fragment 9: tracked at app open — handled in init()
+  // Fragment 9: tracked at app open - handled in init()
   // Fragment 10: resisted temptation (disc questStatus = perfect)
   var q=null;var t=getToday();if(t){q=([...t.nn,t.water,...(t.secs||[])].filter(Boolean)).find(function(x){return x.id===questId;});}
   if(!q)return;
@@ -1481,7 +1330,7 @@ function _trackFragmentData(questId,status){
     if(questId==='d1'||questId==='d7'){if(!ST.screenQuestDone)ST.screenQuestDone=0;ST.screenQuestDone++;if(!ST._secScreenOk)ST._secScreenOk=0;ST._secScreenOk++;}
     // Pornography (d4 = NN, sh4 = secondaire abstinence)
     if(questId==='d4'||questId==='sh4'||(q.id.startsWith('sh')&&q.name&&q.name.toLowerCase().includes('pornographie'))){if(!ST.pornQuestDone)ST.pornQuestDone=0;ST.pornQuestDone++;if(!ST._secPornoOk)ST._secPornoOk=0;ST._secPornoOk++;}
-    // Cold shower secondary (sh2 base id, but generated as "sh"+d — match by name)
+    // Cold shower secondary (sh2 base id, but generated as "sh"+d - match by name)
     if(q.id==='sh2'||q.id.startsWith('sh')&&q.name&&q.name.toLowerCase().includes('douche froide')){if(!ST._secColdShower)ST._secColdShower=0;ST._secColdShower++;}
     // Resisted
     if(q.type==='disc'&&status==='perfect'){if(!ST.resistedCount)ST.resistedCount=0;ST.resistedCount++;}
@@ -1865,13 +1714,13 @@ function isShielded(){
 function _applyShieldToQuestStatus(){
   if(!isShielded())return;
   const _t=getToday();if(!_t)return;
-  // Mark ALL quests as shield — overwrite any previous status including 'fail'
+  // Mark ALL quests as shield - overwrite any previous status including 'fail'
   _t.nn.forEach(function(q){ST.questStatus[q.id]='shield';});
   if(_t.water)ST.questStatus[_t.water.id]='shield';
   (_t.secs||[]).forEach(function(q){ST.questStatus[q.id]='shield';});
 }
 function isRed(){if(isShielded())return false;return !isReconstruction()&&(ST.failStreak||0)>=5;}
-// Called after every integrity decrease — triggers rank downgrade if needed
+// Called after every integrity decrease - triggers rank downgrade if needed
 function _checkIntegrityDowngrade(){
   if(ST.integrity>0)return;
   if(ST.rankDowngraded)return; // already happened this episode
@@ -1953,7 +1802,7 @@ function gMind(){
     ST.lastMind=ST.lastMind||[];ST.lastMind.push(rc.id);if(ST.lastMind.length>6)ST.lastMind.shift();
     return{...rc,id:'nn1',type:'mind',icon:'&#128214;',cls:'qi-mind',tag:'tag-mind',tagLbl:'Mind',xp:xpV('mind'),pts:ptsV('mind')};
   }
-  // Pool complet #M001-#M009 — probabilités égales
+  // Pool complet #M001-#M009 - probabilités égales
   var pool=[
     {id:'M001',name:'Effectuer '+scR(20,90)+'min d\'étude sans distraction (Pomodoro)',desc:pick(['Aucune distraction. Met un minuteur.','Pomodoro : +20 à 35% de productivité (LifeAt)','La méthode Pomodoro réduit de 20% la fatigue mentale (BMC Medical Education, 2025)'])},
     {id:'M002',name:'Effectuer '+scR(1,4)+' exercice(s) d\'orthographe',desc:pick(['Projet Voltaire ou Français Facile : mails, CV, crédibilité.','Dictaly, La Conjugaison, Orthodidacte sont également disponibles.'])},
@@ -1962,7 +1811,7 @@ function gMind(){
     {id:'M005',name:'Écrire dans son journal : '+scR(15,25)+'min',desc:pick(['Sans filtre, sans relecture. Ce qui te passe par la tête.','68% des études montrent des résultats positifs sur la santé mentale (Sohal et al, 2022)'])},
     {id:'M006',name:'Effectuer '+scR(1,4)+' exercice(s) de mathématiques',desc:'Exercices au choix, difficulté croissante. Idéalement dans ton domaine.'},
     {id:'M007',name:'Lire '+scR(3,20)+' pages',desc:pick(['La lecture réduit le stress de 68% en 6 minutes (Université de Sussex)','Les grands lecteurs vivent en moyenne 23 mois de plus (Yale)'])},
-    {id:'M008',name:'Effectuer '+scR(5,25)+'min d\'exercices d\'élocution, à voix haute',desc:'Textes à voix haute, virelangues. Enregistre-toi.'},
+    {id:'M008',name:'Effectuer '+scR(5,25)+'min d\'exercices d\'élocution, à voix haute. Enregistre-toi.',desc:pick(['L\'entraînement vocal régulier peut augmenter la confiance en soi à l\'oral et réduire l\'anxiété liée à la prise de parole en public (psycnet)','Les virelangues augmentent la précision articulatoire et la coordination des muscles de la parole (Cambridge University)','Certains travaux montrent qu\'un entraînement vocal de quelques semaines peut améliorer la perception de crédibilité et de charisme lors d\'une présentation orale (ScienceDirect)'])},
     {id:'M009',name:scR(10,35)+'min prise de notes sérieuse : documentaire, document économique…',desc:'Note 5 points clés. Élargis tes connaissances & ton esprit critique.'},
   ];
   var c=pickAntiMonotony(pool,ST.lastMind||[]);
@@ -1979,23 +1828,23 @@ function gDisc(){
 
   // Pool standard #D001-#D007
   var basePool=[
-    {id:'D001',name:'Prendre une douche froide de '+scR(10,240)+'s (température minimale)',desc:'Respire lentement. Tiens jusqu\'à acclimatement complet.'},
-    {id:'D002',name:'Zéro appli distractive avant 18h',desc:'Jeux, Instagram, TikTok, YouTube, Twitter… désactivés jusqu\'à 18h.'},
-    {id:'D003',name:"Désactiver Insta & TikTok jusqu'à demain 8h",desc:'Supprime si nécessaire. Mets un contrôle de temps d\'écran avec mot de passe.'},
-    {id:'D004',name:"Prendre tous ses repas sans téléphone aujourd'hui",desc:'Mange lentement, concentre-toi sur le repas.'},
-    {id:'D005',name:'Éteindre le téléphone après 22h30',desc:'Mode avion ou éteint. Alarme classique si besoin.'},
-    {id:'D006',name:"Faire un compliment sincère à quelqu'un",desc:'Précis et authentique. Pas une politesse vague.'},
-    {id:'D007',name:"Rendre un service à quelqu'un sans rien attendre en retour",desc:'Concret. Aujourd\'hui.'},
+    {id:'D001',name:'Prendre une douche froide de '+scR(10,240)+'s (température minimale)',desc:pick(['Une étude randomisée a montré que la douche froide quotidienne pendant 30 jours réduisait les arrêts maladie de 29%, probablement via une amélioration de la résistance au stress et de la vigilance (BMJ)','Les études sur l\'exposition au froid montrent une augmentation significative de la noradrénaline (jusqu\'à +200–300%), un neurotransmetteur lié à l\'attention et à l\'humeur (NCBI)','L\'exposition au froid active le système nerveux sympathique (adrénaline/noradrénaline), ce qui entraîne une augmentation de la vigilance et de l\'énergie perçue à court terme (Harvard Health)'])},
+    {id:'D002',name:'Zéro appli distractive avant 18h',desc:pick(['L\'utilisation fréquente des réseaux sociaux est associée à une augmentation de la distractibilité et une baisse de la capacité d\'attention soutenue (APA)','La simple présence du smartphone réduit les capacités cognitives disponibles (mémoire de travail et attention), même quand il n\'est pas utilisé activement.','Réduire l\'exposition aux distractions numériques améliore la productivité et la performance sur tâches complexes nécessitant du deep work (Mark et al. - 2015)'])},
+    {id:'D003',name:"Désactiver Insta & TikTok jusqu'à demain 8h",desc:pick(['Les applications sociales exploitent des mécanismes de renforcement variable (dopamine / récompense intermittente), ce qui augmente le comportement compulsif et les vérifications répétées (Nature Human Behaviour)','L\'exposition répétée aux notifications augmente le découpage de l\'attention (attention fragmentation), ce qui réduit la performance sur des tâches longues et complexes (ACM study)','Les utilisateurs qui limitent volontairement les réseaux sociaux à certains créneaux rapportent une amélioration significative du bien-être après quelques semaines (JSCP, 2018)'])},
+    {id:'D004',name:"Prendre tous ses repas sans téléphone aujourd'hui",desc:pick(['Manger en étant distrait (TV, téléphone) augmente la quantité consommée de ~10 à 25% selon les études expérimentales, car la satiété est moins bien perçue (British Journal of Nutrition)','Les études sur l\'alimentation consciente montrent une réduction du grignotage émotionnel et une meilleure régulation des comportements alimentaires impulsifs (JAND)','Les distractions numériques pendant les repas sont associées à une augmentation du risque de surconsommation chez les aliments ultra-transformés (Appetite Journal)'])},
+    {id:'D005',name:'Éteindre le téléphone après 22h30',desc:pick(['L\'exposition à la lumière bleue des écrans le soir supprime la sécrétion de mélatonine d\'environ 20 à 50%, ce qui retarde l\'endormissement (Harvard Medical School)','Lire sur écran lumineux avant de dormir réduit la qualité du sommeil et retarde l\'endormissement de ~10 à 30 minutes comparé à un livre papier (PNAS, 2015)','Les recommandations cliniques conseillent d\'éviter les écrans au moins 30 à 60 minutes avant le coucher pour améliorer l\'endormissement (AASM)'])},
+    {id:'D006',name:"Faire un compliment sincère à quelqu'un",desc:'Apprendre à transmettre l\'amour autour de soi !'},
+    {id:'D007',name:"Rendre un service à quelqu'un sans rien attendre en retour",desc:'Apprendre à être quelqu\'un sur qui les autres peuvent compter.'},
   ];
 
   // Pool personnalisé selon Q8 (D101-D104)
   var extraPool=[];
   if(res.indexOf(6)>=0||(ST.answers&&ST.answers.hard_outside===1))
-    extraPool.push({id:'D101',name:"Parler avec un inconnu aujourd'hui (pas seulement un bonjour)",desc:'Rue, café, transport. Vrai échange, 2 min minimum.'});
+    extraPool.push({id:'D101',name:"Parler avec un inconnu aujourd'hui (pas seulement un bonjour)",desc:'Apprendre à sortir de sa zone de confort. Cette quête répond directement à "Ce que tu as du mal à contrôler" du questionnaire de départ.'});
   if(res.indexOf(4)>=0||(ST.answers&&ST.answers.addiction_food<=1))
     extraPool.push({id:'D102',name:"Pas de junk food (au moins jusqu'à demain 10h)",desc:pick(['Cuisine toi-même. La meilleure façon : avoir un frigo rempli.','51% de dépression en plus chez les consommateurs réguliers (Public Health Nutrition)'])});
   if(res.indexOf(5)>=0||(ST.answers&&ST.answers.addiction_alc<=1))
-    extraPool.push({id:'D103',name:'Pas d\'alcool & drogue (au moins jusqu\'à demain 10h)',desc:'Aucune substance. Hydratation eau uniquement.'});
+    extraPool.push({id:'D103',name:'Pas d\'alcool & drogue (au moins jusqu\'à demain 10h)',desc:''});
   if(res.indexOf(3)>=0||(ST.answers&&ST.answers.addiction_porno<=2))
     extraPool.push({id:'D104',name:"Pas de pornographie (au moins jusqu'à demain 10h)",desc:pick(['Identifie les contextes où tu craques : évite-les.','La zone du contrôle inhibiteur se détériore avec une consommation régulière (Kühn & Gallinat, 2014)'])});
 
@@ -2010,18 +1859,18 @@ function gDisc(){
 }
 
 function gWater(){return{id:"water0",name:"Boire 2,5 L d'eau",desc:pick(["Prends l'habitude de les répartir : notamment un verre au réveil, et pendant chaque repas.","Avec une hydratation de 500ml au réveil, +55% d'énergie ressentie (IJERPH, 2020, 64 individus)","Ton cerveau est constitué à 80% de fluide : 16h de déshydratation réduisent son volume de 0,55%. Dès 1,5L, tu l'augmentes au contraire de 0,72% (Durning et al, 2005)","56% des adultes sont physiologiquement déshydratés sans le savoir ! (PREMIMED, 2023)","Humeur & sommeil améliorés chez les personnes qui augmentent leur consommation de <1L à 2,5L/jour (PLoS ONE, 2014)"]),type:"water",icon:"&#128166;",cls:"qi-mind",tag:"tag-water",tagLbl:"Hydratation - 100%",xp:xpV('water'),pts:ptsV('water')};}
-// ════ SECONDAIRES FACILES — SF001-SF006 + Bonus — J_sec+ (70%) ════
+// ════ SECONDAIRES FACILES - SF001-SF006 + Bonus - J_sec+ (70%) ════
 function gSE(di){
   var pq=PHILO[Math.floor(Math.random()*PHILO.length)];
   var pool=[
     {id:'SF001',name:scR(15,30)+' minutes de Quizz – Culture Générale (JetPunk)',desc:'Quiz de culture générale, cours… Retiens des connaissances sur le long terme !'},
     {id:'SF002',name:"S'informer sur l'actualité économique : "+scR(10,25)+' minutes',desc:"Pas de scroll passif : lis un article complet, note 2 faits clés."},
     {id:'SF003',name:'Philosophie : méditer '+scR(20,35)+' minutes sur papier',desc:'Sujet : "'+pq+'"'},
-    {id:'SF004',name:"Exercices d'élocution & articulation : "+scR(10,25)+' minutes',desc:"Textes à voix haute, virelangues : enregistre-toi."},
-    {id:'SF005',name:"Apprendre 10 mots d'une langue étrangère, et les noter",desc:"Écris-les + une phrase exemple. Relis-les avant de dormir."},
+    {id:'SF004',name:"Exercices d'élocution & articulation : "+scR(10,25)+' minutes',desc:pick(['L\'entraînement vocal régulier peut augmenter la confiance en soi à l\'oral et réduire l\'anxiété liée à la prise de parole en public (psycnet)','Les virelangues augmentent la précision articulatoire et la coordination des muscles de la parole (Cambridge University)','Certains travaux montrent qu\'un entraînement vocal de quelques semaines peut améliorer la perception de crédibilité et de charisme lors d\'une présentation orale (ScienceDirect)'])},
+    {id:'SF005',name:"Apprendre 10 mots d'une langue étrangère, et les noter",desc:"Utilise un cahier / bloc note où les noter !"},
     {id:'SF006',name:"Écouter un podcast éducatif & noter 3 points : "+scR(10,25)+' minutes',desc:"3 points clés écrits minimum. Podcast éducatif, TED Talk, article de fond."},
-    {id:'SF_lit',name:"Faire son lit dès le réveil",desc:"Première victoire de la journée. Prend 2 minutes."},
-    {id:'SF_marche',name:"Marcher 15min dehors dans la matinée",desc:"Air frais, lumière naturelle : calibre ton rythme circadien."},
+    {id:'SF007',name:"Faire son lit dès le réveil",desc:"Pour bien commencer la journée !"},
+    {id:'SF008',name:"Marcher 15min dehors dans la matinée",desc:"Air frais, lumière naturelle : calibre ton rythme circadien."},
   ];
   var c=pickAntiMonotony(pool,ST.lastSE||[]);
   if(!ST.lastSE)ST.lastSE=[];
@@ -2029,15 +1878,15 @@ function gSE(di){
   return{...c,type:'se',icon:'&#128218;',cls:'qi-sec',tag:'tag-easy',tagLbl:'Facile - 70%',xp:xpV('se'),pts:ptsV('se')};
 }
 
-// ════ SECONDAIRES MOYENNES — SM001-SM006 — J_sec+7 (40%) ════
+// ════ SECONDAIRES MOYENNES - SM001-SM006 - J_sec+7 (40%) ════
 function gSM(){
   var canApartment=(ST.day-(ST.lastApartmentDay||0))>=7;
   var pool=[
-    {id:'SM001',name:"Faire la tâche la plus dure que tu repousse",desc:"Identifie-la maintenant par écrit : accomplie avant la fin de journée."},
+    {id:'SM001',name:"Faire la tâche la plus dure que tu repousse",desc:"Identifie là et travailles-y. Tant qu'elle persistera, une partie de ton esprit n'arrêtera pas d'y penser. Il ne faut pas la fuir, mais la résoudre."},
     {id:'SM002',name:"30min d'ennui intentionnel, sans distraction",desc:"Zéro écran, zéro tâche, zéro stimulation : être seul avec soi-même."},
-    {id:'SM003',name:"Faire 1 exo de maths ou orthographe",desc:"Complète entièrement : comprends pourquoi tu t'es trompé."},
-    {id:'SM005',name:"Identifier une croyance limitante, y réfléchir et trouver son origine probable",desc:"Écris-la. Cherche d'où elle vient. Note 1 preuve que c'est faux."},
-    {id:'SM006',name:"Supprimer une application de son téléphone",desc:"Pour une longue durée. Fais de la place mentale."},
+    {id:'SM003',name:"Faire 1 exo de maths ou orthographe",desc:"Stimule ton cerveau, & soit plus crédible à l'écrit !"},
+    {id:'SM005',name:"Identifier une croyance limitante, y réfléchir et trouver son origine probable",desc:"sur toi ou sur les autres, un avis politique, social, économique.."},
+    {id:'SM006',name:"Supprimer une application de son téléphone",desc:"pour une durée longue; à minima plusieurs mois. Il y en a forcément une ;)"},
     ...(canApartment?[{id:'SM004',name:"Nettoyer entièrement l'appartement",desc:"En profondeur : sols, cuisine, salle de bain, bureau."}]:[]),
   ];
   var av=pool.filter(function(q){return noRec(ST.lastSM,q.id);});
@@ -2048,16 +1897,16 @@ function gSM(){
   return{...c,type:'sm',icon:'&#9733;',cls:'qi-sec',tag:'tag-med',tagLbl:'Moyenne - 40%',xp:xpV('sm'),pts:ptsV('sm')};
 }
 
-// ════ SECONDAIRES DIFFICILES — SD001-SD007 — J_sec+14 (15%) ════
+// ════ SECONDAIRES DIFFICILES - SD001-SD007 - J_sec+14 (15%) ════
 function gSH(){
   var pool=[
-    {id:'SD001',name:"Prends une douche froide jusqu'à acclimatement total",desc:"Respire lentement. Tiens jusqu'au bout."},
+    {id:'SD001',name:"Prends une douche froide jusqu'à acclimatement total",desc:pick(['Une étude randomisée a montré que la douche froide quotidienne pendant 30 jours réduisait les arrêts maladie de 29%, probablement via une amélioration de la résistance au stress et de la vigilance (BMJ)','Les études sur l\'exposition au froid montrent une augmentation significative de la noradrénaline (jusqu\'à +200–300%), un neurotransmetteur lié à l\'attention et à l\'humeur (NCBI)','L\'exposition au froid active le système nerveux sympathique (adrénaline/noradrénaline), ce qui entraîne une augmentation de la vigilance et de l\'énergie perçue à court terme (Harvard Health)'])},
     {id:'SD002',name:"Sors dans la rue, et va parler à un inconnu pendant 2min minimum",desc:"Rue, café, transport : vrai échange, pas juste bonjour."},
     {id:'SD003',name:"Reprends contact avec une ancienne connaissance",desc:"Appel, message, en face à face. Pas un like."},
-    {id:'SD004',name:"Sors quelque part seul : visite, café, musée…",desc:"Sans téléphone en main. Sois présent."},
-    {id:'SD005',name:"Pas de pornographie avant demain 10h",desc:''},
-    {id:'SD006',name:"Se filmer en parlant d'un sujet en évitant les mots de remplissage",desc:"Puis l'analyser : compte les 'euh', 'donc', 'voilà'. Recommence."},
-    {id:'SD007',name:"2h maximum de réseaux sociaux aujourd'hui",desc:"Active un minuteur. Coupe dès que c'est atteint."},
+    {id:'SD004',name:"Sors quelque part seul : visite, café, musée, randonnée..",desc:"Construis & découvre toi !"},
+    {id:'SD005',name:"Pas de pornographie avant demain 10h",desc:pick(['Identifie les contextes où tu craques : évite-les.','La zone du contrôle inhibiteur se détériore avec une consommation régulière (Kühn & Gallinat, 2014)'])},
+    {id:'SD006',name:"Se filmer en parlant d'un sujet en évitant les mots de remplissage",desc:"Puis l'analyser : compte les 'euh', 'donc', 'voilà'. Apprends à parler avec des \"pauses\", améliore ta prestance."},
+    {id:'SD007',name:"2h maximum de réseaux sociaux aujourd'hui",desc:"met des minuteurs réguliers : sans ça, tu risque de les dépasser !"},
   ];
   var c=pickAntiMonotony(pool,ST.lastSH||[]);
   if(!ST.lastSH)ST.lastSH=[];
@@ -2089,7 +1938,7 @@ function getAdaptation(){
   return adapt;
 }
 // ═══════════════════════════════════════════════════════════════════
-// GÉNÉRATION HEBDOMADAIRE — V4 (système IDs #B001-#B309, #M001-#M009, #D001-#D104)
+// GÉNÉRATION HEBDOMADAIRE - V4 (système IDs #B001-#B309, #M001-#M009, #D001-#D104)
 // ═══════════════════════════════════════════════════════════════════
 
 // ── Multiplicateur de départ progressif (J0→J14) ──
@@ -2131,7 +1980,7 @@ function _pickNoRepeat(pool,last,n){
   return result;
 }
 
-// ════ QUÊTES BODY SALLE — Grosses séances ════
+// ════ QUÊTES BODY SALLE - Grosses séances ════
 function _gBodyGymPool(){
   // ── Séances salle ──
   var B001={id:'B001',name:'Séance push – 1h',desc:"Pectoraux, épaules, triceps. Donne tout.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Salle',xp:xpV('body'),pts:ptsV('body')};
@@ -2143,7 +1992,7 @@ function _gBodyGymPool(){
   var B007={id:'B007',name:'Séance full body – 1h',desc:"Maintien : travaille chaque groupe, progression stable.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Salle',xp:xpV('body'),pts:ptsV('body')};
   var B008={id:'B008',name:'Séance jambes – 1h',desc:"Jambes en priorité. Mobilité + force.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Salle',xp:xpV('body'),pts:ptsV('body')};
   var B009={id:'B009',name:'Séance jambes – 1h',desc:"Jambes + core. Endurance musculaire : séries longues.",type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Salle',xp:xpV('body'),pts:ptsV('body')};
-  // ── Séances maison — volumes progressifs ──
+  // ── Séances maison - volumes progressifs ──
   var B101={id:'B101',name:'Séance push – 1h',
     desc:scR(10,50)+' pompes larges · '+scR(10,40)+' pompes serrées · '+scR(10,60)+' dips · '+scR(15,40)+' extensions triceps (poids) · '+scR(10,35)+' élévations latérales · '+scR(20,80)+' crunchs. En plusieurs séries.',
     type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Maison',xp:xpV('body'),pts:ptsV('body')};
@@ -2170,8 +2019,8 @@ function _gBodyGymPool(){
     type:'body',icon:'&#9889;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Maison',xp:xpV('body'),pts:ptsV('body')};
   // ── Run & Vélo ──
   var B201={id:'B201',name:'Courir '+scR(3,16)+' km, allure au choix',desc:pick(['25 à 40% de risque de mortalité prématurée en moins chez les coureurs (Progress in Cardiovascular Diseases)','2 semaines de course suffisent pour réduire les symptômes dépressifs (ScienceDirect, 2021)','La course renforce la densité osseuse et améliore la sensibilité à l\'insuline.']),type:'body',icon:'&#128099;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Run',xp:xpV('body'),pts:ptsV('body')};
-  var B201b={id:'B201',name:'Courir '+scR(3,16)+' km, allure au choix',desc:'Deuxième sortie run de la semaine. Gère ton allure.',type:'body',icon:'&#128099;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Run',xp:xpV('body'),pts:ptsV('body')};
-  var B202={id:'B202',name:'Séance fractionné',desc:scR(4,10)+'×400m allure rapide (60s récup) — ou : '+scR(8,20)+' répétitions 30s modéré / 30s rapide.',type:'body',icon:'&#128099;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Run',xp:xpV('body'),pts:ptsV('body')};
+  var B201b={id:'B201',name:'Courir '+scR(3,16)+' km, allure au choix',desc:pick(['25 à 40% de risque de mortalité prématurée en moins chez les coureurs (Progress in Cardiovascular Diseases)','2 semaines de course suffisent pour réduire les symptômes dépressifs (ScienceDirect, 2021)','La course renforce la densité osseuse et améliore la sensibilité à l\'insuline.']),type:'body',icon:'&#128099;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Run',xp:xpV('body'),pts:ptsV('body')};
+  var B202={id:'B202',name:'Séance fractionné',desc:scR(4,10)+'×400m allure rapide (60s récup). '+scR(8,20)+' répétitions 30s modéré / 30s rapide.',type:'body',icon:'&#128099;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Run',xp:xpV('body'),pts:ptsV('body')};
   var B203={id:'B203',name:'Séance cardio – vélo : '+scR(3,20)+' km',desc:'Allure soutenue. Dehors ou home-trainer.',type:'body',icon:'&#128690;',cls:'qi-body',tag:'tag-body',tagLbl:'Body - Vélo',xp:xpV('body'),pts:ptsV('body')};
   return {B001,B002,B003,B004,B005,B006,B007,B008,B009,
           B101,B102,B103,B104,B105,B106,B107,B108,
@@ -2185,7 +2034,7 @@ function _gBodyNormalePool(){
     {id:'B302',name:'Effectuer '+scR(15,60)+' squats',desc:'Descends bien et contrôle le mouvement.'},
     {id:'B303',name:'Effectuer '+scR(30,480)+'s de gainage en planche',desc:'Veille à respirer & rester gainé.'},
     {id:'B304',name:scR(10,60)+' abdos (crunchs & latéraux)',desc:'Type d\'abdo au choix : veille à respirer.'},
-    {id:'B305',name:'Effectuer '+scR(5,20)+' min d\'étirements musculaires',desc:'Étirements, travailler abdominaux & fessiers.'},
+    {id:'B305',name:'Effectuer '+scR(5,20)+' min d\'étirements musculaires',desc:pick(['Une pratique régulière aide à améliorer la posture et la mobilité globale du corps.','Avec seulement 10min d\'étirement par semaine, un fort gain de flexibilité a été observé (6654 individus, PubMed)','Attention : des étirements statiques trop longs juste avant une activité explosive peuvent réduire temporairement la force et la détente verticale d\'environ 5% (The Guardian)'])},
     {id:'B306',name:'Effectuer '+scR(500,3000)+'m de marche',desc:'Idéalement en extérieur, rythme soutenu.'},
     {id:'B307',name:'Effectuer '+scR(15,60)+' dips',desc:'Sur chaise ou canapé. Dos droit, amplitude complète.'},
     {id:'B308',name:'Effectuer '+scR(15,40)+' fentes',desc:'Alternées, grand pas, genou arrière proche du sol.'},
@@ -2406,7 +2255,7 @@ function buildQ(q,uid){
   else if(done==='clear')act=`<span class="qclear-lbl">&#10003; ${isNN?'En partie':'En partie'} - +${Math.round(liveXP*.7)} XP</span>`;
   else if(done==='fail')act=isNN?(ST.day<=14?`<span style="font-size:10px;color:#8a7e6a;font-style:italic">Fail. Fais mieux demain.</span>`:(ST.sanctionConfirmedAt?`<span style="font-size:10px;color:#B8612A;font-weight:600">Sanction effectuée.</span>`:`<span class="qfail-lbl">&#10007; Fail - correction demain 10h</span>`)):`<span style="font-size:10px;color:#8a7e6a;font-style:italic">Skippée</span>`;
   else if(locked){
-    if(!isNN&&ST.sanctionConfirmedAt)act=`<span style="font-size:10px;color:#8a7e6a;font-style:italic">—</span>`;
+    if(!isNN&&ST.sanctionConfirmedAt)act=`<span style="font-size:10px;color:#8a7e6a;font-style:italic">-</span>`;
     else act=`<span style="font-size:10px;color:#8a7e6a;font-style:italic">Disponible à partir de 10h</span>`;
   }
   else if(isNN){
@@ -2580,11 +2429,11 @@ function _updateStatBlocks(){
   document.getElementById('s-day').textContent=ST.day;
   document.getElementById('s-week').textContent='S'+getWk();
   document.getElementById('s-streak').textContent=ST.streak;
-  // Integrity block: show — before Rang D, value otherwise
+  // Integrity block: show - before Rang D, value otherwise
   const curRk=getRank();const curRkIdx=RANKS.findIndex(r=>r.label===curRk.label);
   // Show integrity value if currently Rang D+ OR if ever reached Rang D (even after downgrade)
   const hasIntegrity=curRkIdx>=1||ST.rankDowngraded;
-  const intVal=hasIntegrity?(ST.integrity<=0?'0':ST.integrity):'—';
+  const intVal=hasIntegrity?(ST.integrity<=0?'0':ST.integrity):'-';
   document.getElementById('s-int').textContent=intVal;
   // Integrity block color
   const scInt=document.getElementById('sc-int');
@@ -2809,7 +2658,7 @@ function renderMain(){
     if(todayEv&&evDesc[todayEv])msgs.push({c:'ae',m:evDesc[todayEv]});
     // Adaptive difficulty - silent in UI (kept in code for adjustments)
     // if(fs>=3) ... easyDay ... → invisible to user, system adjusts silently
-    if(isShielded()){const _se=ST.shieldStartDay+ST.shieldDays-1;msgs.push({c:'ai',m:'🛡️ Bouclier actif jusqu\'à J'+_se+' — aucune sanction ni pénalité si quêtes non faites.'});}
+    if(isShielded()){const _se=ST.shieldStartDay+ST.shieldDays-1;msgs.push({c:'ai',m:'🛡️ Bouclier actif jusqu\'à J'+_se+' - aucune sanction ni pénalité si quêtes non faites.'});}
     if(ST.sanctionPending&&ST.day>=15)msgs.push({c:'ad',m:'&#9888; Sanction non accomplie - pénalité doublée au prochain fail.'});
     const f=t.nn.filter(q=>ST.questStatus[q.id]==='fail');
     const sanctionDoneToday=ST.sanctionConfirmedAt&&(Date.now()-ST.sanctionConfirmedAt<86400000);
@@ -3032,7 +2881,7 @@ function submitReview(){
   t.nn.forEach(q=>{
     if(!ST.questStatus[q.id]){
       if(isShielded()){
-        ST.questStatus[q.id]='shield'; // protected — no penalty
+        ST.questStatus[q.id]='shield'; // protected - no penalty
       } else {
         ST.questStatus[q.id]='fail';
         ST.integrity=Math.max(0,ST.integrity-5);
@@ -3280,7 +3129,7 @@ function returnPay(){
   ST.day+=absence;
   // Regenerate week plan if needed
   if(getWk()>ST.week){(function(){
-    // Do NOT auto-claim boss — user must claim manually via the button
+    // Do NOT auto-claim boss - user must claim manually via the button
     ST.week=getWk();ST.weekPlan=genWeek();ST.weeklyBoss={body:0,mind:0,discFail:0};ST.weekTruthDone=false;ST._bossShownThisWeek=false;ST.weeklyPartialCount=0;
   })();}
   else{ST.weekPlan=genWeek();}
@@ -3312,7 +3161,7 @@ function returnSkip(){
     ST.streak=0;
     ST.day++;
     if(getWk()>ST.week){(function(){
-    // Do NOT auto-claim boss — user must claim manually via the button
+    // Do NOT auto-claim boss - user must claim manually via the button
     ST.week=getWk();ST.weekPlan=genWeek();ST.weeklyBoss={body:0,mind:0,discFail:0};ST.weekTruthDone=false;ST._bossShownThisWeek=false;ST.weeklyPartialCount=0;
   })();}
   }
@@ -3419,15 +3268,15 @@ function advDay(){
   }
   // Hard cap on debt - can never exceed 200
   if(getWk()>ST.week){
-    // Boss won this week but not yet claimed — store as pending (user must claim manually)
+    // Boss won this week but not yet claimed - store as pending (user must claim manually)
     var _wb=ST.weeklyBoss||{body:0,mind:0,discFail:0};
     var _bwk=ST.week||1;var _bNeedM=_bwk>=2?4:0;var _bNeedDisc=_bwk>=3;
     if((_wb.body||0)>=3&&(_bwk<2||(_wb.mind||0)>=_bNeedM)&&(!_bNeedDisc||(_wb.discFail||0)<=2)&&!ST._bossShownThisWeek){
-      // Do NOT auto-collect — just mark as unclaimed so the button shows next week
+      // Do NOT auto-collect - just mark as unclaimed so the button shows next week
       ST.unclaimedBoss=(ST.unclaimedBoss||0)+1;
     }
     (function(){
-    // Do NOT auto-claim boss — user must claim manually via the button
+    // Do NOT auto-claim boss - user must claim manually via the button
     ST.week=getWk();ST.weekPlan=genWeek();ST.weeklyBoss={body:0,mind:0,discFail:0};ST.weekTruthDone=false;ST._bossShownThisWeek=false;ST.weeklyPartialCount=0;
   })();
   }
@@ -3497,8 +3346,8 @@ function _updateFragmentTrackers(){
   // Tracked in _trackFragmentData via quest id sh2
   // Fragment 37: hard mode quests done
   // Tracked in trig() when hardMode quest validated
-  // Fragment 38: automaticity — checked live via sr7
-  // Fragment 39: total spent — tracked in buyRew
+  // Fragment 38: automaticity - checked live via sr7
+  // Fragment 39: total spent - tracked in buyRew
   // Fragment 40: hard day win
   if(!ST._hardDayWin){
     const b=ST.bilans||[];
@@ -3612,7 +3461,7 @@ function renderIdentity(){
       +'<button onclick="equipTitle(null)" style="background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:10px;font-weight:700;padding:5px 14px;border-radius:8px;cursor:pointer;letter-spacing:.04em">Retirer</button>'
       +'</div>'
     :'<div style="text-align:center;padding:14px;background:var(--card);border-radius:var(--r);margin-bottom:12px;border:2px dashed #d4c9b0;color:var(--ink4);font-size:11px;font-style:italic">'
-      +'Aucun titre équipé — sélectionne-en un ci-dessous'
+      +'Aucun titre équipé - sélectionne-en un ci-dessous'
       +'</div>';
 
   // ── Section: Titres débloqués (cliquables) ───────────────────────────────
@@ -3661,7 +3510,7 @@ function renderIdentity(){
       +'<div class="trait-detail" style="display:none;margin-top:8px;padding-top:6px;border-top:1px solid #e8e0d4">'+fragsDetail+'</div>'
       +'</div>';
   }
-  // Grouper par paires (lignes de 2) — les deux s'ouvrent ensemble
+  // Grouper par paires (lignes de 2) - les deux s'ouvrent ensemble
   var traitsHtml='';
   for(var _ti=0;_ti<TRAITS.length;_ti+=2){
     var _ta=TRAITS[_ti],_tb=TRAITS[_ti+1];
@@ -3899,14 +3748,14 @@ function buyRew(i,src){
   if(_shMap[r.name]){
     const _days=_shMap[r.name];
     const _h=new Date().getHours();
-    // Always start from today — rule 10h/22h only matters for whether today is included
+    // Always start from today - rule 10h/22h only matters for whether today is included
     // Between 10h and 22h: starts today. Between 22h01 and 9h59: starts tomorrow.
     const _todayIncluded=(_h>=10&&_h<22);
     const _start=_todayIncluded?ST.day:ST.day+1;
     ST.shieldDays=_days;ST.shieldStartDay=_start;
     // Apply shield to quest statuses
     _applyShieldToQuestStatus();
-    // If today is covered and dayLog already has a failed entry for today — fix it
+    // If today is covered and dayLog already has a failed entry for today - fix it
     if(_todayIncluded&&ST.dayLog&&ST.dayLog.length>0){
       const _last=ST.dayLog[ST.dayLog.length-1];
       if(_last.day===ST.day&&!_last.success){
@@ -4119,7 +3968,7 @@ function _svgSpider(questLog){
     if(gen>0)cats.push({name:labels[k]||k,gen:gen,ok:ok,userRate:gen>0?ok/gen:0});
   }
   if(cats.length<3)return'<div style="font-size:10px;color:var(--ink3);text-align:center;padding:1rem">Pas encore assez de données.</div>';
-  // Fixed scale: outer ring = 200 quests generated — toile grows from inside out over time
+  // Fixed scale: outer ring = 200 quests generated - toile grows from inside out over time
   var SCALE=200;
   var n=cats.length,size=270,cx=size/2,cy=size/2+8,r=size*.30;
   var svg='<svg viewBox="0 0 '+size+' '+(size+16)+'" style="width:100%;max-width:290px;height:auto;margin:0 auto;display:block">';
@@ -4152,7 +4001,7 @@ function _svgSpider(questLog){
     svg+='<text x="'+lx+'" y="'+ly+'" text-anchor="'+anchor+'" font-size="8" font-weight="600" fill="var(--ink2)" font-family="sans-serif">'+cats[i].name+'</text>';
     svg+='<text x="'+lx+'" y="'+(ly+10)+'" text-anchor="'+anchor+'" font-size="7" fill="var(--green)" font-family="sans-serif">'+cats[i].ok+'/'+cats[i].gen+' ('+Math.round(cats[i].userRate*100)+'%)</text>';
   }
-  svg+='</svg><div style="font-size:9px;color:var(--ink4);text-align:center;margin-top:2px">— · — Générées &nbsp;&nbsp; — Réussies &nbsp;&nbsp; (bordure = 200 quêtes)</div>';
+  svg+='</svg><div style="font-size:9px;color:var(--ink4);text-align:center;margin-top:2px">- · - Générées &nbsp;&nbsp; - Réussies &nbsp;&nbsp; (bordure = 200 quêtes)</div>';
   return svg;
 }
 
@@ -4371,9 +4220,9 @@ function renderStats(){
     document.getElementById('st2-worst-day').textContent=dowNames[worst.dow];
     document.getElementById('st2-worst-day-rate').textContent=worst.rate+'% de réussite';
   } else {
-    document.getElementById('st2-best-day').textContent='—';
+    document.getElementById('st2-best-day').textContent='-';
     document.getElementById('st2-best-day-rate').textContent='En attente…';
-    document.getElementById('st2-worst-day').textContent='—';
+    document.getElementById('st2-worst-day').textContent='-';
     document.getElementById('st2-worst-day-rate').textContent='En attente…';
   }
 
@@ -4402,7 +4251,7 @@ function renderStats(){
       var _rid='rfl'+bi;
       var _txt=b.text?'<div id="'+_rid+'" style="display:none;margin-top:5px;padding-top:5px;border-top:1px solid #d4c9b0;font-size:10px;color:#6a5e50;font-style:italic;line-height:1.5">'+b.text+'</div>':'';
       var _pb=b.text?'<button onclick="var e=document.getElementById(\''+_rid+'\');e.style.display=e.style.display===\'none\'?\'block\':\'none\';" style="background:none;border:1px solid #d4c9b0;color:#c0713a;width:20px;height:20px;border-radius:4px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1">+</button>':'';
-      return'<div class="st-bilan-mini"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><span style="font-size:10px;font-weight:600;color:#8a7e6a">J'+b.day+' — '+(b.date||'')+'</span><div style="display:flex;align-items:center;gap:6px"><span style="font-size:10px;font-weight:600;color:#c0713a">❓ Question</span>'+_pb+'</div></div><div style="font-size:10px;color:#5a4e3a;font-style:italic;line-height:1.4">'+b.question+'</div>'+_txt+'</div>';
+      return'<div class="st-bilan-mini"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><span style="font-size:10px;font-weight:600;color:#8a7e6a">J'+b.day+' - '+(b.date||'')+'</span><div style="display:flex;align-items:center;gap:6px"><span style="font-size:10px;font-weight:600;color:#c0713a">❓ Question</span>'+_pb+'</div></div><div style="font-size:10px;color:#5a4e3a;font-style:italic;line-height:1.4">'+b.question+'</div>'+_txt+'</div>';
     }
     var qd='';
     if(b.quests&&b.quests.length){
@@ -4549,7 +4398,7 @@ function nav(id,el){
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// ONBOARDING IMMERSIF — Le Réveil du Chasseur
+// ONBOARDING IMMERSIF - Le Réveil du Chasseur
 // ═══════════════════════════════════════════════════════════════════
 
 // ── Particules de fond ──
@@ -4652,10 +4501,9 @@ function buildOB(){
   // Reset state onboarding
   if(!ST._ob)ST._ob={};
   // Afficher l'intro narrative
-  document.body.style.overflow="hidden";
+  document.body.classList.add("ob-active");
   document.documentElement.style.overflow="hidden";
-  document.body.style.position="fixed";
-  document.body.style.width="100%";
+  document.documentElement.style.background="#0a0a12";
   _obShowIntro();
 }
 
@@ -4690,7 +4538,7 @@ function _obShowIntro(){
     +'<div style="width:48px;height:1px;background:linear-gradient(90deg,transparent,#c0713a,transparent);margin:0 auto 20px"></div>'
     +'</div>'
     +'<div data-anim>'
-    +'<p id="ob-intro-text" class="ob-narr" style="min-height:100px;font-size:13px"></p>'
+    +'<div style="min-height:120px;display:flex;align-items:flex-start"><p id="ob-intro-text" class="ob-narr" style="font-size:13px;margin:0"></p></div>'
     +'</div>'
     +'<div data-anim style="margin-top:28px">'
     +'<button id="ob-intro-btn" class="ob-btn-primary" onclick="_obQ1()" style="opacity:0;pointer-events:none;max-width:300px;margin:0 auto;display:block">Compris</button>'
@@ -4726,7 +4574,7 @@ function _obQ1(){
     +'</svg>';
 
   var html =
-    '<div data-anim class="ob-act-label" style="color:rgba(160,140,220,.7);border-color:rgba(160,140,220,.2)">Acte I — Identification</div>'
+    '<div data-anim class="ob-act-label" style="color:rgba(160,140,220,.7);border-color:rgba(160,140,220,.2)">Acte I - Identification</div>'
     +'<div data-anim style="text-align:center">'+svgScan+'</div>'
     +'<div data-anim class="ob-q-title">Quel âge as-tu ?</div>'
     +'<div data-anim class="ob-opts">'
@@ -4757,7 +4605,7 @@ function _obQ2(){
   _obShowBack(true);
 
   var html =
-    '<div data-anim class="ob-act-label" style="color:rgba(160,140,220,.7);border-color:rgba(160,140,220,.2)">Acte I — Identification</div>'
+    '<div data-anim class="ob-act-label" style="color:rgba(160,140,220,.7);border-color:rgba(160,140,220,.2)">Acte I - Identification</div>'
     +'<div data-anim style="text-align:center"><svg viewBox=\"0 0 80 60\" width=\"72\" height=\"54\" style=\"display:block;margin:0 auto 4px;opacity:.5\"><circle cx=\"40\" cy=\"22\" r=\"10\" fill=\"none\" stroke=\"rgba(160,140,220,.55)\" stroke-width=\"1.5\"/><path d=\"M20 52 C20 38 60 38 60 52\" fill=\"none\" stroke=\"rgba(160,140,220,.45)\" stroke-width=\"1.5\"/><line x1=\"8\" y1=\"30\" x2=\"22\" y2=\"30\" stroke=\"rgba(160,140,220,.25)\" stroke-width=\"1\"/><line x1=\"58\" y1=\"30\" x2=\"72\" y2=\"30\" stroke=\"rgba(160,140,220,.25)\" stroke-width=\"1\"/></svg></div>'+'<div data-anim class="ob-q-title">Ta situation actuelle ?</div>'
     +'<div data-anim class="ob-q-sub">Adapte les horaires et le contenu des quêtes</div>'
     +'<div data-anim class="ob-opts">'
@@ -4794,7 +4642,7 @@ function _obQ3(){
     +'</svg>';
 
   var html =
-    '<div data-anim class="ob-act-label" style="color:rgba(192,113,58,.8);border-color:rgba(192,113,58,.2)">Acte II — Corps</div>'
+    '<div data-anim class="ob-act-label" style="color:rgba(192,113,58,.8);border-color:rgba(192,113,58,.2)">Acte II - Corps</div>'
     +'<div data-anim style="text-align:center">'+svgFire+'</div>'
     +'<div data-anim class="ob-q-title">Ton rapport au sport en ce moment ?</div>'
     +'<div data-anim class="ob-opts">'
@@ -4823,12 +4671,12 @@ function _obQ4(){
   _obShowBack(true);
 
   var html =
-    '<div data-anim class="ob-act-label" style="color:rgba(192,113,58,.8);border-color:rgba(192,113,58,.2)">Acte II — Corps</div>'
+    '<div data-anim class="ob-act-label" style="color:rgba(192,113,58,.8);border-color:rgba(192,113,58,.2)">Acte II - Corps</div>'
     +'<div data-anim style="text-align:center"><svg viewBox=\"0 0 80 80\" width=\"56\" height=\"56\" style=\"display:block;margin:0 auto 4px;opacity:.6\"><circle cx=\"40\" cy=\"40\" r=\"32\" fill=\"none\" stroke=\"rgba(192,113,58,.15)\" stroke-width=\"1\"/><circle cx=\"40\" cy=\"40\" r=\"22\" fill=\"none\" stroke=\"rgba(192,113,58,.25)\" stroke-width=\"1.2\"/><circle cx=\"40\" cy=\"40\" r=\"12\" fill=\"none\" stroke=\"rgba(192,113,58,.45)\" stroke-width=\"1.5\"/><circle cx=\"40\" cy=\"40\" r=\"4\" fill=\"rgba(240,180,80,.8)\"><animate attributeName=\"r\" values=\"4;5;4\" dur=\"1.8s\" repeatCount=\"indefinite\"/></circle><line x1=\"40\" y1=\"8\" x2=\"40\" y2=\"20\" stroke=\"rgba(192,113,58,.3)\" stroke-width=\"1\"/><line x1=\"60\" y1=\"40\" x2=\"72\" y2=\"40\" stroke=\"rgba(192,113,58,.3)\" stroke-width=\"1\"/></svg></div>'+'<div data-anim class="ob-q-title">Quel objectif physique vises-tu ?</div>'
     +'<div data-anim class="ob-q-sub">Oriente le type et la structure des quêtes body</div>'
     +'<div data-anim class="ob-q-sub">Oriente le type de quêtes body générées</div>'
     +'<div data-anim class="ob-opts">'
-    +[['💪','Prise de masse / muscle'],['🔥','Sécher — perdre du poids, affiner'],['🏃','Améliorer mon endurance'],['⚖️','Juste bouger plus']].map(function(o,i){
+    +[['💪','Prise de masse / muscle'],['🔥','Sécher - perdre du poids, affiner'],['🏃','Améliorer mon endurance'],['⚖️','Juste bouger plus']].map(function(o,i){
       var sel=ST._ob.physGoal===i;
       return '<button class="ob-opt'+(sel?' sel':'')+'" onclick="_obSelPhysGoal('+i+')">'
         +'<span class="ob-opt-icon">'+o[0]+'</span>'
@@ -4865,7 +4713,7 @@ function _obQ5(){
 
   var sportAccessOpts=[
     ['🏋️','J\'ai accès à une salle de sport / je vais m\'y inscrire'],
-    ['🏠','Pas de salle — je peux faire du sport à la maison'],
+    ['🏠','Pas de salle - je peux faire du sport à la maison'],
     ['🏃','Je peux courir dehors'],
     ['⚽','Je fais en plus un sport collectif régulier'],
   ];
@@ -4881,7 +4729,7 @@ function _obQ5(){
 
   var html =
     (warnHtml||'')
-    +'<div data-anim class="ob-act-label" style="color:rgba(192,113,58,.8);border-color:rgba(192,113,58,.2)">Acte II — Corps</div>'
+    +'<div data-anim class="ob-act-label" style="color:rgba(192,113,58,.8);border-color:rgba(192,113,58,.2)">Acte II - Corps</div>'
     +'<div data-anim class="ob-q-title">Ce que tu as accès à faire ?</div>'
     +'<div data-anim class="ob-q-sub">Multi-choix. Sans salle cochée → zéro quête salle générée</div>'
     +'<div data-anim class="ob-opts" id="ob-sa-list">'+checkboxes+'</div>'
@@ -4912,6 +4760,13 @@ function _obQ5SportSub(){
 function _obToggleSportAccess(i){
   SND.tap();
   if(!ST._ob.sportAccess)ST._ob.sportAccess=[];
+  // Salle (0) et maison (1) sont mutuellement exclusifs
+  if(i===0&&ST._ob.sportAccess.indexOf(0)<0){
+    var m=ST._ob.sportAccess.indexOf(1);if(m>=0)ST._ob.sportAccess.splice(m,1);
+  }
+  if(i===1&&ST._ob.sportAccess.indexOf(1)<0){
+    var s=ST._ob.sportAccess.indexOf(0);if(s>=0)ST._ob.sportAccess.splice(s,1);
+  }
   var idx=ST._ob.sportAccess.indexOf(i);
   if(idx>=0)ST._ob.sportAccess.splice(idx,1);else ST._ob.sportAccess.push(i);
   // Mise à jour visuelle sans rechargement complet (pas d'auto-avance)
@@ -4967,7 +4822,7 @@ function _obQ6(){
   _obShowBack(true);
 
   var html =
-    '<div data-anim class="ob-act-label" style="color:rgba(100,180,120,.7);border-color:rgba(100,180,120,.2)">Acte III — Tête & Habitudes</div>'
+    '<div data-anim class="ob-act-label" style="color:rgba(100,180,120,.7);border-color:rgba(100,180,120,.2)">Acte III - Tête & Habitudes</div>'
     +'<div data-anim style="text-align:center"><svg viewBox=\"0 0 80 70\" width=\"66\" height=\"58\" style=\"display:block;margin:0 auto 4px;opacity:.55\"><rect x=\"15\" y=\"10\" width=\"50\" height=\"50\" rx=\"4\" fill=\"none\" stroke=\"rgba(100,180,120,.4)\" stroke-width=\"1.5\"/><line x1=\"24\" y1=\"25\" x2=\"56\" y2=\"25\" stroke=\"rgba(100,180,120,.35)\" stroke-width=\"1\"/><line x1=\"24\" y1=\"33\" x2=\"50\" y2=\"33\" stroke=\"rgba(100,180,120,.25)\" stroke-width=\"1\"/><line x1=\"24\" y1=\"41\" x2=\"46\" y2=\"41\" stroke=\"rgba(100,180,120,.2)\" stroke-width=\"1\"/><line x1=\"40\" y1=\"10\" x2=\"40\" y2=\"60\" stroke=\"rgba(100,180,120,.15)\" stroke-width=\"1\"/><circle cx=\"62\" cy=\"18\" r=\"6\" fill=\"none\" stroke=\"rgba(240,180,80,.4)\" stroke-width=\"1\"><animate attributeName=\"r\" values=\"6;7.5;6\" dur=\"3s\" repeatCount=\"indefinite\"/></circle></svg></div>'+'<div data-anim class="ob-q-title">Comment te stimules-tu intellectuellement ?</div>'
     +'<div data-anim class="ob-q-sub">Calibre les quêtes Mind</div>'
     +'<div data-anim class="ob-opts">'
@@ -5008,9 +4863,9 @@ function _obQ7(){
     +'</svg>';
 
   var html =
-    '<div data-anim class="ob-act-label" style="color:rgba(100,180,120,.7);border-color:rgba(100,180,120,.2)">Acte III — Tête & Habitudes</div>'
+    '<div data-anim class="ob-act-label" style="color:rgba(100,180,120,.7);border-color:rgba(100,180,120,.2)">Acte III - Tête & Habitudes</div>'
     +'<div data-anim style="text-align:center">'+svgScreen+'</div>'
-    +'<div data-anim class="ob-q-title">Tes écrans — combien d\'heures par jour en moyenne ?</div>'
+    +'<div data-anim class="ob-q-title">Tes écrans - combien d\'heures par jour en moyenne ?</div>'
     +'<div data-anim class="ob-q-sub">Hors travail / études obligatoires</div>'
     +'<div data-anim>'
     +'<div class="ob-slider-val" id="ob-slider-display">'+val+'h</div>'
@@ -5063,7 +4918,7 @@ function _obQ8(){
   }).join('');
 
   var html =
-    '<div data-anim class="ob-act-label" style="color:rgba(100,180,120,.7);border-color:rgba(100,180,120,.2)">Acte III — Tête & Habitudes</div>'
+    '<div data-anim class="ob-act-label" style="color:rgba(100,180,120,.7);border-color:rgba(100,180,120,.2)">Acte III - Tête & Habitudes</div>'
     +'<div data-anim class="ob-q-title">Ce que tu as du mal à contrôler ?</div>'
     +'<div data-anim class="ob-q-sub">Sois honnête. C\'est ici que l\'app travaille le plus.</div>'
     +'<div data-anim class="ob-opts" id="ob-resist-list">'+checkboxes+'</div>'
@@ -5099,11 +4954,11 @@ function _obQ9(){
   _obShowBack(true);
 
   var html =
-    '<div data-anim class="ob-act-label" style="color:rgba(100,180,120,.7);border-color:rgba(100,180,120,.2)">Acte III — Tête & Habitudes</div>'
+    '<div data-anim class="ob-act-label" style="color:rgba(100,180,120,.7);border-color:rgba(100,180,120,.2)">Acte III - Tête & Habitudes</div>'
     +'<div data-anim style="text-align:center"><svg viewBox=\"0 0 80 70\" width=\"60\" height=\"52\" style=\"display:block;margin:0 auto 4px;opacity:.55\"><path d=\"M48 20 C38 20 30 28 30 38 C30 48 38 56 48 56 C42 56 34 50 32 42 C36 44 42 42 44 38 C44 32 42 26 48 20Z\" fill=\"rgba(160,140,220,.2)\" stroke=\"rgba(160,140,220,.45)\" stroke-width=\"1.5\"><animate attributeName=\"opacity\" values=\"0.8;1;0.8\" dur=\"4s\" repeatCount=\"indefinite\"/></path><circle cx=\"20\" cy=\"18\" r=\"2\" fill=\"rgba(240,220,160,.5)\"><animate attributeName=\"opacity\" values=\"0.5;1;0.5\" dur=\"2s\" repeatCount=\"indefinite\"/></circle><circle cx=\"55\" cy=\"12\" r=\"1.5\" fill=\"rgba(240,220,160,.4)\"><animate attributeName=\"opacity\" values=\"0.4;.9;0.4\" dur=\"3s\" begin=\"1s\" repeatCount=\"indefinite\"/></circle><circle cx=\"65\" cy=\"32\" r=\"1\" fill=\"rgba(240,220,160,.35)\"><animate attributeName=\"opacity\" values=\"0.3;.8;0.3\" dur=\"2.5s\" begin=\".5s\" repeatCount=\"indefinite\"/></circle></svg></div>'+'<div data-anim class="ob-q-title">Tu dors combien d\'heures en moyenne ?</div>'
     +'<div data-anim class="ob-q-sub">Calibre l\'intensité des premières quêtes</div>'
     +'<div data-anim class="ob-opts">'
-    +[['😵','Moins de 6h'],['😐','6 à 7h'],['😌','8h et plus']].map(function(o,i){
+    +[['Moins de 6h'],['6 à 7h'],['8h et plus']].map(function(o,i){
       var sel=ST._ob.sleep===i;
       return '<button class="ob-opt'+(sel?' sel':'')+'" onclick="_obSelSleep('+i+')">'
         +'<span class="ob-opt-icon">'+o[0]+'</span>'
@@ -5130,7 +4985,7 @@ function _obQ10(){
   _obShowBack(true);
 
   var html =
-    '<div data-anim class="ob-act-label" style="color:rgba(212,164,80,.8);border-color:rgba(212,164,80,.25)">Acte IV — Ancrage</div>'
+    '<div data-anim class="ob-act-label" style="color:rgba(212,164,80,.8);border-color:rgba(212,164,80,.25)">Acte IV - Ancrage</div>'
     +'<div data-anim style="text-align:center"><svg viewBox=\"0 0 80 80\" width=\"56\" height=\"56\" style=\"display:block;margin:0 auto 6px;filter:drop-shadow(0 0 10px rgba(212,164,80,.4))\"><circle cx=\"40\" cy=\"40\" r=\"30\" fill=\"none\" stroke=\"rgba(212,164,80,.2)\" stroke-width=\"1\" stroke-dasharray=\"3 5\"><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0 40 40\" to=\"360 40 40\" dur=\"20s\" repeatCount=\"indefinite\"/></circle><circle cx=\"40\" cy=\"40\" r=\"18\" fill=\"rgba(212,164,80,.08)\" stroke=\"rgba(212,164,80,.4)\" stroke-width=\"1.5\"/><path d=\"M40 24 L43 35 L55 35 L46 42 L49 54 L40 47 L31 54 L34 42 L25 35 L37 35Z\" fill=\"rgba(212,164,80,.25)\" stroke=\"rgba(240,200,80,.5)\" stroke-width=\"1\"><animate attributeName=\"opacity\" values=\".6;1;.6\" dur=\"2.5s\" repeatCount=\"indefinite\"/></path></svg></div>'+'<div data-anim class="ob-q-title">Pourquoi veux-tu changer ?</div>'
     +'<div data-anim class="ob-q-sub">La réponse ne sera visible que par toi. Elle est là pour te permettre de clarifier ton pourquoi, et te sera réaffichée dans les moments difficiles.</div>'
     +'<div data-anim>'
@@ -5245,16 +5100,27 @@ function _obShowProgResult(prog){
   // Afficher la signature après la transition
   setTimeout(function(){
     var wrap=document.getElementById('ob-contract-wrap');
-    if(wrap)wrap.innerHTML=_obContractHTML();
+    if(wrap){
+      wrap.style.opacity='0';
+      wrap.style.transform='translateY(12px)';
+      wrap.style.transition='opacity .6s ease, transform .6s ease';
+      wrap.innerHTML=_obContractHTML();
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){
+          wrap.style.opacity='1';
+          wrap.style.transform='translateY(0)';
+        });
+      });
+    }
     _obInitCanvas();
-  }, 800);
+  }, 900);
 }
 
 function _obContractHTML(){
   return '<div class="ob-contract-text">'
     +'« Je promets de faire de mon mieux pour réussir les 67 premiers jours, '
     +'et de ne jamais abandonner sans m\'être battu jusqu\'au bout. »<br/><br/>'
-    +'<em style="font-size:11px;opacity:.7">En signant, je m\'engage personnellement. Pas pour l\'app — pour moi.</em>'
+    +'<em style="font-size:11px;opacity:.7">En signant, je m\'engage personnellement. Pas pour l\'app - pour moi.</em>'
     +'</div>'
     +'<div class="ob-sig-label">Signe pour confirmer ton engagement</div>'
     +'<canvas id="ob-sig-canvas" class="ob-sig-canvas" width="600" height="240"></canvas>'
@@ -5350,11 +5216,9 @@ function _obFinish(){
   ST.weekPlan=genWeek();
   ST.questStatus={};ST.lastDate=todayStr();ST.dayDone=false;
   ST.failByType={body:0,mind:0,disc:0};ST.successByType={body:0,mind:0,disc:0};
-  // Débloquer scroll body
-  document.body.style.overflow='';
-  document.documentElement.style.overflow='';
-  document.body.style.position='';
-  document.body.style.width='';
+  document.body.classList.remove("ob-active");
+  document.documentElement.style.overflow="";
+  document.documentElement.style.background="";
   save();askNotif();
 
   var stage=document.getElementById('ob-stage');
@@ -5475,7 +5339,7 @@ setInterval(()=>{
   if(document.getElementById('s-welcome').classList.contains('active'))updateWelcomeCd();
   // Day rollover only after 10h (quests open at 10h)
   if(ST.onboarded&&!ST.waitingForTomorrow&&!ST.sanctionPending&&ST.lastDate&&ST.lastDate!==today&&h>=10){advDay();ST.lastDate=today;save();}
-  // Auto-fail unvalidated NN at 22h — skip in test mode
+  // Auto-fail unvalidated NN at 22h - skip in test mode
   if(ST.onboarded&&!ST.dayDone&&!ST.reviewDone&&h>=22&&!window._TEST_MODE&&!isShielded()){
     const t=getToday();
     if(t){
@@ -5681,7 +5545,7 @@ function _testAutoOneDay(){
   else{ST.failStreak=(ST.failStreak||0)+1;if(ST.failStreak>=3)ST.streak=0;else ST.streak=Math.max(0,ST.streak-1);if(failed.length>=2){ST.totalSanctions=(ST.totalSanctions||0)+1;ST.sanctionsCompleted=(ST.totalSanctions||0)+1;}}
   // Fragment 40: integrity95streak (test mode)
   if((ST.integrity||0)>95){ST._integrity95streak=(ST._integrity95streak||0)+1;}else{ST._integrity95streak=0;}
-  // Boss check BEFORE advDay — store as unclaimed only, no auto-collect
+  // Boss check BEFORE advDay - store as unclaimed only, no auto-collect
   var wbC=ST.weeklyBoss||{body:0,mind:0,discFail:0};var _twC=ST.week||1;var _tnmC=_twC>=2?4:0;var _tndC=_twC>=3;
   if((wbC.body||0)>=3&&(_twC<2||(wbC.mind||0)>=_tnmC)&&(!_tndC||(wbC.discFail||0)<=2)&&!ST._bossShownThisWeek){
     ST.unclaimedBoss=(ST.unclaimedBoss||0)+1;
@@ -5725,7 +5589,7 @@ function testReset(){
   var p=document.createElement('div');p.id='test-panel';
   p.style.cssText='display:none;position:fixed;bottom:60px;left:50%;transform:translateX(-50%);z-index:9998;background:#f5efe6;border:1px solid #c0713a;border-radius:12px;padding:8px 12px;gap:6px;flex-direction:column;align-items:center;box-shadow:0 4px 20px rgba(108,92,231,.4)';
   p.innerHTML='<div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#d4a054;margin-bottom:2px">⚙ Mode Test</div>'
-    +'<div id="test-info" style="font-size:10px;color:#7a6e5a;margin-bottom:4px">—</div>'
+    +'<div id="test-info" style="font-size:10px;color:#7a6e5a;margin-bottom:4px">-</div>'
     +'<div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:center">'
     +'<button onclick="testSkipDay()" style="background:#c0713a;border:none;color:#fff;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">+1 jour</button>'
     +'<button onclick="testAutoN(7)" style="background:#fff8e1;border:1px solid #c0713a;color:#d4a054;padding:6px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">+7j auto</button>'
