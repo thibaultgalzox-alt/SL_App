@@ -217,13 +217,13 @@ body.ob-active{background:#0a0a12 !important;overflow:hidden !important;position
 .tag-med{background:var(--gold-bg);color:var(--warn)}
 .tag-hard{background:var(--red-bg);color:var(--red)}
 
-.qactions{margin:11px 0 0 58px;display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.qactions{margin:8px 0 0 58px;display:flex;gap:5px;flex-wrap:nowrap;align-items:center;overflow:hidden}
 .qbtn{
   display:inline-flex;align-items:center;justify-content:center;
-  border:none;border-radius:9px;padding:9px 18px;
-  font-family:'Sora',sans-serif;font-size:12px;font-weight:700;
-  cursor:pointer;min-height:38px;
-  transition:all .15s;letter-spacing:.02em;
+  border:none;border-radius:7px;padding:6px 11px;
+  font-family:'Sora',sans-serif;font-size:10.5px;font-weight:700;
+  cursor:pointer;min-height:28px;
+  transition:all .15s;letter-spacing:.01em;
   touch-action:manipulation;-webkit-tap-highlight-color:transparent;
   background:var(--bg2);color:var(--ink2);
   box-shadow:var(--shadow-xs);border:1px solid rgba(26,18,12,.07);
@@ -312,7 +312,7 @@ body.ob-active{background:#0a0a12 !important;overflow:hidden !important;position
   border:none;background:transparent;
   transition:all .2s cubic-bezier(.4,0,.2,1);
 }
-.ni.active{background:#d4a054;border-radius:14px;box-shadow:0 3px 12px rgba(212,160,84,.3)}
+.ni.active{background:linear-gradient(145deg,#c8922a,#d4a054,#c8922a);border-radius:14px;box-shadow:0 3px 14px rgba(180,130,40,.45),inset 0 1px 0 rgba(255,255,255,.2)}
 .ni-i{font-size:20px;opacity:.28}
 .ni.active .ni-i{opacity:1;filter:brightness(0) invert(1)}
 .ni-l{font-family:'Sora',sans-serif;font-size:7.5px;color:var(--ink3);letter-spacing:.08em;text-transform:uppercase;font-weight:700}
@@ -1762,10 +1762,12 @@ function xpV(tp,questMeta){
   }
   // Apply state modifier (includes fatigue ×0.7, punishment ×1.1, flow ×1.15)
   v=Math.round(v*stateModifier());
-  // Events - applied after state, independent of state
+  // Events - applied after state
+  // Note: shadow already applied via stateModifier (×1.3), only doubleXP added here
   const todayEv=getTodayEvent();
   if(todayEv==='doubleXP')v=Math.round(v*2);
-  else if(todayEv==='shadow')v=Math.round(v*1.3);
+  // easyDay reduces volume via sc() but XP should also reflect it
+  else if(todayEv==='easyDay')v=Math.round(v*0.85);
   // Hard Mode / Discipline Day quests: x4 XP boost
   if(questMeta&&(questMeta.hardMode||questMeta.discDay))v=Math.round(v*4);
   // Note: isMin() (fatigue) already handled by stateModifier() above - not applied twice
@@ -4370,7 +4372,21 @@ function adaptFromStats(){
   save();
 }
 
-function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function show(id){
+  var prev=document.querySelector('.screen.active');
+  var next=document.getElementById(id);
+  if(!next||prev===next)return;
+  if(prev){prev.style.transition='opacity .12s ease';prev.style.opacity='0';
+    setTimeout(function(){
+      prev.classList.remove('active');prev.style.opacity='';prev.style.transition='';
+      next.classList.add('active');
+      next.style.opacity='0';next.style.transition='opacity .15s ease';
+      requestAnimationFrame(function(){requestAnimationFrame(function(){next.style.opacity='1';setTimeout(function(){next.style.opacity='';next.style.transition='';},160);});});
+    },110);
+  } else {
+    next.classList.add('active');
+  }
+}
 function nav(id,el){
   show(id);
   // Remove active from all ni buttons, then activate all that match this screen
