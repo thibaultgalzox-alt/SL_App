@@ -1642,20 +1642,10 @@ function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
 function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
 function noRec(lst,id){return !lst.slice(-3).includes(id);}
 function rdesc(str){const parts=str.split('+').map(s=>s.trim()).filter(Boolean);return parts[Math.floor(Math.random()*parts.length)];}
-function monotonyCount(arr,id){return arr.slice(-7).filter(x=>x===id).length;}
-function pickAntiMonotony(pool,lastArr){
-  // Filter out quests seen >2 times in last 7 days
-  const fresh=pool.filter(q=>monotonyCount(lastArr,q.id)<=2);
-  if(fresh.length>0)return pick(fresh);
-  // All blocked - pick the least repeated
-  return pool.slice().sort((a,b)=>monotonyCount(lastArr,a.id)-monotonyCount(lastArr,b.id))[0]||pick(pool);
-}
 function monotonyCount(lst,id){return lst.slice(-7).filter(x=>x===id).length;}
 function pickAntiMonotony(pool,lst){
-  // Filter: remove quests that appeared >2 times in last 7 days
   const candidates=pool.filter(q=>monotonyCount(lst,q.id)<=2&&noRec(lst,q.id));
   if(candidates.length>0)return pick(candidates);
-  // Fallback: pick least repeated
   return pool.slice().sort((a,b)=>monotonyCount(lst,a.id)-monotonyCount(lst,b.id))[0]||pick(pool);
 }
 function clamp(mn,v,mx){return Math.min(Math.max(v,mn),mx);}
@@ -4021,6 +4011,7 @@ function _flowZone(el,label,rate,color){
 // ─── V2 RENDER STATS ───
 function renderStats(){
   const dayLog=ST.dayLog||[];
+  const sr7=ST.sr7||[];
   const totalDays=sr7.length||0;
   const successDays=sr7.filter(x=>x===1).length;
   const last30=sr7.slice(-30);
@@ -4958,11 +4949,10 @@ function _obQ9(){
     +'<div data-anim style="text-align:center"><svg viewBox=\"0 0 80 70\" width=\"60\" height=\"52\" style=\"display:block;margin:0 auto 4px;opacity:.55\"><path d=\"M48 20 C38 20 30 28 30 38 C30 48 38 56 48 56 C42 56 34 50 32 42 C36 44 42 42 44 38 C44 32 42 26 48 20Z\" fill=\"rgba(160,140,220,.2)\" stroke=\"rgba(160,140,220,.45)\" stroke-width=\"1.5\"><animate attributeName=\"opacity\" values=\"0.8;1;0.8\" dur=\"4s\" repeatCount=\"indefinite\"/></path><circle cx=\"20\" cy=\"18\" r=\"2\" fill=\"rgba(240,220,160,.5)\"><animate attributeName=\"opacity\" values=\"0.5;1;0.5\" dur=\"2s\" repeatCount=\"indefinite\"/></circle><circle cx=\"55\" cy=\"12\" r=\"1.5\" fill=\"rgba(240,220,160,.4)\"><animate attributeName=\"opacity\" values=\"0.4;.9;0.4\" dur=\"3s\" begin=\"1s\" repeatCount=\"indefinite\"/></circle><circle cx=\"65\" cy=\"32\" r=\"1\" fill=\"rgba(240,220,160,.35)\"><animate attributeName=\"opacity\" values=\"0.3;.8;0.3\" dur=\"2.5s\" begin=\".5s\" repeatCount=\"indefinite\"/></circle></svg></div>'+'<div data-anim class="ob-q-title">Tu dors combien d\'heures en moyenne ?</div>'
     +'<div data-anim class="ob-q-sub">Calibre l\'intensité des premières quêtes</div>'
     +'<div data-anim class="ob-opts">'
-    +[['Moins de 6h'],['6 à 7h'],['8h et plus']].map(function(o,i){
+    +['Moins de 6h','6 à 7h','8h et plus'].map(function(o,i){
       var sel=ST._ob.sleep===i;
-      return '<button class="ob-opt'+(sel?' sel':'')+'" onclick="_obSelSleep('+i+')">'
-        +'<span class="ob-opt-icon">'+o[0]+'</span>'
-        +'<span class="ob-opt-text">'+o[1]+'</span>'
+      return '<button class="ob-opt'+(sel?' sel':'')+'" onclick="_obSelSleep('+i+')" style="justify-content:space-between">'
+        +'<span style="font-size:13px;font-weight:600">'+o+'</span>'
         +'<span class="ob-opt-check">'+(sel?'✓':'')+'</span>'
         +'</button>';
     }).join('')
