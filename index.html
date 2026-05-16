@@ -76,16 +76,16 @@ body.ob-active{background:#0a0a12 !important;overflow:hidden !important;position
 
 /* ─── HEADER ─── */
 .hdr{
-  background:var(--hdr);
-  padding:28px 22px 20px;
+  background:var(--bg);
+  padding:28px 22px 18px;
   position:relative;overflow:hidden;
   text-align:center;
+  border-bottom:1px solid rgba(26,18,12,.07);
 }
 .hdr::after{
   content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(200,80,40,.45) 30%,rgba(220,100,50,.5) 50%,rgba(200,80,40,.45) 70%,transparent);
+  background:linear-gradient(90deg,transparent,rgba(200,80,40,.2) 30%,rgba(200,80,40,.25) 50%,rgba(200,80,40,.2) 70%,transparent);
 }
-/* Grain léger sur le header */
 .hdr::before{
   content:'';position:absolute;inset:0;pointer-events:none;
   background-image:var(--grain);opacity:.6;
@@ -95,36 +95,35 @@ body.ob-active{background:#0a0a12 !important;overflow:hidden !important;position
   display:inline-flex;align-items:center;
   font-family:'Sora',sans-serif;font-size:8.5px;font-weight:700;
   padding:5px 18px;border-radius:20px;margin-bottom:8px;
-  background:rgba(255,255,255,.06);
-  color:rgba(200,80,40,.75);letter-spacing:.25em;
+  background:rgba(200,80,40,.1);
+  color:rgba(200,80,40,.85);letter-spacing:.25em;
   border:1px solid rgba(200,80,40,.2);
   text-transform:uppercase;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
 }
 .hdr h1{
   font-family:'Cormorant Garamond',serif;
-  font-size:30px;font-weight:600;font-style:italic;
-  color:#F8F4EE;letter-spacing:-.01em;line-height:1;
+  font-size:28px;font-weight:600;font-style:italic;
+  color:var(--ink);letter-spacing:-.01em;line-height:1;
   margin-bottom:3px;
   transition:color .4s,filter .4s;
 }
 .hdr p{
   font-family:'Sora',sans-serif;
-  font-size:9.5px;color:rgba(248,244,238,.3);letter-spacing:.08em;
+  font-size:9.5px;color:var(--ink3);letter-spacing:.08em;
   margin-top:3px;
 }
 
 /* XP BAR */
 .xp-wrap{margin:14px 0 0}
-.xp-track{height:2px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
+.xp-track{height:2px;background:rgba(26,18,12,.1);border-radius:2px;overflow:hidden}
 .xp-fill{
   height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));
   border-radius:2px;transition:width .7s cubic-bezier(.4,0,.2,1);
-  box-shadow:0 0 10px rgba(200,80,32,.5);
+  box-shadow:0 0 8px rgba(200,80,32,.3);
 }
 .xp-row{
   display:flex;justify-content:space-between;
-  font-size:9px;color:rgba(248,244,238,.28);
+  font-size:9px;color:var(--ink3);
   margin-top:5px;font-weight:600;letter-spacing:.04em;
 }
 
@@ -250,23 +249,21 @@ body.ob-active{background:#0a0a12 !important;overflow:hidden !important;position
 
 /* ─── BOSS CARD ─── */
 .boss-card{
-  background:var(--hdr);
+  background:var(--card);
   border-radius:var(--r);padding:18px;margin:.5rem 0;
-  box-shadow:var(--shadow-md);
+  box-shadow:var(--shadow-sm);
+  border:1px solid rgba(26,18,12,.07);
+  border-left:3px solid var(--accent);
   position:relative;overflow:hidden;
-  background-image:var(--grain);
 }
 .boss-card::before{
-  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(200,80,40,.4) 40%,rgba(200,80,40,.4) 60%,transparent);
-}
-.boss-card::after{
   content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.08) 40%,rgba(255,255,255,.08) 60%,transparent);
+  background:rgba(255,255,255,.9);
 }
-.boss-title{font-family:'Sora',sans-serif;font-size:8.5px;font-weight:700;color:rgba(200,80,40,.7);margin-bottom:12px;text-transform:uppercase;letter-spacing:.25em}
-.boss-row{display:flex;justify-content:space-between;font-size:11px;color:rgba(248,244,238,.5);font-weight:600}
-.boss-bar{height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin:4px 0 10px}
+.boss-card::after{display:none}
+.boss-title{font-family:'Sora',sans-serif;font-size:8.5px;font-weight:700;color:var(--accent);margin-bottom:12px;text-transform:uppercase;letter-spacing:.25em}
+.boss-row{display:flex;justify-content:space-between;font-size:11px;color:var(--ink2);font-weight:600}
+.boss-bar{height:4px;background:rgba(26,18,12,.08);border-radius:2px;overflow:hidden;margin:4px 0 10px}
 .boss-fill{height:100%;border-radius:2px;transition:width .6s cubic-bezier(.4,0,.2,1)}
 .boss-fill.body{background:linear-gradient(90deg,#2a8040,#50c060)}
 .boss-fill.mind{background:linear-gradient(90deg,#1a60b0,#3a90e0)}
@@ -315,11 +312,11 @@ body.ob-active{background:#0a0a12 !important;overflow:hidden !important;position
   border:none;background:transparent;
   transition:all .2s cubic-bezier(.4,0,.2,1);
 }
-.ni.active{background:var(--ink)}
+.ni.active{background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:14px;box-shadow:0 3px 12px rgba(200,80,32,.25)}
 .ni-i{font-size:20px;opacity:.28}
 .ni.active .ni-i{opacity:1;filter:brightness(0) invert(1)}
 .ni-l{font-family:'Sora',sans-serif;font-size:7.5px;color:var(--ink3);letter-spacing:.08em;text-transform:uppercase;font-weight:700}
-.ni.active .ni-l{color:#F8F4EE}
+.ni.active .ni-l{color:#fff;font-weight:800}
 
 /* ─── MISC ─── */
 .wbar{background:var(--card);border-radius:var(--r-sm);padding:12px 16px;margin:.4rem 0;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow-xs);border:1px solid rgba(26,18,12,.06)}
@@ -327,12 +324,12 @@ body.ob-active{background:#0a0a12 !important;overflow:hidden !important;position
 .wbs{font-size:10px;color:var(--ink3);margin-top:1px}
 .wbm{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--ink)}
 .toast{
-  background:var(--hdr);border-radius:22px;padding:10px 24px;
-  font-family:'Sora',sans-serif;font-size:11.5px;font-weight:700;color:rgba(248,244,238,.9);
+  background:var(--ink);border-radius:22px;padding:10px 24px;
+  font-family:'Sora',sans-serif;font-size:11.5px;font-weight:700;color:#F8F4EE;
   display:none;text-align:center;
   position:fixed;bottom:84px;left:50%;transform:translateX(-50%);
   white-space:nowrap;z-index:999;
-  box-shadow:var(--shadow-lg);border:1px solid rgba(200,80,40,.18);
+  box-shadow:var(--shadow-md);
   letter-spacing:.04em;
 }
 .toast.show{display:block;animation:fio 4.5s forwards}
