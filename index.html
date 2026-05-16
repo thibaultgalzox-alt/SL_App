@@ -4140,6 +4140,7 @@ function renderStats(){
 
   // ─── INSIGHTS PANE ───
   document.getElementById('st2-week-n').textContent=ST.week||1;
+  const bilans=ST.bilans||[];
 
   // Generate insights
   const insights=[];
@@ -4425,27 +4426,30 @@ function _obInitParticles(){
 function _obSetStage(html, animClass, delay){
   var stage=document.getElementById('ob-stage');
   if(!stage)return;
-  // Fade out
-  stage.style.transition='opacity .25s ease';
+  // Fade out rapide
+  stage.style.transition='opacity .15s ease';
   stage.style.opacity='0';
   setTimeout(function(){
     stage.innerHTML=html;
     stage.style.opacity='0';
-    setTimeout(function(){
-      stage.style.opacity='1';
-      // Animer les enfants avec stagger
-      var children=stage.querySelectorAll('[data-anim]');
-      children.forEach(function(el,i){
-        el.style.opacity='0';
-        el.style.transform='translateY(20px)';
-        setTimeout(function(){
-          el.style.transition='opacity .5s ease, transform .5s cubic-bezier(.4,0,.2,1)';
-          el.style.opacity='1';
-          el.style.transform='translateY(0)';
-        }, i*110 + (delay||0));
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        stage.style.transition='opacity .2s ease';
+        stage.style.opacity='1';
+        // Animer les enfants avec stagger léger
+        var children=stage.querySelectorAll('[data-anim]');
+        children.forEach(function(el,i){
+          el.style.opacity='0';
+          el.style.transform='translateY(14px)';
+          setTimeout(function(){
+            el.style.transition='opacity .35s ease, transform .35s cubic-bezier(.4,0,.2,1)';
+            el.style.opacity='1';
+            el.style.transform='translateY(0)';
+          }, i*70 + (delay||0));
+        });
       });
-    },30);
-  }, 280);
+    });
+  }, 150);
 }
 
 // ── Utilitaire : écriture progressive (typewriter) ──
@@ -4587,7 +4591,7 @@ function _obSelAge(i){
   if(!ST._ob)ST._ob={};
   ST._ob.age=i;
   // Auto-avance après sélection
-  setTimeout(_obQ2, 380);
+  setTimeout(_obQ2, 160);
 }
 
 function _obQ2(){
@@ -4616,7 +4620,7 @@ function _obQ2(){
 function _obSelSituation(i){
   SND.tap();
   ST._ob.situation=i;
-  setTimeout(_obQ3, 380);
+  setTimeout(_obQ3, 160);
 }
 
 // ═══════════════════ ACTE II ═══════════════════
@@ -4653,7 +4657,7 @@ function _obQ3(){
 function _obSelSportLevel(i){
   SND.tap();
   ST._ob.sportLevel=i;
-  setTimeout(_obQ4, 380);
+  setTimeout(_obQ4, 160);
 }
 
 function _obQ4(){
@@ -4683,7 +4687,7 @@ function _obQ4(){
 function _obSelPhysGoal(i){
   SND.tap();
   ST._ob.physGoal=i;
-  setTimeout(_obQ5, 380);
+  setTimeout(_obQ5, 160);
 }
 
 function _obQ5(){
@@ -4802,7 +4806,7 @@ function _obQ5Next(){
   SND.tap();
   // Si rien coché → poids de corps par défaut
   if(!ST._ob.sportAccess||ST._ob.sportAccess.length===0)ST._ob.sportAccess=[1];
-  setTimeout(_obQ6, 200);
+  setTimeout(_obQ6, 100);
 }
 
 // ═══════════════════ ACTE III ═══════════════════
@@ -4833,7 +4837,7 @@ function _obQ6(){
 function _obSelMind(i){
   SND.tap();
   ST._ob.mindLevel=i;
-  setTimeout(_obQ7, 380);
+  setTimeout(_obQ7, 160);
 }
 
 function _obQ7(){
@@ -4880,7 +4884,7 @@ function _obSliderChange(v){
 function _obSliderConfirm(){
   SND.tap();
   if(ST._ob.screenHours===undefined)ST._ob.screenHours=3;
-  setTimeout(_obQ8, 200);
+  setTimeout(_obQ8, 100);
 }
 
 function _obQ8(){
@@ -4936,7 +4940,7 @@ function _obToggleResistance(i){
 
 function _obQ8Next(){
   SND.tap();
-  setTimeout(_obQ9, 200);
+  setTimeout(_obQ9, 100);
 }
 
 function _obQ9(){
@@ -4964,7 +4968,7 @@ function _obQ9(){
 function _obSelSleep(i){
   SND.tap();
   ST._ob.sleep=i;
-  setTimeout(_obQ10, 380);
+  setTimeout(_obQ10, 160);
 }
 
 // ═══════════════════ ACTE IV ═══════════════════
@@ -4998,14 +5002,14 @@ function _obSaveWhy(){
   SND.tap();
   ST.myWhy=((document.getElementById('ob-why-input')||{}).value||'').trim();
   save();
-  setTimeout(_obShowClose, 200);
+  setTimeout(_obShowClose, 100);
 }
 
 function _obSkipWhy(){
   SND.tap();
   ST.myWhy='';
   save();
-  setTimeout(_obShowClose, 200);
+  setTimeout(_obShowClose, 100);
 }
 
 // ═══════════════════ CLÔTURE ═══════════════════
