@@ -115,10 +115,10 @@ body.ob-active{background:#0a0a12 !important;overflow:hidden !important;position
 
 /* XP BAR */
 .xp-wrap{margin:14px 0 0}
-.xp-track{height:2px;background:rgba(26,18,12,.1);border-radius:2px;overflow:hidden}
+.xp-track{height:4px;background:rgba(26,18,12,.1);border-radius:3px;overflow:hidden}
 .xp-fill{
   height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));
-  border-radius:2px;transition:width .7s cubic-bezier(.4,0,.2,1);
+  border-radius:3px;transition:width .7s cubic-bezier(.4,0,.2,1);
   box-shadow:0 0 8px rgba(200,80,32,.3);
 }
 .xp-row{
@@ -3449,7 +3449,7 @@ function renderIdentity(){
     ?'<div style="text-align:center;padding:18px 16px 14px;background:'+_eqBg+';border-radius:var(--r);margin-bottom:12px;box-shadow:'+_eqShadow+'">'
       +'<div style="font-size:20px;margin-bottom:3px">'+_eqIcon+'</div>'
       +'<div style="font-size:8px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:'+_eqSubClr+';margin-bottom:5px">'+_eqBadge+'</div>'
-      +'<div style="font-family:Playfair Display,Georgia,serif;font-size:18px;font-weight:800;color:#fff;font-style:italic;letter-spacing:-.01em;margin-bottom:10px">'+equipped+'</div>'
+      +'<div style="font-family:Sora,sans-serif;font-size:13px;font-weight:700;color:#d4a054;letter-spacing:.02em;margin-bottom:10px">'+equipped+'</div>'
       +'<button onclick="equipTitle(null)" style="background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:10px;font-weight:700;padding:5px 14px;border-radius:8px;cursor:pointer;letter-spacing:.04em">Retirer</button>'
       +'</div>'
     :'<div style="text-align:center;padding:14px;background:var(--card);border-radius:var(--r);margin-bottom:12px;border:2px dashed #d4c9b0;color:var(--ink4);font-size:11px;font-style:italic">'
@@ -3468,7 +3468,7 @@ function renderIdentity(){
       if(isEq){
         if(r==='legendary'){pillBg='linear-gradient(135deg,#c0713a,#e8a050)';pillBorder='none';pillClr='#fff';pillAnim='animation:legendary-pill-pulse 2s ease-in-out infinite';}
         else if(r==='epic'){pillBg='#7c3aed';pillBorder='none';pillClr='#fff';pillAnim='';}
-        else{pillBg='var(--accent)';pillBorder='none';pillClr='#fff';pillAnim='';}
+        else{pillBg='#d4a054';pillBorder='none';pillClr='#fff';pillAnim='';}
         pillExtra='\u2b50 ';
       } else {
         if(r==='legendary'){pillBg='rgba(192,113,58,.08)';pillBorder='1.5px solid rgba(192,113,58,.5)';pillClr='#c0713a';pillAnim='';}
@@ -4231,7 +4231,7 @@ function renderStats(){
       <div class="st-capsule-val" style="color:#8a7e6a">0</div><div class="st-capsule-arrow">→</div><div class="st-capsule-val" style="color:#d4a054">${ST.bestStreak}</div>
       <div style="font-size:8px;color:#8a7e6a;text-align:center">Streak</div><div></div><div style="font-size:8px;color:#d4a054;text-align:center">Record</div>
     </div>
-    <div style="font-size:11px;color:#d4a054;text-align:center;margin-top:8px;font-style:italic">"${autoScore>=70?'Ces habitudes font désormais partie de toi.':ST.day>21?'La transformation est en cours. Continue.':'Chaque jour construit les fondations.'}"</div>`;
+`;
 
   // Bilan history
   function stH2(n){return[...Array(5)].map((_,i)=>`<span class="star-small${i<n?'':' off'}">&#9733;</span>`).join('');}
@@ -4549,7 +4549,7 @@ function _obShowIntro(){
     +'<div style="width:48px;height:1px;background:linear-gradient(90deg,transparent,#c0713a,transparent);margin:0 auto 20px"></div>'
     +'</div>'
     +'<div data-anim>'
-    +'<div style="min-height:120px;display:flex;align-items:flex-start"><p id="ob-intro-text" class="ob-narr" style="font-size:13px;margin:0"></p></div>'
+    +'<div style="height:140px;overflow:hidden"><p id="ob-intro-text" class="ob-narr" style="font-size:13px;margin:0;position:relative"></p></div>'
     +'</div>'
     +'<div data-anim style="margin-top:28px">'
     +'<button id="ob-intro-btn" class="ob-btn-primary" onclick="_obQ1()" style="opacity:0;pointer-events:none;max-width:300px;margin:0 auto;display:block">Compris</button>'
@@ -5107,34 +5107,48 @@ function _obShowProgResult(prog){
 
   _obSetStage(html, '', 0);
 
-  // Injecter le contrat immédiatement (invisible) puis animer l'apparition
+  // Injecter le contrat element par element pour une apparition douce
   setTimeout(function(){
     var wrap=document.getElementById('ob-contract-wrap');
     if(!wrap)return;
-    // 1. Injecter le HTML dans l'état invisible
+    // Construire les éléments séparément pour les animer un à un
     wrap.innerHTML=_obContractHTML();
     _obInitCanvas();
-    // 2. Laisser le browser peindre une frame avant de démarrer la transition
+    // Animer chaque enfant du contrat en stagger doux
+    var kids=wrap.children;
+    for(var k=0;k<kids.length;k++){
+      kids[k].style.opacity='0';
+      kids[k].style.transform='translateY(16px)';
+    }
     setTimeout(function(){
-      wrap.style.transition='opacity .7s cubic-bezier(.4,0,.2,1), transform .7s cubic-bezier(.4,0,.2,1)';
-      wrap.style.opacity='1';
-      wrap.style.transform='translateY(0)';
-    }, 80);
-  }, 1000);
+      for(var k=0;k<kids.length;k++){
+        (function(el,delay){
+          setTimeout(function(){
+            el.style.transition='opacity .6s cubic-bezier(.4,0,.2,1), transform .6s cubic-bezier(.4,0,.2,1)';
+            el.style.opacity='1';
+            el.style.transform='translateY(0)';
+          }, delay);
+        })(kids[k], k * 280);
+      }
+    }, 60);
+  }, 1200);
 }
 
 function _obContractHTML(){
-  return '<div class="ob-contract-text">'
+  // Chaque div = un enfant animé séparément
+  return '<div class="ob-contract-text" style="text-align:center;padding:4px 0 12px">'
+    +'<div style="font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:rgba(192,113,58,.5);margin-bottom:14px">Ton engagement</div>'
+    +'<div style="font-size:14px;line-height:1.8;color:rgba(255,255,255,.8);font-style:italic;max-width:280px;margin:0 auto 10px">'
     +'« Je promets de faire de mon mieux pour réussir les 67 premiers jours, '
-    +'et de ne jamais abandonner sans m\'être battu jusqu\'au bout. »<br/><br/>'
-    +'<em style="font-size:11px;opacity:.7">En signant, je m\'engage personnellement. Pas pour l\'app - pour moi.</em>'
+    +'et de ne jamais abandonner sans m\'être battu jusqu\'au bout. »</div>'
+    +'<em style="font-size:10px;color:rgba(255,255,255,.3)">En signant, je m\'engage personnellement. Pas pour l\'app — pour moi.</em>'
     +'</div>'
-    +'<div class="ob-sig-label">Signe pour confirmer ton engagement</div>'
+    +'<div style="text-align:center"><div class="ob-sig-label">Signe pour confirmer</div>'
     +'<canvas id="ob-sig-canvas" class="ob-sig-canvas" width="600" height="240"></canvas>'
     +'<div style="display:flex;gap:8px;margin-top:10px">'
     +'<button class="ob-btn-ghost" onclick="_obClearSig()" style="flex:0 0 auto;padding:10px 16px">Effacer</button>'
     +'<button id="ob-sign-btn" class="ob-btn-primary" onclick="_obFinish()" disabled style="flex:1">Commencer</button>'
-    +'</div>';
+    +'</div></div>';
 }
 
 function _obInitCanvas(){
