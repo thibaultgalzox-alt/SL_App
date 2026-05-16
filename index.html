@@ -740,7 +740,7 @@ body.ob-active{background:#0a0a12 !important;overflow:hidden !important;position
     <h1 style="font-size:24px;font-weight:800;color:#3a2e22;margin-bottom:1.2rem">Vaincu !</h1>
     <div id="boss-v-rewards" style="background:#fff;border:1px solid #c0713a;border-radius:12px;padding:14px;margin-bottom:1rem;width:100%;max-width:300px"></div>
     <div id="boss-v-quote" style="background:#f5efe6;border:1px solid #c0713a44;border-radius:12px;padding:16px;margin-bottom:1.5rem;font-size:13px;color:#d4a054;font-style:italic;line-height:1.6;max-width:300px"></div>
-    <button class="btn primary full" style="max-width:260px" onclick="closeBossVictory()">Continuer</button>
+    <button class="btn full" style="max-width:260px;background:linear-gradient(135deg,#c8922a,#d4a054);color:#fff;border:none;font-weight:700;box-shadow:0 3px 12px rgba(180,130,40,.35)" onclick="closeBossVictory()">Continuer</button>
   </div>
 </div>
 
@@ -2503,10 +2503,10 @@ var REFLECT_QS=[
   'Qu\'est-ce que le toi d\'il y a {d} jours penserait de toi aujourd\'hui ?',
 ];
 function checkReflective(){
-  if(ST.day<66)return false;
-  if(ST.morningCheckDone===false)return false;
+  if(ST.day<7)return false;  // Commence dès J7
   var lastR=ST.lastReflectiveDay||0;
-  return(ST.day-lastR>=14);
+  if(lastR===ST.day)return false;  // Déjà affichée aujourd'hui
+  return(ST.day-lastR>=7);  // Toutes les 7 jours minimum
 }
 function showReflective(){
   ST.lastReflectiveDay=ST.day;
@@ -2519,8 +2519,9 @@ function showReflective(){
 }
 function skipReflective(){
   var block=document.getElementById('reflect-block');
-  if(block){block.style.transition='opacity .3s';block.style.opacity='0';setTimeout(function(){block.remove();},300);}
-  ST.weekTruthDone=true;save();renderMain();
+  if(block){block.style.transition='opacity .3s ease';block.style.opacity='0';setTimeout(function(){if(block.parentNode)block.parentNode.removeChild(block);},320);}
+  ST.weekTruthDone=true;save();
+  // Ne pas appeler renderMain() ici - évite la réinjection immédiate
 }
 function submitReflective(){
   var inp=document.getElementById('reflect-input');
