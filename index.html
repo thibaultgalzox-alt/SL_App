@@ -5083,27 +5083,24 @@ function _obShowProgResult(prog){
     +'<div style="font-size:11px;color:rgba(255,255,255,.45);line-height:1.7;max-width:280px;margin:12px auto 0">'+desc[prog]+'</div>'
     +'</div>'
     +'<div data-anim style="width:100%;height:1px;background:linear-gradient(90deg,transparent,rgba(192,113,58,.3),transparent);margin:20px 0"></div>'
-    +'<div data-anim id="ob-contract-wrap"></div>';
+    +'<div data-anim id="ob-contract-wrap" style="opacity:0;transform:translateY(18px)"></div>';
 
   _obSetStage(html, '', 0);
 
-  // Afficher la signature après la transition
+  // Injecter le contrat immédiatement (invisible) puis animer l'apparition
   setTimeout(function(){
     var wrap=document.getElementById('ob-contract-wrap');
-    if(wrap){
-      wrap.style.opacity='0';
-      wrap.style.transform='translateY(12px)';
-      wrap.style.transition='opacity .6s ease, transform .6s ease';
-      wrap.innerHTML=_obContractHTML();
-      requestAnimationFrame(function(){
-        requestAnimationFrame(function(){
-          wrap.style.opacity='1';
-          wrap.style.transform='translateY(0)';
-        });
-      });
-    }
+    if(!wrap)return;
+    // 1. Injecter le HTML dans l'état invisible
+    wrap.innerHTML=_obContractHTML();
     _obInitCanvas();
-  }, 900);
+    // 2. Laisser le browser peindre une frame avant de démarrer la transition
+    setTimeout(function(){
+      wrap.style.transition='opacity .7s cubic-bezier(.4,0,.2,1), transform .7s cubic-bezier(.4,0,.2,1)';
+      wrap.style.opacity='1';
+      wrap.style.transform='translateY(0)';
+    }, 80);
+  }, 1000);
 }
 
 function _obContractHTML(){
