@@ -312,7 +312,7 @@ body.ob-active{background:#0a0a12 !important;overflow:hidden !important;position
   border:none;background:transparent;
   transition:all .2s cubic-bezier(.4,0,.2,1);
 }
-.ni.active{background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:14px;box-shadow:0 3px 12px rgba(200,80,32,.25)}
+.ni.active{background:#d4a054;border-radius:14px;box-shadow:0 3px 12px rgba(212,160,84,.3)}
 .ni-i{font-size:20px;opacity:.28}
 .ni.active .ni-i{opacity:1;filter:brightness(0) invert(1)}
 .ni-l{font-family:'Sora',sans-serif;font-size:7.5px;color:var(--ink3);letter-spacing:.08em;text-transform:uppercase;font-weight:700}
@@ -548,7 +548,7 @@ body.ob-active{background:#0a0a12 !important;overflow:hidden !important;position
 .rt{font-size:8px;font-weight:700;margin-bottom:4px;color:var(--ink4);text-transform:uppercase;letter-spacing:.06em}
 .rn{font-size:11px;margin-bottom:8px;line-height:1.4;color:var(--ink);font-weight:500}
 .rp{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:8px}
-.rb{width:100%;border:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-radius:8px;padding:8px;font-size:10px;cursor:pointer;font-weight:700;box-shadow:0 2px 8px rgba(184,97,42,.2),inset 0 1px 0 rgba(255,255,255,.12);transition:all .12s}
+.rb{width:100%;border:none;background:#d4a054;color:#fff;border-radius:8px;padding:8px;font-size:10px;cursor:pointer;font-weight:700;box-shadow:0 2px 8px rgba(212,160,84,.25),inset 0 1px 0 rgba(255,255,255,.15);transition:all .12s}
 .rb:active{transform:scale(.96)}
 .rb:disabled{opacity:.25;cursor:not-allowed;background:var(--bg2);color:var(--ink3);box-shadow:none}
 .rs{font-size:10px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.08em;margin:1rem 0 .4rem}
@@ -564,7 +564,7 @@ body.ob-active{background:#0a0a12 !important;overflow:hidden !important;position
 /* ─── V2 STATS ─── */
 .st-tabs{display:flex;gap:0;margin:0 -1rem;padding:0 1rem;position:sticky;top:0;z-index:5;background:rgba(246,242,237,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
 .st-tab{flex:1;padding:13px 6px;background:transparent;border:none;border-bottom:3px solid transparent;color:var(--ink4);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
-.st-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.st-tab.active{color:#d4a054;border-bottom-color:#d4a054}
 .st-pane{display:none}.st-pane.active{display:block}
 .st-section-lbl{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);margin:1.1rem 0 .5rem}
 .st-card{background:var(--card);border-radius:var(--r);padding:14px;margin-bottom:10px;box-shadow:var(--shadow);border:1px solid rgba(0,0,0,.03)}
@@ -891,7 +891,7 @@ body.ob-active{background:#0a0a12 !important;overflow:hidden !important;position
   <div style="display:flex;gap:6px;margin-top:7px">
     <input type="text" id="rw-name" placeholder="Nom..." style="flex:1;font-size:11px;padding:8px;border:1px solid #d4c9b0;border-radius:8px;background:#fff;color:#3a2e22"/>
     <input type="number" id="rw-cost" placeholder="Min 1400" style="width:80px;font-size:11px;padding:8px;border:1px solid #d4c9b0;border-radius:8px;background:#fff;color:#3a2e22" min="1400" max="40000" step="100"/>
-    <button class="btn primary" onclick="addRew()">+</button>
+    <button class="btn" style="background:#d4a054;color:#fff;font-weight:800;box-shadow:0 2px 8px rgba(212,160,84,.3)" onclick="addRew()">+</button>
   </div>
   <button class="btn full" style="margin-top:.7rem" onclick="nav('s-main')">Retour</button>
   <div class="bnav">
@@ -2261,9 +2261,9 @@ function buildQ(q,uid){
   const xc=q.type==='body'?'xp-g':q.type==='mind'||q.type==='water'?'xp-b':'xp-p';
   const hmStyle=q.hardMode?'border:2px solid #f39c12;box-shadow:0 0 8px rgba(243,156,18,.35);':q.discDay?'border:2px solid #d4a054;box-shadow:0 0 8px rgba(162,155,254,.3);':'';
   const hmLabel=q.hardMode
-    ?`<span style="font-size:9px;font-weight:700;color:#f39c12;background:#2d1800;padding:2px 8px;border-radius:10px;margin:2px 0 4px 0;display:inline-block;letter-spacing:.04em">&#128293; HARD MODE BONUS</span>`
+    ?`<span style="font-size:9px;font-weight:700;color:#f39c12;background:rgba(200,80,32,.12);border:1px solid rgba(200,80,32,.25);padding:2px 10px;border-radius:10px;margin:2px 0 4px 0;display:inline-block;letter-spacing:.04em">&#128293; HARD MODE BONUS</span>`
     :q.discDay
-    ?`<span style="font-size:9px;font-weight:700;color:#d4a054;background:#1a1040;padding:2px 8px;border-radius:10px;margin:2px 0 4px 0;display:inline-block;letter-spacing:.04em">&#9876; DISCIPLINE DAY BONUS</span>`
+    ?`<span style="font-size:9px;font-weight:700;color:#d4a054;background:rgba(168,120,32,.12);border:1px solid rgba(168,120,32,.25);padding:2px 10px;border-radius:10px;margin:2px 0 4px 0;display:inline-block;letter-spacing:.04em">&#9876; DISCIPLINE DAY BONUS</span>`
     :'';
   return`<div class="qcard${done?' done':''}" id="qcard-${id}" style="${hmStyle}"><div class="qh"><div class="qicon ${q.cls}">${q.icon}</div><div class="qname">${q.name}</div><div class="qxp ${xc}">+${displayXP} XP</div></div>${hmLabel}<div class="qdesc">${q.desc}</div><span class="qtag ${q.tag}">${q.tagLbl}</span><div class="qactions">${act}</div></div>`;
 }
@@ -4424,14 +4424,14 @@ function _obSetStage(html, animClass, delay){
   var stage=document.getElementById('ob-stage');
   if(!stage)return;
   // Fade out rapide
-  stage.style.transition='opacity .15s ease';
+  stage.style.transition='opacity .1s ease';
   stage.style.opacity='0';
   setTimeout(function(){
     stage.innerHTML=html;
     stage.style.opacity='0';
     requestAnimationFrame(function(){
       requestAnimationFrame(function(){
-        stage.style.transition='opacity .2s ease';
+        stage.style.transition='opacity .15s ease';
         stage.style.opacity='1';
         // Animer les enfants avec stagger léger
         var children=stage.querySelectorAll('[data-anim]');
@@ -4439,14 +4439,14 @@ function _obSetStage(html, animClass, delay){
           el.style.opacity='0';
           el.style.transform='translateY(14px)';
           setTimeout(function(){
-            el.style.transition='opacity .35s ease, transform .35s cubic-bezier(.4,0,.2,1)';
+            el.style.transition='opacity .25s ease, transform .25s cubic-bezier(.4,0,.2,1)';
             el.style.opacity='1';
             el.style.transform='translateY(0)';
-          }, i*70 + (delay||0));
+          }, i*50 + (delay||0));
         });
       });
     });
-  }, 150);
+  }, 100);
 }
 
 // ── Utilitaire : écriture progressive (typewriter) ──
@@ -4588,7 +4588,7 @@ function _obSelAge(i){
   if(!ST._ob)ST._ob={};
   ST._ob.age=i;
   // Auto-avance après sélection
-  setTimeout(_obQ2, 160);
+  setTimeout(_obQ2, 100);
 }
 
 function _obQ2(){
@@ -4617,7 +4617,7 @@ function _obQ2(){
 function _obSelSituation(i){
   SND.tap();
   ST._ob.situation=i;
-  setTimeout(_obQ3, 160);
+  setTimeout(_obQ3, 100);
 }
 
 // ═══════════════════ ACTE II ═══════════════════
@@ -4654,7 +4654,7 @@ function _obQ3(){
 function _obSelSportLevel(i){
   SND.tap();
   ST._ob.sportLevel=i;
-  setTimeout(_obQ4, 160);
+  setTimeout(_obQ4, 100);
 }
 
 function _obQ4(){
@@ -4684,7 +4684,7 @@ function _obQ4(){
 function _obSelPhysGoal(i){
   SND.tap();
   ST._ob.physGoal=i;
-  setTimeout(_obQ5, 160);
+  setTimeout(_obQ5, 100);
 }
 
 function _obQ5(){
@@ -4803,7 +4803,7 @@ function _obQ5Next(){
   SND.tap();
   // Si rien coché → poids de corps par défaut
   if(!ST._ob.sportAccess||ST._ob.sportAccess.length===0)ST._ob.sportAccess=[1];
-  setTimeout(_obQ6, 100);
+  setTimeout(_obQ6, 60);
 }
 
 // ═══════════════════ ACTE III ═══════════════════
@@ -4834,7 +4834,7 @@ function _obQ6(){
 function _obSelMind(i){
   SND.tap();
   ST._ob.mindLevel=i;
-  setTimeout(_obQ7, 160);
+  setTimeout(_obQ7, 100);
 }
 
 function _obQ7(){
@@ -4881,7 +4881,7 @@ function _obSliderChange(v){
 function _obSliderConfirm(){
   SND.tap();
   if(ST._ob.screenHours===undefined)ST._ob.screenHours=3;
-  setTimeout(_obQ8, 100);
+  setTimeout(_obQ8, 60);
 }
 
 function _obQ8(){
@@ -4937,7 +4937,7 @@ function _obToggleResistance(i){
 
 function _obQ8Next(){
   SND.tap();
-  setTimeout(_obQ9, 100);
+  setTimeout(_obQ9, 60);
 }
 
 function _obQ9(){
@@ -4965,7 +4965,7 @@ function _obQ9(){
 function _obSelSleep(i){
   SND.tap();
   ST._ob.sleep=i;
-  setTimeout(_obQ10, 160);
+  setTimeout(_obQ10, 100);
 }
 
 // ═══════════════════ ACTE IV ═══════════════════
@@ -4999,14 +4999,14 @@ function _obSaveWhy(){
   SND.tap();
   ST.myWhy=((document.getElementById('ob-why-input')||{}).value||'').trim();
   save();
-  setTimeout(_obShowClose, 100);
+  setTimeout(_obShowClose, 60);
 }
 
 function _obSkipWhy(){
   SND.tap();
   ST.myWhy='';
   save();
-  setTimeout(_obShowClose, 100);
+  setTimeout(_obShowClose, 60);
 }
 
 // ═══════════════════ CLÔTURE ═══════════════════
