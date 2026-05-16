@@ -4020,14 +4020,17 @@ function renderStats(){
   const last30=sr7.slice(-30);
   const rate30=last30.length?Math.round(last30.filter(x=>x===1).length/last30.length*100):0;
 
-  // ─── OVERVIEW PANE ───
+  // ─── OVERVIEW PANE : données texte d'abord (rapide) ───
   document.getElementById('st2-day').textContent=ST.day;
   document.getElementById('st2-streak').textContent=ST.streak;
   document.getElementById('st2-best').textContent=ST.bestStreak;
   document.getElementById('st2-rate').textContent=rate30+'%';
 
-  // Heatmap
-  document.getElementById('st2-heatmap').innerHTML=_svgHeatmap(dayLog,ST.day);
+  // Heatmap : différer car SVG lourd sur long historique
+  var _ric=window.requestIdleCallback||function(cb){setTimeout(cb,20)};
+  _ric(function(){
+    document.getElementById('st2-heatmap').innerHTML=_svgHeatmap(dayLog,ST.day);
+  });
 
   // Top/Flop quests - only NN (body/mind/disc) + water, hide >85%
   const sb=ST.successByType||{body:0,mind:0,disc:0};
@@ -4393,17 +4396,19 @@ function show(id){
 }
 function nav(id,el){
   show(id);
-  // Remove active from all ni buttons, then activate all that match this screen
+  // Mettre à jour les boutons nav immédiatement
   document.querySelectorAll('.ni').forEach(function(n){
     n.classList.remove('active');
-    // Match by onclick attribute
     var oc=n.getAttribute('onclick')||'';
     if(oc.indexOf("'"+id+"'")>=0)n.classList.add('active');
   });
-  if(id==='s-main')renderMain();
-  if(id==='s-identity')renderIdentity();
-  if(id==='s-rewards')renderRewards();
-  if(id==='s-stats')renderStats();
+  // Différer les renders lourds APRÈS la transition (110ms fade-out + 15ms marge)
+  // Évite de bloquer le thread pendant l'animation → plus fluide sur mobile
+  var renderDelay=125;
+  if(id==='s-main')setTimeout(renderMain,renderDelay);
+  if(id==='s-identity')setTimeout(renderIdentity,renderDelay);
+  if(id==='s-rewards')setTimeout(renderRewards,renderDelay);
+  if(id==='s-stats')setTimeout(renderStats,renderDelay);
 }
 
 // ═══════════════════════════════════════════════════════════════════
