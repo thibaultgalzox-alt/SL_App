@@ -1010,18 +1010,222 @@ body.ob-active{background:#0a0a12 !important;overflow:hidden !important;position
 </div>
 
 <div class="screen" id="s-rewards">
-  <div class="hdr"><div class="pill" id="rw-pts">0 pts</div><h1>Boutique</h1></div>
-  <div id="shop-lock-banner"></div>
-  <div class="rs">Utilitaires</div><div class="rg" id="rw-util"></div>
-  <div class="rs">Récompenses réelles</div><div style="font-size:11px;color:#8a7e6a;font-style:italic;margin-bottom:6px;line-height:1.5;padding:0 2px">Ces récompenses sont à rajouter à ta vie personnelle. Elles ne sont pas les seules que tu dois t'offrir. Elles sont complémentaires à ta vie : par le travail que tu as fourni, et les points que tu as gagnés !</div><div class="rg" id="rw-real"></div>
-  <div class="rs">Symboliques</div><div class="rg" id="rw-sym"></div>
-  <div class="rs">Mes récompenses perso</div><div class="rg" id="rw-custom"></div>
-  <div style="display:flex;gap:6px;margin-top:7px">
-    <input type="text" id="rw-name" placeholder="Nom..." style="flex:1;font-size:11px;padding:8px;border:1px solid #d4c9b0;border-radius:8px;background:#fff;color:#3a2e22"/>
-    <input type="number" id="rw-cost" placeholder="Min 1400" style="width:80px;font-size:11px;padding:8px;border:1px solid #d4c9b0;border-radius:8px;background:#fff;color:#3a2e22" min="1400" max="40000" step="100"/>
-    <button class="btn" style="background:#d4a054;color:#fff;font-weight:800;box-shadow:0 2px 8px rgba(212,160,84,.3)" onclick="addRew()">+</button>
+
+  <!-- Top icons -->
+  <div style="position:relative;padding:18px 18px 0">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0">
+      <button onclick="_shopShowInfo()" style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.85);border:1px solid rgba(0,0,0,.06);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.08)">ℹ️</button>
+      <button onclick="_shopShowInventory()" style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.85);border:1px solid rgba(0,0,0,.06);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.08);position:relative">
+        🎒
+        <span id="shop-inv-badge" style="display:none;position:absolute;top:-3px;right:-3px;background:#c0392b;color:#fff;font-size:9px;font-weight:800;width:16px;height:16px;border-radius:50%;border:2px solid #f5f0e8;align-items:center;justify-content:center">0</span>
+      </button>
+    </div>
   </div>
-  <button class="btn full" style="margin-top:.7rem" onclick="nav('s-main')">Retour</button>
+
+  <!-- Header -->
+  <div class="hdr" style="padding-top:10px">
+    <div class="pill" id="rw-pts">0 pts</div>
+    <h1>Marché de l'Ombre</h1>
+  </div>
+
+  <div style="padding:0 16px 100px">
+    <div id="shop-lock-banner"></div>
+
+    <!-- Balance card -->
+    <div style="background:#fff;border-radius:14px;padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 12px rgba(212,160,84,.1);border:1px solid rgba(212,160,84,.15)">
+      <div>
+        <div style="font-size:9px;font-weight:700;color:#8a7e6a;letter-spacing:.1em;text-transform:uppercase">Ta bourse</div>
+        <div style="font-size:26px;font-weight:800;color:#d4a054;letter-spacing:-.02em;display:flex;align-items:center;gap:6px;margin-top:2px"><span id="shop-pts-display">0</span><small style="font-size:14px;color:#8a7e6a;font-weight:600">pts</small></div>
+      </div>
+      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#d4a054,#c0713a);display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 4px 16px rgba(192,113,58,.35)">💰</div>
+    </div>
+
+    <!-- Tabs -->
+    <div style="display:flex;background:rgba(0,0,0,.04);border-radius:12px;padding:4px;margin-bottom:14px" id="shop-tabs">
+      <button class="shop-tab active" onclick="_shopTab('market',this)" style="flex:1;padding:10px 8px;border:none;background:#fff;border-radius:8px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;color:#1a120c;box-shadow:0 2px 8px rgba(0,0,0,.06);font-family:inherit;transition:all .2s"><div style="font-size:14px;margin-bottom:2px">🏪</div>Marché</button>
+      <button class="shop-tab" onclick="_shopTab('permanent',this)" style="flex:1;padding:10px 8px;border:none;background:transparent;border-radius:8px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;color:#8a7e6a;font-family:inherit;transition:all .2s"><div style="font-size:14px;margin-bottom:2px">📦</div>Permanent</button>
+      <button class="shop-tab" onclick="_shopTab('upcoming',this)" style="flex:1;padding:10px 8px;border:none;background:transparent;border-radius:8px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;color:#8a7e6a;font-family:inherit;transition:all .2s"><div style="font-size:14px;margin-bottom:2px">🗓</div>À venir</button>
+    </div>
+
+    <!-- MARKET TAB -->
+    <div id="shop-tab-market">
+      <!-- Merchant card avec aura -->
+      <div id="shop-merchant-card" style="background:linear-gradient(135deg,#1a0a2e 0%,#2d1b69 100%);border-radius:16px;padding:18px 16px;margin-bottom:14px;color:#fff;position:relative;overflow:hidden;box-shadow:0 8px 24px rgba(124,58,237,.25)">
+        <!-- Glows -->
+        <div style="position:absolute;top:-30px;right:-30px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(167,139,250,.5) 0%,transparent 70%);animation:_shopGlow1 4s ease-in-out infinite;pointer-events:none"></div>
+        <div style="position:absolute;bottom:-40px;left:-30px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(255,140,66,.3) 0%,transparent 60%);animation:_shopGlow2 5.5s ease-in-out infinite;pointer-events:none"></div>
+        <!-- Sparks -->
+        <div id="shop-sparks" style="position:absolute;inset:0;pointer-events:none;overflow:hidden"></div>
+        <!-- Flames -->
+        <div id="shop-flames" style="position:absolute;bottom:-20px;left:0;right:0;height:80px;pointer-events:none;opacity:.5"></div>
+        <!-- Ring + icon -->
+        <div style="display:flex;align-items:flex-start;gap:14px;position:relative;z-index:2">
+          <div style="position:relative;flex-shrink:0">
+            <div style="position:absolute;inset:-6px;border-radius:18px;border:1.5px solid rgba(167,139,250,.5);animation:_shopRing 2.5s ease-in-out infinite"></div>
+            <div id="shop-merchant-icon" style="width:56px;height:56px;border-radius:14px;background:rgba(255,255,255,.1);border:1px solid rgba(167,139,250,.4);display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:inset 0 0 20px rgba(167,139,250,.3);animation:_shopFloat 3s ease-in-out infinite;position:relative">⚒</div>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:8px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#a78bfa;margin-bottom:3px">Marchand actuel</div>
+            <div id="shop-merchant-name" style="font-size:16px;font-weight:800;font-style:italic;margin-bottom:2px">Le Forgeron des Ombres</div>
+            <div id="shop-merchant-title" style="font-size:10px;color:rgba(255,255,255,.65);margin-bottom:8px">Maître des protections</div>
+            <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,0,0,.25);padding:5px 10px;border-radius:8px;border:1px solid rgba(167,139,250,.25);font-size:10px;font-weight:700;color:#c4b0ff">⏳ Repart dans <span id="shop-countdown">7j 14h</span></div>
+          </div>
+        </div>
+        <div id="shop-merchant-desc" style="font-size:11px;color:rgba(255,255,255,.7);margin-top:12px;line-height:1.5;font-style:italic;padding-top:10px;border-top:1px solid rgba(167,139,250,.15);position:relative;z-index:2">« Une silhouette encapuchonnée, marteau à la main. Les boucliers brillent d'une lueur violacée. »</div>
+      </div>
+
+      <!-- Daily cards -->
+      <div style="margin-bottom:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div style="font-size:10px;font-weight:800;letter-spacing:.15em;color:#c0713a;text-transform:uppercase">🎴 Offres du jour</div>
+          <div style="font-size:9px;color:#8a7e6a;font-weight:600" id="shop-daily-timer">Renouvelées dans 17h</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px" id="shop-daily-grid"></div>
+      </div>
+
+      <!-- Faveur -->
+      <div id="shop-favor" style="background:linear-gradient(135deg,rgba(212,160,84,.08),rgba(192,113,58,.04));border:1px dashed rgba(212,160,84,.3);border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px">
+        <div style="font-size:18px">✨</div>
+        <div style="flex:1">
+          <div id="shop-favor-title" style="font-size:10px;font-weight:700;color:#c0713a;margin-bottom:2px">Faveur du marchand : 0/3</div>
+          <div style="font-size:9px;color:#8a7e6a;margin-bottom:5px">3 achats pour +10% de réduction permanente</div>
+          <div style="height:3px;background:rgba(212,160,84,.15);border-radius:2px;overflow:hidden"><div id="shop-favor-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#d4a054,#c0713a);border-radius:2px;transition:width .4s"></div></div>
+        </div>
+      </div>
+
+      <!-- Utilitaires (boucliers etc) -->
+      <div style="font-size:8px;font-weight:800;letter-spacing:.18em;color:#8a7e6a;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px"><span>Utilitaires</span><div style="flex:1;height:1px;background:rgba(0,0,0,.06)"></div></div>
+      <div class="rg" id="rw-util" style="margin-bottom:14px"></div>
+    </div>
+
+    <!-- PERMANENT TAB -->
+    <div id="shop-tab-permanent" style="display:none">
+      <div style="background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:14px;display:flex;gap:10px;align-items:center;border:1px solid rgba(0,0,0,.05)">
+        <div style="font-size:24px">📦</div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:#1a120c;margin-bottom:2px">Stock permanent</div>
+          <div style="font-size:10px;color:#8a7e6a;line-height:1.4">Toujours disponible. Prix standards, sans bonus marchand.</div>
+        </div>
+      </div>
+      <!-- Récompenses réelles -->
+      <div style="font-size:8px;font-weight:800;letter-spacing:.18em;color:#2e7d32;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:8px"><span>Récompenses réelles</span><div style="flex:1;height:1px;background:rgba(0,0,0,.06)"></div></div>
+      <div style="font-size:11px;color:#8a7e6a;font-style:italic;margin-bottom:8px;line-height:1.5">Ces récompenses sont à rajouter à ta vie personnelle. Elles sont complémentaires à ta vie.</div>
+      <div class="rg" id="rw-real" style="margin-bottom:14px"></div>
+      <!-- Symboliques -->
+      <div style="font-size:8px;font-weight:800;letter-spacing:.18em;color:#7c3aed;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px"><span>Titres symboliques</span><div style="flex:1;height:1px;background:rgba(0,0,0,.06)"></div></div>
+      <div class="rg" id="rw-sym" style="margin-bottom:14px"></div>
+      <!-- Perso -->
+      <div style="font-size:8px;font-weight:800;letter-spacing:.18em;color:#8a7e6a;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px"><span>Mes récompenses perso</span><div style="flex:1;height:1px;background:rgba(0,0,0,.06)"></div></div>
+      <div class="rg" id="rw-custom" style="margin-bottom:10px"></div>
+      <div style="display:flex;gap:6px;margin-top:7px">
+        <input type="text" id="rw-name" placeholder="Nom..." style="flex:1;font-size:11px;padding:8px;border:1px solid #d4c9b0;border-radius:8px;background:#fff;color:#3a2e22"/>
+        <input type="number" id="rw-cost" placeholder="Min 1400" style="width:80px;font-size:11px;padding:8px;border:1px solid #d4c9b0;border-radius:8px;background:#fff;color:#3a2e22" min="1400" max="40000" step="100"/>
+        <button class="btn" style="background:#d4a054;color:#fff;font-weight:800;box-shadow:0 2px 8px rgba(212,160,84,.3)" onclick="addRew()">+</button>
+      </div>
+    </div>
+
+    <!-- UPCOMING TAB -->
+    <div id="shop-tab-upcoming" style="display:none">
+      <div style="background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:14px;text-align:center;border:1px solid rgba(212,160,84,.15)">
+        <div style="font-size:9px;font-weight:800;letter-spacing:.18em;color:#8a7e6a;text-transform:uppercase;margin-bottom:4px">Prochains marchands</div>
+        <div style="font-size:10px;color:#8a7e6a;line-height:1.4">Chaque marchand reste 10 jours. Cycle complet : 60 jours.</div>
+      </div>
+      <div id="shop-upcoming-list"></div>
+    </div>
+  </div>
+
+  <!-- Overlay inventaire -->
+  <div id="shop-inv-overlay" style="display:none;position:fixed;inset:0;background:rgba(15,8,0,.65);backdrop-filter:blur(4px);z-index:200;align-items:flex-end;justify-content:center">
+    <div style="width:100%;max-width:440px;background:#f5f0e8;border-radius:24px 24px 0 0;max-height:85vh;overflow-y:auto;animation:_shopSlideUp .35s cubic-bezier(.2,.9,.3,1);padding-bottom:30px">
+      <div style="width:38px;height:4px;background:rgba(0,0,0,.15);border-radius:2px;margin:10px auto 0"></div>
+      <button onclick="_shopCloseInv()" style="position:absolute;top:14px;right:16px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.06);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:#8a7e6a;font-weight:600;border:none;font-family:inherit">✕</button>
+      <div style="padding:14px 18px 0">
+        <div style="text-align:center;padding:10px 0 16px">
+          <div style="display:inline-block;padding:4px 14px;border-radius:12px;background:rgba(212,160,84,.15);color:#c0713a;font-size:9px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;margin-bottom:6px">SAC</div>
+          <div style="font-size:22px;font-weight:800;color:#1a120c;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:-.02em">🎒 Inventaire</div>
+        </div>
+        <div id="shop-inv-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay info -->
+  <div id="shop-info-overlay" style="display:none;position:fixed;inset:0;background:rgba(15,8,0,.65);backdrop-filter:blur(4px);z-index:200;align-items:flex-end;justify-content:center">
+    <div style="width:100%;max-width:440px;background:#f5f0e8;border-radius:24px 24px 0 0;max-height:88vh;overflow-y:auto;animation:_shopSlideUp .35s cubic-bezier(.2,.9,.3,1);padding-bottom:30px;position:relative">
+      <button onclick="_shopCloseInfo()" style="position:absolute;top:14px;right:16px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:#fff;font-weight:600;border:none;font-family:inherit;z-index:2">✕</button>
+      <div style="background:linear-gradient(135deg,#1a0a2e 0%,#2d1b69 100%);border-radius:24px 24px 0 0;padding:36px 20px 30px;text-align:center;color:#fff;position:relative;overflow:hidden">
+        <div style="position:absolute;top:-50px;left:50%;transform:translateX(-50%);width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(167,139,250,.5) 0%,transparent 70%);animation:_shopGlow1 5s ease-in-out infinite"></div>
+        <div style="font-size:54px;margin-bottom:12px;position:relative;animation:_shopFloat 3s ease-in-out infinite">🏪</div>
+        <div style="font-size:24px;font-weight:800;margin-bottom:6px;font-style:italic;position:relative">Le Marché de l'Ombre</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.7);line-height:1.5;position:relative;max-width:300px;margin:0 auto">Un marché vivant où des marchands mystérieux apparaissent tour à tour avec leurs trésors.</div>
+      </div>
+      <div style="padding:16px 18px">
+        <div style="margin-bottom:16px">
+          <div style="display:inline-block;width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#d4a054,#c0713a);color:#fff;font-size:12px;font-weight:800;text-align:center;line-height:24px;margin-bottom:8px">1</div>
+          <div style="font-size:15px;font-weight:800;color:#1a120c;margin-bottom:5px">Six marchands en rotation</div>
+          <div style="font-size:12px;color:#5a4e3a;line-height:1.65">Chaque <strong>10 jours</strong>, un nouveau marchand prend possession du marché et apporte ses propres trésors. Six marchands se succèdent dans un cycle de <span style="color:#c0713a;font-weight:700">60 jours</span>.</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px" id="shop-info-merchants-grid">
+            <div style="background:rgba(124,58,237,.05);border:1px solid rgba(124,58,237,.15);border-radius:10px;padding:8px;text-align:center"><div style="font-size:20px;margin-bottom:3px">⚒</div><div style="font-size:9px;font-weight:700;color:#1a120c;line-height:1.3">Le Forgeron</div></div>
+            <div style="background:rgba(124,58,237,.05);border:1px solid rgba(124,58,237,.15);border-radius:10px;padding:8px;text-align:center"><div style="font-size:20px;margin-bottom:3px">🌙</div><div style="font-size:9px;font-weight:700;color:#1a120c;line-height:1.3">Marchand de Rêves</div></div>
+            <div style="background:rgba(124,58,237,.05);border:1px solid rgba(124,58,237,.15);border-radius:10px;padding:8px;text-align:center"><div style="font-size:20px;margin-bottom:3px">📜</div><div style="font-size:9px;font-weight:700;color:#1a120c;line-height:1.3">L'Archiviste</div></div>
+            <div style="background:rgba(124,58,237,.05);border:1px solid rgba(124,58,237,.15);border-radius:10px;padding:8px;text-align:center"><div style="font-size:20px;margin-bottom:3px">🔮</div><div style="font-size:9px;font-weight:700;color:#1a120c;line-height:1.3">Le Voyant</div></div>
+            <div style="background:rgba(124,58,237,.05);border:1px solid rgba(124,58,237,.15);border-radius:10px;padding:8px;text-align:center"><div style="font-size:20px;margin-bottom:3px">⚔</div><div style="font-size:9px;font-weight:700;color:#1a120c;line-height:1.3">Le Mercenaire</div></div>
+            <div style="background:rgba(124,58,234,.05);border:1px solid rgba(124,58,237,.15);border-radius:10px;padding:8px;text-align:center"><div style="font-size:20px;margin-bottom:3px">🕯</div><div style="font-size:9px;font-weight:700;color:#1a120c;line-height:1.3">Le Sage</div></div>
+          </div>
+        </div>
+        <div style="padding:14px 0;border-top:1px solid rgba(0,0,0,.06);margin-bottom:14px">
+          <div style="display:inline-block;width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#d4a054,#c0713a);color:#fff;font-size:12px;font-weight:800;text-align:center;line-height:24px;margin-bottom:8px">2</div>
+          <div style="font-size:15px;font-weight:800;color:#1a120c;margin-bottom:5px">Offres du jour</div>
+          <div style="font-size:12px;color:#5a4e3a;line-height:1.65">Chaque jour, <strong>4 cartes mystère</strong> sont tirées. Retourne-les pour découvrir des offres à prix réduit, renouvelées chaque matin.</div>
+        </div>
+        <div style="padding:14px 0;border-top:1px solid rgba(0,0,0,.06);margin-bottom:14px">
+          <div style="display:inline-block;width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#d4a054,#c0713a);color:#fff;font-size:12px;font-weight:800;text-align:center;line-height:24px;margin-bottom:8px">3</div>
+          <div style="font-size:15px;font-weight:800;color:#1a120c;margin-bottom:5px">Gagner la faveur</div>
+          <div style="font-size:12px;color:#5a4e3a;line-height:1.65">Acheter <strong>3 objets</strong> au même marchand débloque sa faveur : <span style="color:#c0713a;font-weight:700">-10% permanent</span> sur tous ses futurs articles.</div>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(212,160,84,.12),rgba(192,113,58,.06));border:1.5px solid rgba(212,160,84,.3);border-radius:14px;padding:16px;text-align:center">
+          <div style="font-size:28px;margin-bottom:6px">✨</div>
+          <div style="font-size:13px;font-weight:700;color:#c0713a;line-height:1.5">Le Marché se renouvelle. Reste à l'affût.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    @keyframes _shopGlow1{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:.85;transform:scale(1.1)}}
+    @keyframes _shopGlow2{0%,100%{opacity:.2;transform:scale(.95)}50%{opacity:.55;transform:scale(1.08)}}
+    @keyframes _shopRing{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.1);opacity:.9}}
+    @keyframes _shopFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+    @keyframes _shopSpark{0%{bottom:-10px;opacity:0;transform:translateX(0) scale(.5)}10%{opacity:.9}50%{opacity:.7;transform:translateX(8px) scale(1)}90%{opacity:.3}100%{bottom:110%;opacity:0;transform:translateX(-4px) scale(.3)}}
+    @keyframes _shopFlame{0%,100%{transform:scaleY(1) scaleX(1);opacity:.5}25%{transform:scaleY(1.15) scaleX(.92);opacity:.65}50%{transform:scaleY(.9) scaleX(1.05);opacity:.45}75%{transform:scaleY(1.05) scaleX(.95);opacity:.6}}
+    @keyframes _shopRunePulse{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.12);opacity:1}}
+    @keyframes _shopCardShimmer{0%,100%{opacity:.4}50%{opacity:.9}}
+    @keyframes _shopCardFlip{from{transform:rotateY(0deg)}to{transform:rotateY(180deg)}}
+    @keyframes _shopSlideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+    .shop-tab.active{background:#fff!important;color:#1a120c!important;box-shadow:0 2px 8px rgba(0,0,0,.06)!important}
+    .daily-card-scene{aspect-ratio:.72;perspective:800px;cursor:pointer}
+    .daily-card-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .8s cubic-bezier(.4,.2,.2,1)}
+    .daily-card-scene.flipped .daily-card-inner{transform:rotateY(180deg)}
+    .daily-card-scene.flipped{cursor:default}
+    .dface{position:absolute;inset:0;backface-visibility:hidden;border-radius:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px;overflow:hidden}
+    .dback{background:linear-gradient(135deg,#1a120c 0%,#3a2a1c 100%);border:1.5px solid rgba(212,160,84,.4);box-shadow:0 4px 14px rgba(192,113,58,.25),inset 0 0 20px rgba(212,160,84,.1)}
+    .dback::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at center,rgba(212,160,84,.2) 0%,transparent 65%);animation:_shopCardShimmer 3s ease-in-out infinite}
+    .dback-icon{font-size:22px;color:#d4a054;filter:drop-shadow(0 0 8px rgba(212,160,84,.6));z-index:2;animation:_shopRunePulse 2.4s ease-in-out infinite}
+    .dback-txt{font-size:7px;font-weight:800;letter-spacing:.18em;color:rgba(212,160,84,.7);text-transform:uppercase;margin-top:5px;z-index:2}
+    .dcorner{position:absolute;width:14px;height:14px;border:1.5px solid rgba(212,160,84,.5);z-index:2}
+    .dcorner.tl{top:4px;left:4px;border-right:none;border-bottom:none}
+    .dcorner.tr{top:4px;right:4px;border-left:none;border-bottom:none}
+    .dcorner.bl{bottom:4px;left:4px;border-right:none;border-top:none}
+    .dcorner.br{bottom:4px;right:4px;border-left:none;border-top:none}
+    .dfront{transform:rotateY(180deg);background:#fff;border:1.5px solid rgba(212,160,84,.35);box-shadow:0 4px 14px rgba(212,160,84,.18)}
+    .dfront.rare{border-color:rgba(116,185,255,.5);background:linear-gradient(180deg,#fff 0%,rgba(116,185,255,.06) 100%)}
+    .dfront.epic{border-color:rgba(124,58,237,.5);background:linear-gradient(180deg,#fff 0%,rgba(124,58,237,.06) 100%)}
+    .dfront-disc{position:absolute;top:5px;right:5px;background:linear-gradient(135deg,#c0392b,#e64d3a);color:#fff;font-size:8px;font-weight:800;padding:2px 6px;border-radius:5px}
+    .dfront-icon{font-size:26px;margin-bottom:4px}
+    .dfront-name{font-size:9px;font-weight:700;color:#1a120c;text-align:center;line-height:1.2;padding:0 4px}
+    .dfront-price{font-size:11px;font-weight:800;color:#d4a054;margin-top:4px}
+  </style>
+
   <div class="bnav">
     <button class="ni" onclick="nav('s-main',this)"><span class="ni-i">📋</span><span class="ni-l">Quêtes</span></button>
     <button class="ni" onclick="nav('s-identity',this)"><span class="ni-i">&#11088;</span><span class="ni-l">Identité</span></button>
@@ -1593,7 +1797,7 @@ const NEW_TITLES_LEGENDARY=[
 
 const SP={body:["Pompes : {n} reps avant 10h","Squats : {n} reps avant 10h","Planche : {n}s avant 10h","Course : {n} min avant 10h"],mind:["Révision : {n} min avant 10h","Lire {n} pages avant 10h","Voltaire : {n} min avant 10h"],disc:["Journal rechute + {n} pompes maintenant","Mode avion jusqu'à 9h demain"]};
 
-const DEF={onboarded:false,waitingForTomorrow:false,answers:{},multiAnswers:{},obQ:0,day:1,week:1,xp:0,points:0,streak:0,bestStreak:0,integrity:100,weekPlan:null,questStatus:{},gymW:0,runW:0,lastBody:[],lastMind:[],lastDisc:[],lastSE:[],lastSM:[],lastSH:[],customR:[],totalBody:0,totalMind:0,totalDisc:0,sr7:[],bilans:[],dayDone:false,lastDate:null,notifOk:false,failStreak:0,sanctionPending:false,sanctionText:'',sanctionCtx:'',sanctionMult:'1.5',sanctionConfirmedAt:null,totalSanctions:0,sanctionsCompleted:0,hadFailYesterday:false,fatigueScore:3,todayEvent:null,rankDowngrade:false,rankDowngraded:false,lastRankDowngradeDay:0,disciplineDebt:0,lockRewards:false,weeklyBoss:{body:0,mind:0,discFail:0},bossWins:0,failByType:{body:0,mind:0,disc:0},successByType:{body:0,mind:0,disc:0},weekTruthDone:false,reviewDone:false,equippedTitle:null,unlockedTitles:[],lastApartmentDay:-99,dayLog:[],validationHours:[],questLog:{},lastBodyType:[],sanctionStartedAt:null,absenceDays:0,returnOfferShown:false,reconstructionDay:0,reconstructionCooldown:0,recentNNFails:[],shieldDays:0,shieldStartDay:0,fragments:{},unlockedTraits:[],newTitles:[],openedAt10h:0,waterDone:0,screenQuestDone:0,pornQuestDone:0,resistedCount:0,bodyPerfectStreak:0,reboundDays:0,hardDayWon:0,earnedFragments:[],earnedTraits:[],earnedNewTitles:[],_openedAt10h:false,_secPornoOk:0,_secScreenOk:0,_bodyPerfect5c:false,_waterStreak3:false,_bodyWhileBad:false,_bodyNoSkip7:false,_hardDayWin:false,_mindNoSkip7:false,_secColdShower:0,_hardModeQuestsDone:0,_totalSpent:0,_integrity95streak:0,_obScore:0,_obMode:'Standard',_hasSalle:false,_hasVelo:false,_hasSport:false,_physGoal:1,lastBody:[],monthlyBilanDone:false,monthlyBilans:[],monthlyBilanPending:false,letters:[],lastLetterDay:0,letterWindowStart:0,letterWindowEnd:0,_open10hStreak:0,_open10hLastDay:0,_open10hPrevDay:0,_rebound5:false,_monthlyBilanConsec:0,_bilanStreak21:false,_shieldEverUsed:false,_flowStreak3:false,_echoLettre:false};
+const DEF={onboarded:false,waitingForTomorrow:false,answers:{},multiAnswers:{},obQ:0,day:1,week:1,xp:0,points:0,streak:0,bestStreak:0,integrity:100,weekPlan:null,questStatus:{},gymW:0,runW:0,lastBody:[],lastMind:[],lastDisc:[],lastSE:[],lastSM:[],lastSH:[],customR:[],totalBody:0,totalMind:0,totalDisc:0,sr7:[],bilans:[],dayDone:false,lastDate:null,notifOk:false,failStreak:0,sanctionPending:false,sanctionText:'',sanctionCtx:'',sanctionMult:'1.5',sanctionConfirmedAt:null,totalSanctions:0,sanctionsCompleted:0,hadFailYesterday:false,fatigueScore:3,todayEvent:null,rankDowngrade:false,rankDowngraded:false,lastRankDowngradeDay:0,disciplineDebt:0,lockRewards:false,weeklyBoss:{body:0,mind:0,discFail:0},bossWins:0,failByType:{body:0,mind:0,disc:0},successByType:{body:0,mind:0,disc:0},weekTruthDone:false,reviewDone:false,equippedTitle:null,unlockedTitles:[],lastApartmentDay:-99,dayLog:[],validationHours:[],questLog:{},lastBodyType:[],sanctionStartedAt:null,absenceDays:0,returnOfferShown:false,reconstructionDay:0,reconstructionCooldown:0,recentNNFails:[],shieldDays:0,shieldStartDay:0,fragments:{},unlockedTraits:[],newTitles:[],openedAt10h:0,waterDone:0,screenQuestDone:0,pornQuestDone:0,resistedCount:0,bodyPerfectStreak:0,reboundDays:0,hardDayWon:0,earnedFragments:[],earnedTraits:[],earnedNewTitles:[],_openedAt10h:false,_secPornoOk:0,_secScreenOk:0,_bodyPerfect5c:false,_waterStreak3:false,_bodyWhileBad:false,_bodyNoSkip7:false,_hardDayWin:false,_mindNoSkip7:false,_secColdShower:0,_hardModeQuestsDone:0,_totalSpent:0,_integrity95streak:0,_obScore:0,_obMode:'Standard',_hasSalle:false,_hasVelo:false,_hasSport:false,_physGoal:1,lastBody:[],monthlyBilanDone:false,monthlyBilans:[],monthlyBilanPending:false,letters:[],lastLetterDay:0,letterWindowStart:0,letterWindowEnd:0,_open10hStreak:0,_open10hLastDay:0,_open10hPrevDay:0,_rebound5:false,_monthlyBilanConsec:0,_bilanStreak21:false,_shieldEverUsed:false,_flowStreak3:false,_echoLettre:false,shopInventory:[],_shopDailyDate:'',_shopMerchantKey:{}};
 // ─── IndexedDB storage (fallback to localStorage) ────────────────────────
 const DB_NAME='solo_leveling_db_v2',DB_STORE='app_state',DB_KEY='main';
 let _db=null;
@@ -4277,21 +4481,213 @@ function equipTitle(name){
   _applyTitleCosmetics(ST.equippedTitle);
   toast(ST.equippedTitle?'Titre équipé : "'+ST.equippedTitle+'"':' Titre retiré');
 }
+// ═══════════════════════════════════════════════════════════════
+// SHOP v2 - MARCHÉ DE L'OMBRE
+// ═══════════════════════════════════════════════════════════════
+var _MERCHANTS=[
+  {icon:'⚒',name:'Le Forgeron des Ombres',title:'Maître des protections',desc:'Une silhouette encapuchonnée, marteau à la main. Les boucliers brillent d\'une lueur violacée.',sparkColor:'#a78bfa',flameA:'#7c3aed',flameB:'#ff8c42'},
+  {icon:'🌙',name:'Marchand de Rêves',title:'Tisserand d\'espoirs',desc:'Il murmure des promesses. Ses marchandises luisent d\'une douce lumière lunaire.',sparkColor:'#74b9ff',flameA:'#0984e3',flameB:'#a29bfe'},
+  {icon:'📜',name:'L\'Archiviste',title:'Gardien des secrets anciens',desc:'Entouré de parchemins, il consigne chaque exploit. Sa boutique sent l\'encre et le vieux papier.',sparkColor:'#d4a054',flameA:'#e17055',flameB:'#fdcb6e'},
+  {icon:'🔮',name:'Le Voyant',title:'Celui qui voit demain',desc:'Ses yeux reflètent des visions que toi seul peux comprendre. Choisir est déjà un acte de courage.',sparkColor:'#fd79a8',flameA:'#e84393',flameB:'#a29bfe'},
+  {icon:'⚔',name:'Le Mercenaire',title:'Bras droit du Système',desc:'Pas de philosophie. Juste des résultats. Ses deals sont brutaux mais honnêtes.',sparkColor:'#ff7675',flameA:'#d63031',flameB:'#e17055'},
+  {icon:'🕯',name:'Le Sage',title:'Voix de la longue marche',desc:'Il ne vend pas. Il propose. Ses objets ne se méritent pas avec des points, mais avec de la constance.',sparkColor:'#00b894',flameA:'#00cec9',flameB:'#55efc4'},
+];
+var _DAILY_POOL=[
+  {icon:'🛡',name:'Bouclier Spectral',price:48,orig:80,discount:'-40%',rarity:''},
+  {icon:'💎',name:'Pierre Mineure',price:180,orig:260,discount:'-30%',rarity:'rare'},
+  {icon:'⚔',name:'Forge Rare',price:340,orig:650,discount:'-48%',rarity:'epic'},
+  {icon:'🔥',name:'Élixir XP',price:90,orig:120,discount:'-25%',rarity:''},
+  {icon:'🛡',name:'Bouclier des Ombres',price:140,orig:200,discount:'-30%',rarity:'rare'},
+  {icon:'💊',name:'Potion Points',price:70,orig:100,discount:'-30%',rarity:''},
+  {icon:'⚡',name:'Boost Discipline',price:60,orig:80,discount:'-25%',rarity:''},
+  {icon:'🌙',name:'Cristal Lunaire',price:420,orig:600,discount:'-30%',rarity:'epic'},
+];
+function _shopTab(id,btn){
+  ['market','permanent','upcoming'].forEach(function(t){
+    var el=document.getElementById('shop-tab-'+t);if(el)el.style.display=t===id?'block':'none';
+  });
+  document.querySelectorAll('.shop-tab').forEach(function(b){
+    b.classList.remove('active');b.style.background='transparent';b.style.color='#8a7e6a';b.style.boxShadow='none';
+  });
+  btn.classList.add('active');
+}
+function _shopShowInfo(){var o=document.getElementById('shop-info-overlay');if(o)o.style.display='flex';}
+function _shopCloseInfo(){var o=document.getElementById('shop-info-overlay');if(o)o.style.display='none';}
+function _shopShowInventory(){var o=document.getElementById('shop-inv-overlay');if(!o)return;_renderShopInventory();o.style.display='flex';}
+function _shopCloseInv(){var o=document.getElementById('shop-inv-overlay');if(o)o.style.display='none';}
+
+// ── Inventaire fonctionnel ──
+function _shopAddToInventory(item){
+  if(!ST.shopInventory)ST.shopInventory=[];
+  // Chercher si item du même nom existe déjà → incrémenter qty
+  var existing=ST.shopInventory.find(function(x){return x.name===item.name;});
+  if(existing){existing.qty=(existing.qty||1)+1;}
+  else{ST.shopInventory.push({icon:item.icon||'🎁',name:item.name,qty:1,rarity:item.rarity||'',effect:item.effect||'',src:item.src||''});}
+  save();
+}
+function _shopUseItem(idx){
+  if(!ST.shopInventory||!ST.shopInventory[idx])return;
+  var it=ST.shopInventory[idx];
+  var effect=it.effect||'';
+  var used=false;
+  // Effets connus
+  if(effect==='cancel_sanction'){
+    if(ST.sanctionPending){ST.sanctionPending=false;ST.sanctionText='';ST.sanctionCtx='';swSanctionLock(false);toast('Pierre utilisée - sanction annulée !');used=true;}
+    else{toast('Aucune sanction en cours.');return;}
+  } else if(effect==='double_xp'){
+    ST.todayEvent='doubleXP';toast('Élixir utilisé - Double XP activé pour aujourd\'hui !');used=true;renderMain();
+  } else if(effect==='double_pts'){
+    ST._shopDoublePts=ST.day;toast('Potion utilisée - Points x2 pour aujourd\'hui !');used=true;
+  } else if(effect==='real'){
+    if(!confirm('Tu t\'autorises : '+it.name+' ! Tu l\'as mérité.'))return;
+    toast('Profite bien de ton : '+it.name+' !',5000);used=true;
+  } else {
+    toast(it.name+' utilisé !');used=true;
+  }
+  if(used){
+    it.qty=(it.qty||1)-1;
+    if(it.qty<=0)ST.shopInventory.splice(idx,1);
+    SND.potion&&SND.potion();flash('gold',400);
+    save();_renderShopInventory();
+    var badge=document.getElementById('shop-inv-badge');
+    if(badge){var tot=ST.shopInventory.reduce(function(a,x){return a+(x.qty||1);},0);badge.style.display=tot>0?'flex':'none';badge.textContent=tot;}
+  }
+}
+function _renderShopInventory(){
+  var el=document.getElementById('shop-inv-content');if(!el)return;
+  var inv=ST.shopInventory||[];
+  // Ajouter bouclier actif en lecture seule
+  var display=inv.slice();
+  if(isShielded())display.unshift({icon:'🛡',name:'Bouclier actif',qty:'J'+ST.shieldStartDay+'-J'+(ST.shieldStartDay+ST.shieldDays-1),rarity:'rare',readOnly:true,effect:''});
+  if(!display.length){
+    el.innerHTML='<div style="text-align:center;padding:24px 0;color:#8a7e6a;font-size:12px">Ton sac est vide.<br><span style="font-size:10px">Achète des objets au Marché !</span></div>';
+    return;
+  }
+  var rColor=function(r){return r==='epic'?'border-color:rgba(124,58,237,.4);background:linear-gradient(135deg,rgba(124,58,237,.06),rgba(167,139,250,.02))':r==='rare'?'border-color:rgba(116,185,255,.4);background:linear-gradient(135deg,rgba(116,185,255,.06),rgba(116,185,255,.02))':'border-color:rgba(212,160,84,.18);background:#fff';};
+  var grid=display.map(function(it,i){
+    var realIdx=isShielded()?i-1:i; // ajuster index si bouclier préfixé
+    return'<div style="aspect-ratio:.85;border:1.5px solid rgba(0,0,0,.06);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px;position:relative;'+rColor(it.rarity)+'">'
+      +(it.qty&&typeof it.qty==='number'&&it.qty>1?'<div style="position:absolute;top:4px;right:4px;background:#d4a054;color:#fff;font-size:8px;font-weight:800;padding:1px 5px;border-radius:6px">'+it.qty+'</div>':'')
+      +(it.qty&&typeof it.qty==='string'?'<div style="position:absolute;top:2px;left:2px;right:2px;font-size:7px;font-weight:700;color:#8a7e6a;text-align:center;line-height:1.2">'+it.qty+'</div>':'')
+      +'<div style="font-size:26px;margin-bottom:4px">'+it.icon+'</div>'
+      +'<div style="font-size:8px;font-weight:700;color:#1a120c;text-align:center;line-height:1.2;margin-bottom:'+(it.readOnly?'0':'4px')+'">'+it.name+'</div>'
+      +(!it.readOnly?'<button onclick="_shopUseItem('+(realIdx>=0?realIdx:0)+')" style="background:linear-gradient(135deg,#c0713a,#e8a050);color:#fff;border:none;border-radius:6px;font-size:8px;font-weight:800;padding:3px 8px;cursor:pointer;letter-spacing:.04em;text-transform:uppercase;font-family:inherit">Utiliser</button>':'')
+      +'</div>';
+  });
+  var empties='';for(var e=display.length;e<Math.max(6,display.length+1);e++)empties+='<div style="aspect-ratio:.85;background:rgba(0,0,0,.02);border:1.5px dashed rgba(0,0,0,.08);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;color:#c4b89a">+</div>';
+  // Récapitulatif
+  var total=inv.reduce(function(a,x){return a+(x.qty||1);},0);
+  el.innerHTML='<div style="background:#fff;border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;justify-content:space-around;border:1px solid rgba(0,0,0,.04)">'
+    +'<div style="text-align:center"><div style="font-size:18px;font-weight:800;color:#d4a054">'+total+'</div><div style="font-size:8px;font-weight:700;color:#8a7e6a;letter-spacing:.1em;text-transform:uppercase">Objets</div></div>'
+    +'<div style="text-align:center"><div style="font-size:18px;font-weight:800;color:#7c3aed">'+inv.filter(function(x){return x.rarity==='epic';}).length+'</div><div style="font-size:8px;font-weight:700;color:#8a7e6a;letter-spacing:.1em;text-transform:uppercase">Épiques</div></div>'
+    +'<div style="text-align:center"><div style="font-size:18px;font-weight:800;color:#74b9ff">'+inv.filter(function(x){return x.rarity==='rare';}).length+'</div><div style="font-size:8px;font-weight:700;color:#8a7e6a;letter-spacing:.1em;text-transform:uppercase">Rares</div></div>'
+    +'</div>'
+    +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px">'+grid.join('')+empties+'</div>';
+}
+
+// ── Merchant rotation & daily reset ──
+function _shopMerchantIndex(){return Math.floor((ST.day-1)/10)%_MERCHANTS.length;}
+function _shopShouldResetDaily(){
+  // Reset si nouveau jour ET heure >= 15h, ou si jour différent
+  var h=new Date().getHours();
+  var todayStr2=new Date().toISOString().slice(0,10);
+  if(!ST._shopDailyDate)return true;
+  if(ST._shopDailyDate!==todayStr2&&h>=15)return true;
+  if(ST._shopDailyDate!==todayStr2&&h<15&&ST._shopDailyDate!==new Date(Date.now()-86400000).toISOString().slice(0,10))return true;
+  return false;
+}
+function _buildShopSparks(color){
+  var html='',positions=[8,18,30,42,54,66,78,88,14,72],delays=[0,.4,.8,1.2,1.6,2,2.4,2.8,3.2,3.6],sizes=[4,3,4,5,3,4,4,3,5,4];
+  positions.forEach(function(p,i){html+='<div style="position:absolute;bottom:-10px;left:'+p+'%;width:'+sizes[i]+'px;height:'+sizes[i]+'px;border-radius:50%;background:'+color+';box-shadow:0 0 8px '+color+';opacity:0;animation:_shopSpark 4s ease-out infinite;animation-delay:'+delays[i]+'s"></div>';});
+  return html;
+}
+function _buildShopFlames(colorA,colorB){
+  var html='',positions=[10,30,50,70,88],delays=[0,.3,.6,.9,1.1],heights=[60,50,70,55,45],widths=[30,24,34,26,22];
+  positions.forEach(function(p,i){html+='<div style="position:absolute;bottom:0;left:'+p+'%;width:'+widths[i]+'px;height:'+heights[i]+'px;border-radius:50% 50% 20% 20%;background:radial-gradient(ellipse at center bottom,'+colorA+' 0%,'+colorB+' 40%,rgba(124,58,237,.3) 80%,transparent 100%);filter:blur(7px);animation:_shopFlame 2.2s ease-in-out infinite;animation-delay:'+delays[i]+'s"></div>';});
+  return html;
+}
+function _buildDailyCards(){
+  var el=document.getElementById('shop-daily-grid');if(!el)return;
+  // Reset à 15h ou nouveau jour
+  if(_shopShouldResetDaily()){
+    ST._shopDailyFlipped=[false,false,false,false];
+    ST._shopDailyDate=new Date().toISOString().slice(0,10);
+    save();
+  }
+  var seed=ST.day+(new Date().getDate());
+  var pool=_DAILY_POOL.slice(),picked=[];
+  for(var i=0;i<4;i++){var idx=(seed+i*7)%pool.length;picked.push(pool.splice(idx%pool.length,1)[0]);}
+  var flipped=ST._shopDailyFlipped||[false,false,false,false];
+  el.innerHTML=picked.map(function(it,i){
+    var rf=it.rarity==='epic'?' epic':it.rarity==='rare'?' rare':'';
+    var front=flipped[i]?'<div class="dface dfront'+rf+'"><div class="dfront-disc">'+it.discount+'</div><div class="dfront-icon">'+it.icon+'</div><div class="dfront-name">'+it.name+'</div><div class="dfront-price">'+it.price+'<small style="font-size:8px;color:#8a7e6a;font-weight:600;margin-left:1px">pts</small></div></div>':'<div class="dface dfront'+rf+'"></div>';
+    return'<div class="daily-card-scene'+(flipped[i]?' flipped':'')+'" onclick="_flipDailyCard(this,'+i+')">'+'<div class="daily-card-inner"><div class="dface dback"><div class="dcorner tl"></div><div class="dcorner tr"></div><div class="dcorner bl"></div><div class="dcorner br"></div><div class="dback-icon">✦</div><div class="dback-txt">Mystère</div></div>'+front+'</div></div>';
+  }).join('');
+}
+function _flipDailyCard(el,i){
+  if(el.classList.contains('flipped'))return;
+  if(!ST._shopDailyFlipped)ST._shopDailyFlipped=[false,false,false,false];
+  ST._shopDailyFlipped[i]=true;
+  ST._shopDailyDate=new Date().toISOString().slice(0,10);
+  save();
+  el.classList.add('flipped');
+  var seed=ST.day+(new Date().getDate());
+  var pool=_DAILY_POOL.slice(),picked=[];
+  for(var j=0;j<4;j++){var idx=(seed+j*7)%pool.length;picked.push(pool.splice(idx%pool.length,1)[0]);}
+  var it=picked[i];var rf=it.rarity==='epic'?' epic':it.rarity==='rare'?' rare':'';
+  var front=el.querySelector('.dfront');
+  if(front){front.className='dface dfront'+rf;front.innerHTML='<div class="dfront-disc">'+it.discount+'</div><div class="dfront-icon">'+it.icon+'</div><div class="dfront-name">'+it.name+'</div><div class="dfront-price">'+it.price+'<small style="font-size:8px;color:#8a7e6a;font-weight:600;margin-left:1px">pts</small></div>';}
+  SND.tap&&SND.tap();
+}
+function _renderUpcoming(){
+  var el=document.getElementById('shop-upcoming-list');if(!el)return;
+  var idx=_shopMerchantIndex();
+  var upcoming=[];for(var i=1;i<=5;i++)upcoming.push({m:_MERCHANTS[(idx+i)%_MERCHANTS.length],days:10-((ST.day-1)%10)+((i-1)*10)});
+  el.innerHTML=upcoming.map(function(u,i){return'<div style="background:#fff;border-radius:14px;padding:14px;margin-bottom:8px;display:flex;gap:12px;align-items:center;border:1px solid rgba(0,0,0,.05);opacity:'+(1-i*.1)+'"><div style="width:48px;height:48px;border-radius:12px;background:rgba(212,160,84,.06);display:flex;align-items:center;justify-content:center;font-size:22px;filter:'+(i>1?'grayscale(.3)':'none')+'">'+u.m.icon+'</div><div style="flex:1"><div style="font-size:13px;font-weight:700;color:#1a120c">'+u.m.name+'</div><div style="font-size:10px;color:#8a7e6a">Dans '+Math.max(1,u.days)+' jours</div></div><div style="font-size:18px;color:#c4b89a">›</div></div>';}).join('');
+}
+function _renderMerchant(){
+  var m=_MERCHANTS[_shopMerchantIndex()];
+  var g=function(id){return document.getElementById(id);};
+  if(g('shop-merchant-icon'))g('shop-merchant-icon').textContent=m.icon;
+  if(g('shop-merchant-name'))g('shop-merchant-name').textContent=m.name;
+  if(g('shop-merchant-title'))g('shop-merchant-title').textContent=m.title;
+  if(g('shop-merchant-desc'))g('shop-merchant-desc').textContent='« '+m.desc+' »';
+  var daysLeft=10-((ST.day-1)%10);
+  if(g('shop-countdown'))g('shop-countdown').textContent=daysLeft+'j';
+  if(g('shop-sparks'))g('shop-sparks').innerHTML=_buildShopSparks(m.sparkColor);
+  if(g('shop-flames'))g('shop-flames').innerHTML=_buildShopFlames(m.flameA,m.flameB);
+  // Faveur marchand
+  var mk=ST._shopMerchantKey||{},favCount=mk[_shopMerchantIndex()]||0;
+  if(g('shop-favor-title'))g('shop-favor-title').textContent='Faveur : '+favCount+'/3'+(favCount>=3?' - 10% actif':'');
+  if(g('shop-favor-bar'))g('shop-favor-bar').style.width=Math.min(100,favCount/3*100)+'%';
+  // Timer cartes journalières
+  var h=new Date().getHours(),mn=new Date().getMinutes();
+  var hUntil15=h<15?(14-h)+'h '+(59-mn)+'min':'lendemain 15h';
+  if(g('shop-daily-timer'))g('shop-daily-timer').textContent='Renouvelées à 15h (dans '+hUntil15+')';
+}
 function renderRewards(){
-  document.getElementById('rw-pts').textContent=ST.points+' pts';
-  const locked=ST.integrity<50&&ST.day>=14;
+  var pts=ST.points||0;
+  var ptEl=document.getElementById('rw-pts');if(ptEl)ptEl.textContent=pts+' pts';
+  var ptDisp=document.getElementById('shop-pts-display');if(ptDisp)ptDisp.textContent=pts.toLocaleString('fr-FR');
+  var locked=ST.integrity<50&&ST.day>=14;
   ST.lockRewards=locked;
-  const owned=ST.unlockedTitles||[];
-  const mk=(r,i,src)=>{const can=!locked&&ST.points>=r.cost;const isUtil=r.type==='util';const isReal=r.type==='real';const isSym=r.type==='sym';return`<div class="rc${locked?' locked-reward':''}"><div class="rt">${isUtil?'Utilitaire':isSym?'Symbolique':isReal?'🎁 Récompense réelle':'Perso'}</div><div class="rn">${r.name}</div><div class="rp">${r.cost} pts</div><button class="rb" ${can?'':'disabled'} onclick="buyRew(${i},'${src}')">${locked?'Verrouillé':isUtil?'Utiliser':isReal?'Utiliser':isSym?'Échanger':'Échanger'}</button></div>`;};
-  document.getElementById('shop-lock-banner').innerHTML=locked?'<div class="abox ad" style="margin-bottom:8px">&#128308; Boutique verrouillée - intégrité insuffisante (minimum 50%).</div>':'';
-  document.getElementById('rw-util').innerHTML=UTIL_R.map((r,i)=>mk(r,i,'util')).join('');
-  // Symbolic: filter out already-owned titles
-  const availSym=SYM_R.map((r,i)=>({r,i})).filter(({r})=>{const title=r.name.replace('Titre : ','');return !owned.includes(title);});
-  document.getElementById('rw-sym').innerHTML=availSym.length?availSym.map(({r,i})=>mk(r,i,'sym')).join(''):'<p style="font-size:11px;color:var(--ink3);grid-column:1/-1">Tous les titres symboliques débloqués ✓</p>';
-  document.getElementById('rw-real').innerHTML=REAL_R.map((r,i)=>mk(r,i,'real')).join('');
-  const c=ST.customR||[];
-  const mkCustom=(r,i)=>{const can=!locked&&ST.points>=r.cost;return`<div class="rc${locked?' locked-reward':''}"><div class="rt">Perso</div><div class="rn">${r.name}</div><div class="rp">${r.cost} pts</div><div style="display:flex;gap:4px"><button class="rb" style="flex:1" ${can?'':'disabled'} onclick="buyRew(${i},'custom')">${locked?'Verrouillé':'Échanger'}</button><button style="background:none;border:1px solid var(--red);color:var(--red);border-radius:8px;padding:4px 8px;font-size:10px;cursor:pointer" onclick="delCustomRew(${i})">🗑</button></div></div>`;};
-  document.getElementById('rw-custom').innerHTML=c.length?c.map((r,i)=>mkCustom(r,i)).join(''):'<p style="font-size:11px;color:var(--ink3);grid-column:1/-1">Aucune récompense perso.</p>';
+  var owned=ST.unlockedTitles||[];
+  var mk=function(r,i,src){var can=!locked&&ST.points>=r.cost;var isUtil=r.type==='util';var isReal=r.type==='real';var isSym=r.type==='sym';return'<div class="rc'+(locked?' locked-reward':'')+'"><div class="rt">'+(isUtil?'Utilitaire':isSym?'Symbolique':isReal?'Récompense réelle':'Perso')+'</div><div class="rn">'+r.name+'</div><div class="rp">'+r.cost+' pts</div><button class="rb" '+(can?'':'disabled')+' onclick="buyRew('+i+',\''+src+'\')">'+(locked?'Verrouillé':isUtil||isReal?'Utiliser':'Échanger')+'</button></div>';};
+  var lockBanner=document.getElementById('shop-lock-banner');if(lockBanner)lockBanner.innerHTML=locked?'<div class="abox ad" style="margin-bottom:8px">&#128308; Boutique verrouillée - intégrité insuffisante (minimum 50%).</div>':'';
+  var utilEl=document.getElementById('rw-util');if(utilEl)utilEl.innerHTML=UTIL_R.map(function(r,i){return mk(r,i,'util');}).join('');
+  var availSym=SYM_R.map(function(r,i){return{r:r,i:i};}).filter(function(x){var title=x.r.name.replace('Titre : ','');return !owned.includes(title);});
+  var symEl=document.getElementById('rw-sym');if(symEl)symEl.innerHTML=availSym.length?availSym.map(function(x){return mk(x.r,x.i,'sym');}).join(''):'<p style="font-size:11px;color:var(--ink3);grid-column:1/-1">Tous les titres débloqués ✓</p>';
+  var realEl=document.getElementById('rw-real');if(realEl)realEl.innerHTML=REAL_R.map(function(r,i){return mk(r,i,'real');}).join('');
+  var c=ST.customR||[];
+  var mkC=function(r,i){var can=!locked&&ST.points>=r.cost;return'<div class="rc'+(locked?' locked-reward':'')+'"><div class="rt">Perso</div><div class="rn">'+r.name+'</div><div class="rp">'+r.cost+' pts</div><div style="display:flex;gap:4px"><button class="rb" style="flex:1" '+(can?'':'disabled')+' onclick="buyRew('+i+',\'custom\')">'+(locked?'Verrouillé':'Échanger')+'</button><button style="background:none;border:1px solid var(--red);color:var(--red);border-radius:8px;padding:4px 8px;font-size:10px;cursor:pointer" onclick="delCustomRew('+i+')">🗑</button></div></div>';};
+  var custEl=document.getElementById('rw-custom');if(custEl)custEl.innerHTML=c.length?c.map(function(r,i){return mkC(r,i);}).join(''):'<p style="font-size:11px;color:var(--ink3);grid-column:1/-1">Aucune récompense perso.</p>';
+  // Shop v2 UI
+  _renderMerchant();
+  _buildDailyCards();
+  _renderUpcoming();
+  // Inventory badge
+  var inv=ST.shopInventory||[];var badge=document.getElementById('shop-inv-badge');
+  if(badge){badge.style.display=inv.length>0?'flex':'none';badge.textContent=inv.length;}
 }
 function buyRew(i,src){
   if(ST.lockRewards){toast('Boutique verrouillée - intégrité insuffisante.');return;}
@@ -4300,6 +4696,10 @@ function buyRew(i,src){
   if(!confirm('Utiliser "'+r.name+'" pour '+r.cost+' pts ?'))return;
   ST.points-=r.cost;
   ST._totalSpent=(ST._totalSpent||0)+r.cost;
+  // Incrémenter faveur du marchand actuel
+  if(!ST._shopMerchantKey)ST._shopMerchantKey={};
+  var _mi=_shopMerchantIndex();
+  ST._shopMerchantKey[_mi]=(ST._shopMerchantKey[_mi]||0)+1;
   SND.potion();vib([100,50,100]);flash('gold',600);
   // Activate item effects
   if(r.name==='Double XP - 1 jour'){ST.todayEvent='doubleXP';toast('🧪 Double XP activé !');save();renderRewards();renderMain();return;}
@@ -4333,8 +4733,12 @@ function buyRew(i,src){
   }
 
   if(r.name==='Annuler sanction (1×)'){
-    if(ST.sanctionPending){ST.sanctionPending=false;ST.sanctionText='';toast('⚡ Sanction annulée !');save();renderRewards();if(document.getElementById('s-sanction').classList.contains('active'))showDone();return;}
-    else{if(!ST.sanctionCancels)ST.sanctionCancels=0;ST.sanctionCancels++;toast('⚡ Annulation en réserve ('+ST.sanctionCancels+')');save();renderRewards();return;}
+    if(ST.sanctionPending){ST.sanctionPending=false;ST.sanctionText='';toast('Sanction annulée !');save();renderRewards();if(document.getElementById('s-sanction').classList.contains('active'))showDone();return;}
+    else{
+      // Stocker en inventaire
+      _shopAddToInventory({icon:'💎',name:'Pierre de Renaissance',rarity:'epic',effect:'cancel_sanction',src:'util'});
+      toast('Pierre stockée dans ton inventaire !');save();renderRewards();return;
+    }
   }
   if(r.name==='Journée off sans pénalité'){
     // Validate all quests for today as "day off"
