@@ -1,0 +1,189 @@
+const CACHE = 'metanoia-2026-v2';
+// FIX #56 : chemins derives du scope au lieu d'etre codes en dur.
+// '/SL_App/' etait correct sur GitHub Pages, mais cassait silencieusement
+// au moindre renommage de depot ou passage a un domaine personnalise.
+const BASE = new URL('./', self.registration.scope).pathname;
+const CORE_ASSETS = [BASE, BASE+'index.html', BASE+'manifest.json',
+                     BASE+'icons/icon-192.png', BASE+'icons/icon-512.png'];
+
+// Cle VAPID PUBLIQUE (publique par conception, sans risque a exposer)
+const VAPID_PUBLIC = 'BM_-Brbncu8UQ57NoYO3CNz6KSfDEPBnWzIi7OcKzi4Ne4DnBzw4sq-bV6leyhrXyOcOSo44Ibl0cXxw9agQjxE';
+
+// ---- Verrou de sanction (persisté via IDB) ----
+let _sanctionLocked = false;
+function _readLock() {
+  return new Promise(res => {
+    try {
+      const req = indexedDB.open('metanoia-sw', 1);
+      req.onupgradeneeded = e => e.target.result.createObjectStore('kv');
+      req.onsuccess = e => {
+        const db = e.target.result;
+        const tx = db.transaction('kv', 'readonly');
+        const r = tx.objectStore('kv').get('sanctionLocked');
+        r.onsuccess = () => res(!!r.result);
+        r.onerror = () => res(false);
+      };
+      req.onerror = () => res(false);
+    } catch(e) { res(false); }
+  });
+}
+// FIX #26 : expiration du verrou. Sans elle, un verrou pose et jamais leve
+// (message SANCTION_CLEARED perdu si `controller` etait null au 1er chargement,
+// ou reinitialisation de l'app qui ne purgeait pas cette base distincte)
+// restait actif indefiniment.
+const LOCK_TTL_MS = 7 * 24 * 3600 * 1000;
+function _readLockTs() {
+  return new Promise(res => {
+    try {
+      const req = indexedDB.open('metanoia-sw', 1);
+      req.onupgradeneeded = e => e.target.result.createObjectStore('kv');
+      req.onsuccess = e => {
+        const tx = e.target.result.transaction('kv', 'readonly');
+        const r = tx.objectStore('kv').get('sanctionLockedAt');
+        r.onsuccess = () => res(r.result || 0);
+        r.onerror = () => res(0);
+      };
+      req.onerror = () => res(0);
+    } catch(e) { res(0); }
+  });
+}
+function _writeLock(val) {
+  return new Promise(res => {
+    try {
+      const req = indexedDB.open('metanoia-sw', 1);
+      req.onupgradeneeded = e => e.target.result.createObjectStore('kv');
+      req.onsuccess = e => {
+        const db = e.target.result;
+        const tx = db.transaction('kv', 'readwrite');
+        tx.objectStore('kv').put(val, 'sanctionLocked');
+        tx.objectStore('kv').put(val ? Date.now() : 0, 'sanctionLockedAt');   // FIX #26 : horodatage pour l'expiration
+        tx.oncomplete = () => res();
+        tx.onerror = () => res();
+      };
+      req.onerror = () => res();
+    } catch(e) { res(); }
+  });
+}
+
+self.addEventListener('install', e => {
+  self.skipWaiting();
+  // FIX #24 : addAll() est atomique -> une seule URL en 404 rejetait la promesse
+  // entiere, l'install echouait et le SW n'etait JAMAIS active (donc zero hors-ligne).
+  // allSettled degrade gracieusement : une icone manquante ne tue plus le cache.
+  e.waitUntil(caches.open(CACHE).then(c =>
+    Promise.allSettled(CORE_ASSETS.map(u => c.add(u)))
+  ));
+});
+
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    Promise.all([
+      caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))),
+      // FIX #26 : le verrou expire automatiquement au-dela de LOCK_TTL_MS.
+      Promise.all([_readLock(), _readLockTs()]).then(([v, ts]) => {
+        if (v && ts && (Date.now() - ts) > LOCK_TTL_MS) { _sanctionLocked = false; _writeLock(false); }
+        else { _sanctionLocked = v; }
+      })
+    ]).then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('message', e => {
+  if (!e.data) return;
+  if (e.data.type === 'SANCTION_LOCK')   { _sanctionLocked = true;  _writeLock(true);  return; }
+  if (e.data.type === 'SANCTION_CLEARED'){ _sanctionLocked = false; _writeLock(false); return; }
+  if (e.data.type === 'SKIP_WAITING')    { self.skipWaiting(); return; }
+  // NB: l'ancien type 'SCHEDULE' (setTimeout) est abandonné : un SW ne survit pas
+  //     assez longtemps pour déclencher un rappel différé. Les rappels passent
+  //     désormais par le serveur (Web Push), ci-dessous dans l'évènement 'push'.
+});
+
+self.addEventListener('fetch', e => {
+  const req = e.request;
+  if (req.mode === 'navigate') {
+    if (_sanctionLocked) {
+      e.respondWith(caches.match(BASE+'index.html').then(r => r || fetch(req)));
+      return;
+    }
+    e.respondWith(fetch(req).catch(() => caches.match(BASE+'index.html')));
+    return;
+  }
+  // FIX #25 : le cache ne se remplissait JAMAIS apres l'installation — aucun
+  // cache.put nulle part. Il contenait les 5 CORE_ASSETS et rien d'autre, a vie.
+  // Le SDK Supabase (cdn.jsdelivr.net) n'etait donc jamais disponible hors-ligne :
+  // toute la couche sociale disparaissait a la moindre coupure, meme breve.
+  //
+  // Strategie « stale-while-revalidate » sur les seules dependances externes :
+  // on sert la version en cache immediatement, et on rafraichit en arriere-plan.
+  if (req.method === 'GET' && /^https?:/.test(req.url) && !req.url.startsWith(self.location.origin)) {
+    e.respondWith(
+      caches.open(CACHE).then(c =>
+        c.match(req).then(hit => {
+          const net = fetch(req).then(res => {
+            // On ne met en cache que les reponses exploitables.
+            if (res && (res.ok || res.type === 'opaque')) { c.put(req, res.clone()).catch(() => {}); }
+            return res;
+          }).catch(() => hit);
+          return hit || net;
+        })
+      )
+    );
+    return;
+  }
+  e.respondWith(caches.match(req).then(r => r || fetch(req)));
+});
+
+// ===================== WEB PUSH =====================
+// Le serveur envoie une notif ; ce handler l'affiche même app fermée.
+self.addEventListener('push', e => {
+  let data = {};
+  try { data = e.data ? e.data.json() : {}; } catch (_) {
+    try { data = { body: e.data.text() }; } catch (__) { data = {}; }
+  }
+  const title = data.title || 'Metanoia';
+  const options = {
+    body: data.body || '',
+    icon: BASE+'icons/icon-192.png',
+    badge: BASE+'icons/icon-192.png',
+    tag: data.tag || 'sl-reminder',
+    renotify: true,
+    vibrate: data.vibrate || [100, 50, 100],
+    data: { url: data.url || BASE }
+  };
+  e.waitUntil(self.registration.showNotification(title, options));
+});
+
+// Ré-abonnement automatique si l'abonnement expire/est renouvelé par le navigateur.
+self.addEventListener('pushsubscriptionchange', e => {
+  e.waitUntil((async () => {
+    try {
+      if (!VAPID_PUBLIC) return;   // FIX #67 : garde 'REMPLACE' devenu sans objet
+      await self.registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: _urlB64ToUint8(VAPID_PUBLIC)
+      });
+      // La nouvelle souscription sera re-synchronisée avec Supabase à la
+      // prochaine ouverture de l'app (voir _pushSubscribe côté client).
+    } catch (_) {}
+  })());
+});
+
+function _urlB64ToUint8(b64) {
+  const pad = '='.repeat((4 - b64.length % 4) % 4);
+  const base = (b64 + pad).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(base);
+  const out = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+  return out;
+}
+
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const url = (e.notification.data && e.notification.data.url) || BASE;
+  e.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+      for (const c of list) { if (c.url.includes(BASE) && 'focus' in c) return c.focus(); }
+      return clients.openWindow(url);
+    })
+  );
+});
