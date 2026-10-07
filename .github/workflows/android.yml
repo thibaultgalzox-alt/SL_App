@@ -67,10 +67,11 @@ jobs:
             exit 1
           fi
 
-      - name: Node 20
+      # Capacitor 8 exige Node >= 22 (champ engines de @capacitor/cli).
+      - name: Node 22
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Java 21
         uses: actions/setup-java@v4
