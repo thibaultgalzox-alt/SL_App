@@ -2,9 +2,11 @@
 #
 # Le projet peut se presenter de deux facons, la chaine accepte les deux :
 #   - un dossier « metanoia-app/ » deja present dans le depot ;
-#   - a defaut, une archive « metanoia-depot.zip » a la racine, qui sera
-#     decompressee le temps de la compilation (sans rien valider dans le depot,
-#     donc sans aucun droit d'ecriture requis).
+#   - a defaut, une archive « metanoia-depot.zip » a la racine, decompressee
+#     le temps de la compilation (rien n'est ecrit dans le depot).
+#
+# Chaque etape ecrit son resultat sur la page de resume du run : inutile
+# d'ouvrir les journaux pour savoir ce qui a casse.
 name: APK Android
 
 on:
@@ -22,23 +24,48 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Preparer le projet
+      - name: Ce que contient le depot
         run: |
+          {
+            echo "## Contenu de la racine du depot"
+            echo '```'
+            ls -la
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Preparer le projet
+        id: prep
+        run: |
+          echo "## Preparation" >> "$GITHUB_STEP_SUMMARY"
           if [ -d metanoia-app ]; then
-            echo "Dossier metanoia-app trouve."
+            echo "Dossier metanoia-app deja present." >> "$GITHUB_STEP_SUMMARY"
           elif [ -f metanoia-depot.zip ]; then
-            echo "Decompression de metanoia-depot.zip."
-            unzip -q -o metanoia-depot.zip -d .
+            echo "Archive trouvee, taille : $(stat -c%s metanoia-depot.zip) octets." >> "$GITHUB_STEP_SUMMARY"
+            if unzip -q -o metanoia-depot.zip -d . 2> /tmp/unzip.err; then
+              echo "Decompression reussie." >> "$GITHUB_STEP_SUMMARY"
+            else
+              {
+                echo "**La decompression a echoue.**"
+                echo '```'
+                cat /tmp/unzip.err
+                echo '```'
+              } >> "$GITHUB_STEP_SUMMARY"
+              exit 1
+            fi
           else
-            echo "Ni le dossier metanoia-app ni l'archive metanoia-depot.zip."
-            echo "Envoie l'archive a la racine du depot, puis relance."
+            echo "**Ni le dossier metanoia-app, ni l'archive metanoia-depot.zip.**" >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
-          test -f metanoia-app/package.json || {
-            echo "metanoia-app/package.json est introuvable apres preparation."
-            ls -la; exit 1
-          }
-          echo "Projet pret."
+          {
+            echo "### Arborescence obtenue"
+            echo '```'
+            ls -la metanoia-app 2>&1 || echo "metanoia-app introuvable"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ ! -f metanoia-app/package.json ]; then
+            echo "**metanoia-app/package.json est introuvable.**" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
 
       - name: Node 20
         uses: actions/setup-node@v4
@@ -52,24 +79,64 @@ jobs:
           java-version: '21'
 
       - name: Dependances
+        id: deps
         working-directory: metanoia-app
-        run: npm install
+        run: |
+          set -o pipefail
+          npm install 2>&1 | tee /tmp/npm.log || {
+            {
+              echo "## npm install a echoue"
+              echo '```'
+              tail -40 /tmp/npm.log
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          }
+          echo "## npm install : OK" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Synchroniser le web dans Android
         working-directory: metanoia-app
-        run: npx cap sync android
+        run: |
+          set -o pipefail
+          npx cap sync android 2>&1 | tee /tmp/sync.log || {
+            {
+              echo "## cap sync a echoue"
+              echo '```'
+              tail -40 /tmp/sync.log
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          }
+          echo "## cap sync : OK" >> "$GITHUB_STEP_SUMMARY"
 
       # L'empreinte SHA-1 demandee par Google Sign-In.
-      # Elle s'affiche dans le journal de cette etape, bloc « Variant: debug ».
       - name: Empreinte SHA-1
         working-directory: metanoia-app/android
         run: |
           chmod +x gradlew
-          ./gradlew signingReport --console=plain
+          set -o pipefail
+          ./gradlew signingReport --console=plain 2>&1 | tee /tmp/sign.log || true
+          {
+            echo "## Empreinte SHA-1"
+            echo '```'
+            grep -A6 'Variant: debug' /tmp/sign.log | head -20 || tail -20 /tmp/sign.log
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Compiler l'APK
         working-directory: metanoia-app/android
-        run: ./gradlew assembleDebug --console=plain
+        run: |
+          set -o pipefail
+          ./gradlew assembleDebug --console=plain 2>&1 | tee /tmp/build.log || {
+            {
+              echo "## La compilation a echoue"
+              echo '```'
+              tail -60 /tmp/build.log
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          }
+          echo "## APK compile" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Deposer l'APK
         uses: actions/upload-artifact@v4
