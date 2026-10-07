@@ -1,11 +1,10 @@
 # Compile l'APK dans le cloud, sans ordinateur.
 #
-# Ce fichier suppose que le projet vit dans un sous-dossier « metanoia-app/ »
-# du depot. S'il est a la racine, remplacer la valeur de PROJ par un point.
-#
-# Se declenche a la main depuis l'onglet Actions (bouton « Run workflow »),
-# ou a chaque envoi touchant le projet Android. Les modifications de la PWA
-# a la racine ne declenchent donc rien.
+# Le projet peut se presenter de deux facons, la chaine accepte les deux :
+#   - un dossier « metanoia-app/ » deja present dans le depot ;
+#   - a defaut, une archive « metanoia-depot.zip » a la racine, qui sera
+#     decompressee le temps de la compilation (sans rien valider dans le depot,
+#     donc sans aucun droit d'ecriture requis).
 name: APK Android
 
 on:
@@ -14,16 +13,32 @@ on:
     branches: [main, master]
     paths:
       - 'metanoia-app/**'
+      - 'metanoia-depot.zip'
       - '.github/workflows/android.yml'
-
-env:
-  PROJ: metanoia-app
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Preparer le projet
+        run: |
+          if [ -d metanoia-app ]; then
+            echo "Dossier metanoia-app trouve."
+          elif [ -f metanoia-depot.zip ]; then
+            echo "Decompression de metanoia-depot.zip."
+            unzip -q -o metanoia-depot.zip -d .
+          else
+            echo "Ni le dossier metanoia-app ni l'archive metanoia-depot.zip."
+            echo "Envoie l'archive a la racine du depot, puis relance."
+            exit 1
+          fi
+          test -f metanoia-app/package.json || {
+            echo "metanoia-app/package.json est introuvable apres preparation."
+            ls -la; exit 1
+          }
+          echo "Projet pret."
 
       - name: Node 20
         uses: actions/setup-node@v4
@@ -37,28 +52,28 @@ jobs:
           java-version: '21'
 
       - name: Dependances
-        working-directory: ${{ env.PROJ }}
+        working-directory: metanoia-app
         run: npm install
 
       - name: Synchroniser le web dans Android
-        working-directory: ${{ env.PROJ }}
+        working-directory: metanoia-app
         run: npx cap sync android
 
       # L'empreinte SHA-1 demandee par Google Sign-In.
       # Elle s'affiche dans le journal de cette etape, bloc « Variant: debug ».
       - name: Empreinte SHA-1
-        working-directory: ${{ env.PROJ }}/android
+        working-directory: metanoia-app/android
         run: |
           chmod +x gradlew
           ./gradlew signingReport --console=plain
 
       - name: Compiler l'APK
-        working-directory: ${{ env.PROJ }}/android
+        working-directory: metanoia-app/android
         run: ./gradlew assembleDebug --console=plain
 
       - name: Deposer l'APK
         uses: actions/upload-artifact@v4
         with:
           name: metanoia-debug-apk
-          path: ${{ env.PROJ }}/android/app/build/outputs/apk/debug/*.apk
+          path: metanoia-app/android/app/build/outputs/apk/debug/*.apk
           retention-days: 30
