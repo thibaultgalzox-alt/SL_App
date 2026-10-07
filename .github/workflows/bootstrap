@@ -1,1 +1,52 @@
 
+# Installation en une fois, depuis un telephone.
+#
+# A n'utiliser que si tu n'as pas d'ordinateur pour envoyer le projet.
+#
+# Mode d'emploi :
+#   1. envoie « metanoia-depot.zip » a la racine du depot (Add file > Upload files) ;
+#   2. cree ce fichier-ci a l'adresse .github/workflows/bootstrap.yml ;
+#   3. onglet Actions > « Installer le projet » > Run workflow.
+#
+# La chaine decompresse l'archive, valide les fichiers dans le depot, puis
+# supprime l'archive. Une fois passee, elle ne sert plus a rien.
+name: Installer le projet
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verifier que l'archive est la
+        run: |
+          if [ ! -f metanoia-depot.zip ]; then
+            echo "metanoia-depot.zip est absent de la racine du depot."
+            exit 1
+          fi
+
+      - name: Decompresser
+        run: |
+          unzip -o metanoia-depot.zip -d .
+          rm -f metanoia-depot.zip
+          ls -la metanoia-app
+
+      - name: Valider dans le depot
+        run: |
+          git config user.name  "github-actions"
+          git config user.email "github-actions@github.com"
+          # On ne touche PAS a .github/ : le jeton de GitHub Actions n'a pas
+          # le droit de creer ni de modifier un fichier de chaine.
+          git add metanoia-app
+          git rm --cached metanoia-depot.zip --ignore-unmatch
+          git commit -m "Projet Android Capacitor (phases 1 a 4)" || {
+            echo "Rien a valider : le projet est peut-etre deja installe."
+            exit 0
+          }
+          git push
