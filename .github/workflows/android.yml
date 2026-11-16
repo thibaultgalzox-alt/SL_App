@@ -15,7 +15,7 @@ on:
     branches: [main, master]
     paths:
       - 'metanoia-app/**'
-      - 'metanoia-depot.zip'
+      - 'metanoia-depot*.zip'
       - '.github/workflows/android.yml'
 
 jobs:
@@ -37,6 +37,15 @@ jobs:
         id: prep
         run: |
           echo "## Preparation" >> "$GITHUB_STEP_SUMMARY"
+                    # Un telephone renomme souvent le fichier « metanoia-depot (2).zip » :
+          # on reprend le plus recent des zips qui commencent par metanoia-depot.
+          if [ ! -f metanoia-depot.zip ]; then
+            dernier=$(ls -t metanoia-depot*.zip 2>/dev/null | head -n 1)
+            if [ -n "$dernier" ]; then
+              mv -f "$dernier" metanoia-depot.zip
+              echo "Archive « $dernier » prise comme metanoia-depot.zip." >> "$GITHUB_STEP_SUMMARY"
+            fi
+          fi
           if [ -d metanoia-app ]; then
             echo "Dossier metanoia-app deja present." >> "$GITHUB_STEP_SUMMARY"
           elif [ -f metanoia-depot.zip ]; then
